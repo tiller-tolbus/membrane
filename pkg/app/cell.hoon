@@ -60,3 +60,5 @@
 ::  We are not accepting subscriptions at this time.
 ::
 ++  on-watch  on-watch:def
+++  on-agent  on-agent:def
+++  on-leave  on-leave:def
