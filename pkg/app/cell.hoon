@@ -38,8 +38,9 @@
   ^-  (quip card _this)
   `this(state !<(versioned-state old-vase))
 ::  on-poke handles pokes
-::  we will handle one poke which requests the entire state
-::  which we oblige (if it comes from our ship)
+::  we will handle one poke which sends the entire state
+::  which we accept and use as our new state
+::  (if it comes from our ship)
 ::
 ++  on-poke
   |=  [=mark =vase]
