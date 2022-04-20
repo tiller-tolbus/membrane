@@ -57,3 +57,6 @@
   ::  later we will specify more commands in /sur/cell/hoon
   =/  new-sheet  !>(push-action vase)
   `this(state new-sheet)
+::  We are not accepting subscriptions at this time.
+::
+++  on-watch  on-watch:def
