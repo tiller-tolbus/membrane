@@ -46,6 +46,7 @@
     * Scries:
         * Retrieve preferences
         * Retrieve whitelist subset for specific sheet
+            * If < `%share` access level wrt sheet, can only see own whitelist status
         * Directory Retrieval
             * Retrieve entire directory
             * Retrieve directory by search string
