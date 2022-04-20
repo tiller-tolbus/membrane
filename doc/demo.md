@@ -20,16 +20,14 @@
         * ++on-arvo
         * ++on-leave
 * /mar
-    * /mar/cell/poke/hoon
-        * ++grab
-        * ++grow
-        * ++grad
-    * /mar/cell/scry/hoon
+    * /mar/cell/sheet/hoon
         * ++grab
         * ++grow
         * ++grad
 * /lib
     * /lib/cell/hoon
+        *  ++enjs-sheet
+        *  ++dejs-sheet
 * /sur
     * /sur/cell/hoon
         * +$ sheet
