@@ -57,8 +57,18 @@
   ::  later we will specify more commands in /sur/cell/hoon
   =/  new-sheet  !>(push-action vase)
   `this(state new-sheet)
+  ==
 ::  We are not accepting subscriptions at this time.
 ::
 ++  on-watch  on-watch:def
 ++  on-agent  on-agent:def
 ++  on-leave  on-leave:def
+::  We accept one kind of scry, [%x %pull ~]
+::
+++  on-peek
+  |=  =path
+  ^-  (unit (unit cage))
+  ?+  path  (on-peek:def path)
+    [%x %pull ~]
+  ``noun+!>(state)
+  ==
