@@ -72,3 +72,8 @@
     [%x %pull ~]
   ``noun+!>(state)
   ==
+::  We will not be accepting calls from Arvo at this time
+::
+++  on-arvo  on-arvo:def
+++  on-fail  on-fail:def
+--
