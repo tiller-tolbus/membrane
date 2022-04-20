@@ -1,8 +1,8 @@
 ### Backend Structure
 
-Directory hierarchy
-Paths ending in /hoon are code
-Anything underneath code is a todo or a done
+* Directory hierarchy
+* Paths ending in /hoon are code
+* Anything underneath code is a todo or a done
 
 * /app
     * /app/cell/hoon
