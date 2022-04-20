@@ -1,14 +1,14 @@
-:: Imports
+::  Imports
 ::
 /-  *cell
 /+  default-agent, dbug
-:: Type core
+::  Type core
 ::
 |%
 +$  state-0  sheet
 +$  card  card:agent:gall
 --
-:: Gall agent boilerplate
+::  Gall agent boilerplate
 ::
 %-  agent:dbug
 =|  state-0
@@ -17,24 +17,32 @@
 |_  =bowl:gall
 +*  this  .
     def   ~(. (default-agent this %) bowl)
-:: Agent arms (10) (mandatory)
+::  Agent arms (10) (mandatory)
 ::
-:: default on-init returns [~ this]
-:: send no cards (~)
-:: initialize state with the agent core (this)
+::  default on-init returns [~ this]
+::  send no cards (~)
+::  initialize state with the agent core (this)
 ::
 ++  on-init  on-init:def
-:: on-save exports state to vase for Gall for upgrade
-:: this is a demo so probably this will never be used, but just in case
+::  on-save exports state to vase for Gall for upgrade
+::  this is a demo so probably this will never be used, but just in case
 ::
 ++  on-save
   ^-  vase
   !>(state)
-:: on-load imports state post-upgrade
-:: probably won't use this either
+::  on-load imports state post-upgrade
+::  probably won't use this either
 :: 
 ++  on-load
   |=  old-vase=vase
   ^-  (quip card _this)
   `this(state !<(versioned-state old-vase))
+::  on-poke handles pokes
+::  we will handle one poke which requests the entire state
+::  which we oblige (if it comes from our ship)
 ::
+++  on-poke
+  |=  [=mark =vase]
+  ^-  (quip card _this)
+  ::  assert request came from our ship
+  ?>  =(our.bowl src.bowl)
