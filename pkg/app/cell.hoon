@@ -30,7 +30,9 @@
 ++  on-save
   ^-  vase
   !>(state)
-:: on-load 
+:: on-load imports state post-upgrade
+:: probably won't use this either
+:: 
 ++  on-load
   |=  old-vase=vase
   ^-  (quip card _this)
