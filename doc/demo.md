@@ -24,6 +24,11 @@
         * ++grab
         * ++grow
         * ++grad
+            * ++form
+            * ++diff
+            * ++pact
+            * ++join
+            * ++mash
 * /lib
     * /lib/cell/hoon
         *  ++enjs-sheet
