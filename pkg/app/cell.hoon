@@ -52,10 +52,10 @@
   ::  later we will specify marks for different actions
   ?+  mark  (on-poke:def mark vase)
     %noun
-  ::  vase should contain a push-action, sending entire spreadsheet
+  ::  vase should contain a sheet-push, sending entire spreadsheet
   ::  crash if other command is sent
   ::  later we will specify more commands in /sur/cell/hoon
-  =/  new-sheet  !>(push-action vase)
+  =/  new-sheet  !>(sheet-push vase)
   `this(state new-sheet)
   ==
 ::  We are not accepting subscriptions at this time.
