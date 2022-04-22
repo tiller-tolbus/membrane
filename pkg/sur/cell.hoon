@@ -1,9 +1,6 @@
 |%
 $+  sheet  (list row)
-$+  row
-  $:
-  id=@ud
-  data=(map @ud cell)
+$+  row (list cell)
 $+  cell  @t
 $+  push-action  $:(%push sheet)
 --
