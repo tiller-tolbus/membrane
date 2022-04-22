@@ -12,7 +12,7 @@
 ++  grab
   |%
   ++  noun  shet
-  ++  json  dejs-sheet
+  ++  json  (dejs-sheet shet)
   --
 ::  revision control methods
 ::
