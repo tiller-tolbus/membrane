@@ -36,7 +36,7 @@
 ++  on-load
   |=  old-vase=vase
   ^-  (quip card _this)
-  `this(state !<(versioned-state old-vase))
+  `this(state !<(state-0 old-vase))
 ::  on-poke handles pokes
 ::  we will handle one poke which sends the entire state
 ::  which we accept and use as our new state
@@ -55,7 +55,7 @@
   ::  vase should contain a sheet-push, sending entire spreadsheet
   ::  crash if other command is sent
   ::  later we will specify more commands in /sur/cell/hoon
-  =/  new-sheet  !>(sheet-push vase)
+  =/  new-sheet  +:!<(sheet-push vase)
   `this(state new-sheet)
   ==
 ::  We are not accepting subscriptions at this time.
