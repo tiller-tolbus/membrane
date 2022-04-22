@@ -1,29 +1,18 @@
 [
-    {
-        "id": 1,
-        "data":
-        {
-            "1": "abc",
-            "2": "123",
-            "3": "You and me"
-        }
-    },
-    {
-        "id": 2,
-        "data":
-        {
-            "1": "Bacon",
-            "2": "Egg",
-            "3": "Cheese"
-        }
-    },
-    {
-        "id": 3,
-        "data":
-        {
-            "2": "Oops",
-            "3": "I hit the wrong",
-            "4": "cell"
-        }
-    }
+    [
+        "abc",
+        "123",
+        "You and me"
+    ],
+    [
+        "Bacon",
+        "Egg",
+        "Cheese"
+    ],
+    [
+        "",
+        "Oops",
+        "I hit the wrong",
+        "cell"
+    ]
 ]
