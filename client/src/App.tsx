@@ -186,7 +186,7 @@ function App () {
   const getGraphKeys = async () => {
     // If unconnected, check if we can access resources
     if (!connected) {
-      const graphKeys = await api.scry({ app: 'graph-store', path: '/keys' })
+      const graphKeys = await api.scry({ app: 'cell', path: 'pull' })
       console.log('graphKeys', graphKeys)
       // If graphKeys unavailable, the scry failed and the onError handler takes it from here.
       if (!graphKeys) {
@@ -277,7 +277,6 @@ function App () {
       </Stack>
       <div className={'grid-container'}>
         <ReactGrid
-        
           rows={rows}
           columns={columns}
           onCellsChanged={handleChanges}
