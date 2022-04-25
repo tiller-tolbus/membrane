@@ -70,7 +70,7 @@
   ^-  (unit (unit cage))
   ?+  path  (on-peek:def path)
     [%x %pull ~]
-  ``noun+!>(state)
+  ``sheet+!>(state)
   ==
 ::  We will not be accepting calls from Arvo at this time
 ::

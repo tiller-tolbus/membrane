@@ -6,13 +6,14 @@
 ++  grow
   |%
   ++  noun  shet
-  ++  json  enjs-sheet
+  ++  json  (enjs-sheet shet)
   --
 ::  grab:  methods for converting to our mark from another mark.
+::
 ++  grab
   |%
-  ++  noun  shet
-  ++  json  (dejs-sheet shet)
+  ++  noun  ^-(sheet shet)
+  ++  json  dejs-sheet
   --
 ::  revision control methods
 ::

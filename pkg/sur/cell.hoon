@@ -1,6 +1,6 @@
 |%
 +$  sheet  (list row)
-+$  row  (list cell)
-+$  cell  @t
++$  row  (list scell)
++$  scell  @t
 +$  sheet-push  $:(%push sheet)
 --
