@@ -1,0 +1,55 @@
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+main {
+  margin-left: 1em;
+  width: 95vw;
+}
+.grid-container {
+  width: 95vw;
+  height: 85vh;
+  overflow: scroll;
+}
+.add-more-rows {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  height: 2em;
+  margin-bottom: 2em;
+  margin-left: 1em;
+}
+.add-more-rows_input {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 95vw;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.header-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.header-container_title {
+  margin: 0;
+}
+.header-container_subtitle {
+  margin: 0;
+  margin-left: 0.5em;
+}
+
