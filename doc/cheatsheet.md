@@ -43,18 +43,41 @@ Keep a pill file in `fresh/` so that you don't have to download a new one in the
 cp urbit-git/bin/multi.pill fresh
 ```
 
-If you break your fakezod (likely) you can replace with this unused one.
-
 ### Fresh Zod
+If you break your fakezod (likely) you can replace with this unused one.
 ```
-./urbit/urbit -F fresh/zod -B fresh/multi.pill
+./bin/urbit -F fresh/zod -B fresh/multi.pill
 ```
 Wait for the Dojo prompt, then `CTRL+D` to exit the Dojo
 
 ## Cloning Fresh Zod
 Use `{name}` to describe in brief what you were doing when your fakezod broke, in case you would like to try to troubleshoot it later.
 ```
-mv zod dead_zods/{name}
+mv zod dead-zods/{name}
 cp -r fresh/zod .
 ```
 
+# Build `%cell` with fresh zod
+These instructions will need to be updated later in the production process when the `pkg/` directory is more complete, so that we remove unnecessary files from the `%cell` desk and use only what is required to build the app.
+
+Earth:
+```
+./bin/urbit zod
+```
+Mars:
+```
+|merge %cell our %base
+|mount %cell
+```
+Earth:
+```
+cp -r pkg/* zod/cell
+```
+Mars:
+```
+|commit %cell
+|install our %cell
+|rein %cell [& %cell]
+:cell +dbug
+```
+The last command is to ensure that the app agent is receiving pokes. The demo agent should return `~`.
