@@ -1,0 +1,9 @@
+
+##### CLIENT
+-celltemplate eventually https://reactgrid.com/docs/4.0/5-create-your-own-cell-template/#1.defineflagcellinterface
+-exclude columns(a,b,c...) and count cells (1,2,3) from being sent to back-end
+-make the count cells uneditable
+-move grid and grid helpers into their own module
+##### SERVER
+-handle json poke
+-finish configuring cell in urbit so we can actually upload our front-end.... https://urbit.org/docs/userspace/full-stack/9-desk
