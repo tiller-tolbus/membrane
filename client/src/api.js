@@ -25,7 +25,7 @@ const api = {
   pokeTest: async () => {
     return api.createApi().poke({
       app: "cell",
-      mark: "noun",
+      mark: "sheet",
       json: "test",
       onSuccess: () => console.log("hoon"),
       onError: () => console.log("doom"),
