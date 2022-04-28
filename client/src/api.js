@@ -2,7 +2,7 @@ import memoize from "lodash/memoize";
 import Urbit from "@urbit/http-api";
 
 const api = {
-  init: memoize(() => {
+  createApi: memoize(() => {
     /*
    Connect to urbit and return the urbit instance
   */
@@ -19,8 +19,17 @@ const api = {
 
     return urb;
   }),
-  getSpreadsheetData: async (api) => {
-    return api.scry({ app: "cell", path: "/pull" });
+  getSpreadsheetData: async () => {
+    return api.createApi().scry({ app: "cell", path: "/pull" });
+  },
+  pokeTest: async () => {
+    return api.createApi().poke({
+      app: "cell",
+      mark: "noun",
+      json: "test",
+      onSuccess: () => console.log("hoon"),
+      onError: () => console.log("doom"),
+    });
   },
 };
 export default api;
