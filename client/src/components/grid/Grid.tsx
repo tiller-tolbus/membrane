@@ -73,7 +73,6 @@ export default function Grid() {
           variant="contained"
           onClick={async () => {
             try {
-              console.log(dataToJson(rows));
               const pokeTestRes = await api.pokeTest();
               console.log("pokeTestRes", pokeTestRes);
             } catch (e) {
