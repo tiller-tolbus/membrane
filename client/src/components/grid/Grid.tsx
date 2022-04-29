@@ -14,91 +14,14 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import api from "../../api";
+import {
+  updateCell,
+  getRows,
+  getColumns,
+  generateRows,
+  dataToJson,
+} from "./helpers";
 
-const ROW_COUNT = 1000;
-
-const initalColumns = [
-  "",
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-];
-const getColumns = () => {
-  /* this function decides metadata like width and height in columns */
-  return initalColumns.map((text, index) => {
-    //TODO: make first column smaller
-    return { columnId: index, columnName: text, width: 100, resizable: true };
-  });
-};
-
-const getRows = () => {
-  //main app data is returned here
-  //make the intial rows, i.e the first row from columns
-  const initialRow = [
-    {
-      rowId: "header",
-      cells: initalColumns.map((col) => {
-        return { type: "header", text: col };
-      }),
-    },
-  ];
-  //generate 1000 new rows
-  return generateRows(ROW_COUNT, initialRow);
-};
-
-const applyChangesToCell = (changes, prevRows) => {
-  //use the changes object to directly access the correct cell and update it using the new text!
-  const { rowId, columnId, newCell } = changes[0];
-  let newRows = [...prevRows];
-  newRows[rowId].cells[columnId].text = newCell.text;
-  return newRows;
-};
-
-const generateRows = (rowCount, oldRows) => {
-  //make a copy of the old rows
-  const newRows = [...oldRows];
-  //establish the number of columns
-  const colCount = newRows[0].cells.length;
-  //add x rows (rowCount)
-  for (let i = 0; i < rowCount; i++) {
-    let cells = [];
-    //make the cells using colCount
-    for (let colIndex = 0; colIndex < colCount; colIndex++) {
-      //if it's a first cell, insert the row count else just have an empty string
-      let content = colIndex > 0 ? "" : newRows.length.toString();
-      cells.push({ type: "text", text: content });
-    }
-    //insert the id of the new row and insert the row
-    newRows.push({
-      rowId: newRows.length,
-      cells,
-    });
-  }
-  return newRows;
-};
 export default function Grid() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
@@ -115,7 +38,7 @@ export default function Grid() {
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
     //setting rows directly and updating the rows in state with the data (this but this is how the library works)
-    setRows((prevRows) => applyChangesToCell(changes, prevRows));
+    setRows((prevRows) => updateCell(changes, prevRows));
   };
   useEffect(() => {
     //use the json file to generate our rows and columns
@@ -150,7 +73,8 @@ export default function Grid() {
           variant="contained"
           onClick={async () => {
             try {
-              const pokeTestRes = api.pokeTest();
+              console.log(dataToJson(rows));
+              const pokeTestRes = await api.pokeTest();
               console.log("pokeTestRes", pokeTestRes);
             } catch (e) {
               console.log("pokeTest error", e);
@@ -162,7 +86,7 @@ export default function Grid() {
         <Button
           variant="contained"
           onClick={() => {
-            setRows((oldRows) => generateRows(ROW_COUNT, oldRows));
+            setRows((oldRows) => generateRows(1500, oldRows));
           }}
         >
           Add

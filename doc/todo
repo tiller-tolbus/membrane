@@ -1,8 +1,6 @@
 
 ##### CLIENT
 -celltemplate eventually https://reactgrid.com/docs/4.0/5-create-your-own-cell-template/#1.defineflagcellinterface
--exclude columns(a,b,c...) and count cells (1,2,3) from being sent to back-end
--make the count cells uneditable
 -start using state managment (zustand)
 -start writing some typescript
 ##### SERVER

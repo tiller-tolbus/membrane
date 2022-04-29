@@ -8,7 +8,7 @@ const api = {
   */
     //when we release should just call new Urbit("")
     const urb = new Urbit("http://localhost:80", "lidlut-tabwed-pillex-ridrup");
-    urb.ship = window.ship;
+    urb.ship = "zod"; //this shoud be winodw.ship in release
     // Just log errors if we get any
     urb.onError = (message) => console.log(message);
     //doesn't work for some reason
@@ -26,7 +26,7 @@ const api = {
     return api.createApi().poke({
       app: "cell",
       mark: "sheet",
-      json: "test",
+      json: JSON.stringify([["test"]]),
       onSuccess: () => console.log("hoon"),
       onError: () => console.log("doom"),
     });
