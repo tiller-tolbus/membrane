@@ -9,19 +9,8 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "./grid-custom-styles.css";
-//mui
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
-import api from "../../api";
-import {
-  updateCell,
-  getRows,
-  getColumns,
-  generateRows,
-  dataToJson,
-} from "./helpers";
-
+import { updateCell, getRows, getColumns, generateRows } from "./helpers";
+import GridOptions from "./GridOptions";
 export default function Grid() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
@@ -37,8 +26,8 @@ export default function Grid() {
   };
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
-    //setting rows directly and updating the rows in state with the data (this but this is how the library works)
-    setRows((prevRows) => updateCell(changes, prevRows));
+    //setting rows directly and updating the rows
+    updateCell(changes, rows);
   };
   useEffect(() => {
     //use the json file to generate our rows and columns
@@ -63,47 +52,11 @@ export default function Grid() {
           enableColumnSelection
         />
       </div>
-      <Stack
-        sx={{ marginTop: "1em" }}
-        direction="row"
-        spacing={2}
-        alignItems="center"
-      >
-        <Button
-          variant="contained"
-          onClick={async () => {
-            try {
-              const pokeTestRes = await api.pokeTest();
-              console.log("pokeTestRes", pokeTestRes);
-            } catch (e) {
-              console.log("pokeTest error", e);
-            }
-          }}
-        >
-          Poke test
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setRows((oldRows) => generateRows(1500, oldRows));
-          }}
-        >
-          Add
-        </Button>
-        <TextField
-          hiddenLabel
-          id="outlined-number"
-          type="number"
-          size="small"
-          variant="standard"
-          value={"1000"}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-
-        <p>more rows</p>
-      </Stack>
+      <GridOptions
+        addRowsCb={(rowCount: string) => {
+          setRows((oldRows) => generateRows(parseInt(rowCount), oldRows));
+        }}
+      />
     </>
   );
 }
