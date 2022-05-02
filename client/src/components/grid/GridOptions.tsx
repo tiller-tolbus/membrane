@@ -4,8 +4,8 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import api from "../../api";
-import NumberFormat from "react-number-format";
 import { dataToJson } from "./helpers";
+import useStore from "../../store";
 
 export default function GridOptions({ addRowsCb }) {
   const [addMoreInputValue, setAddMoreInputValue] = useState<string>("1");
