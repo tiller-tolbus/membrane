@@ -111,7 +111,7 @@ const dataToJson = (data) => {
   /*
     takes grid data(rows) and transform it into what the back-end expects
     excluding first cell of each row and the first entierly(meta data)
-    returns json
+    returns back end ready data
   */
   //exclude first row (a,b,c...) (coulmns)
   let newData = [...data];
@@ -126,7 +126,7 @@ const dataToJson = (data) => {
     });
   });
 
-  return JSON.stringify(specData);
+  return specData;
 };
 const jsonToData = (json) => {
   /*

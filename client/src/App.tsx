@@ -6,17 +6,23 @@ import { Grid } from "./components";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import useStore from "./store";
+import { jsonToData } from "./components/grid/helpers";
 
 function App() {
   /*URBIT STUFF HERE */
   // By default, we aren't connected. We need to connect
   const [connected, setConnected] = useState<boolean>(false);
+  const setRows = useStore((store) => store.setRows);
 
   const getData = async () => {
-    //tries to get data from cell and we check connectivity
+    /* calls api to get spreadsheet data and sets it  */
     try {
       const data = await api.getSpreadsheetData();
-      console.log("data", data);
+      const parsedData = jsonToData(data);
+
+      setRows(parsedData);
+
       if (data) {
         setConnected(true);
       }
@@ -26,7 +32,6 @@ function App() {
   };
 
   useEffect(() => {
-    //todo: comment this
     getData();
   }, []);
 
@@ -44,8 +49,7 @@ function App() {
         <Button
           variant="contained"
           onClick={() => {
-           
-            alert("soon...");
+            api.putSpreadSheetData();
           }}
         >
           Sync with urbit

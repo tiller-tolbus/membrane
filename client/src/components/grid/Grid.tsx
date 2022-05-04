@@ -11,9 +11,11 @@ import "@silevis/reactgrid/styles.css";
 import "./grid-custom-styles.css";
 import { updateCell, getRows, getColumns, generateRows } from "./helpers";
 import GridOptions from "./GridOptions";
+import useStore from "../../store";
 export default function Grid() {
   const [columns, setColumns] = useState([]);
-  const [rows, setRows] = useState([]);
+  const rows = useStore((store) => store.rows);
+  const setRows = useStore((store) => store.setRows);
 
   const handleColumnResize = (ci: Id, width: number) => {
     setColumns((prevColumns) => {
@@ -27,16 +29,12 @@ export default function Grid() {
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
     //setting rows directly and updating the rows
+    //todo: little issues arise from not updating rows each time at the price of performence
     updateCell(changes, rows);
   };
   useEffect(() => {
-    //use the json file to generate our rows and columns
-    //simulates and actual api call for now
-    //otherwise we can use getRows and getColumns directly
-    // const { columns, rows } = jsonToData(jsonSpec)
-    //update our state with the values
+    //todo: make sure this runs before setRows, otherwise issues with rendering the grid arise
     setColumns(getColumns());
-    setRows(getRows());
   }, []);
   return (
     <>
@@ -54,7 +52,8 @@ export default function Grid() {
       </div>
       <GridOptions
         addRowsCb={(rowCount: string) => {
-          setRows((oldRows) => generateRows(parseInt(rowCount), oldRows));
+          const newRows = generateRows(parseInt(rowCount), rows);
+          setRows(newRows);
         }}
       />
     </>
