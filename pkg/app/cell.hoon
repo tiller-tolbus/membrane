@@ -55,7 +55,7 @@
   ::  vase should contain a sheet-push, sending entire spreadsheet
   ::  crash if other command is sent
   ::  later we will specify more commands in /sur/cell/hoon
-  =/  new-sheet  +:!<(sheet vase)
+  =/  new-sheet  !<(sheet vase)
   `this(state new-sheet)
   ==
 ::  We are not accepting subscriptions at this time.
