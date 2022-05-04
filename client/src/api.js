@@ -8,7 +8,7 @@ const api = {
   */
     //when we release should just call new Urbit("")
     const urb = new Urbit("http://localhost:80", "lidlut-tabwed-pillex-ridrup");
-    urb.ship = "zod";
+    urb.ship = "zod"; //this shoud be winodw.ship in release
     // Just log errors if we get any
     urb.onError = (message) => console.log(message);
     //doesn't work for some reason
