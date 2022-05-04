@@ -150,7 +150,7 @@ export default function Grid() {
           variant="contained"
           onClick={async () => {
             try {
-              const pokeTestRes = api.pokeTest();
+              const pokeTestRes = await api.pokeTest();
               console.log("pokeTestRes", pokeTestRes);
             } catch (e) {
               console.log("pokeTest error", e);

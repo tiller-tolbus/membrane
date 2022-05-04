@@ -3,27 +3,15 @@
 |%
 ::  Type core
 +$  json-sheet  $:(%a (list json-row))
-+$  json-row  $:(%a (list json-cell))
-+$  json-cell  $:(%s @t)
++$  json-row  $:(%a (list json-scell))
++$  json-scell  $:(%s @t)
 --
 |%
-::  Quite likely we can do the whole thing with something like:
-::  ((ar (ar so)) jon)
 ++  dejs-sheet
-  |=  jon=json-sheet
+  =,  dejs:format
+  |=  jon=json
   ^-  sheet
-  ::  input should have the format [%a p=(list row)]
-  (turn +:jon dejs-row)
-++  dejs-row
-  |=  jon=json-row
-  ^-  row
-  ::  input should have the format [%a p=(list scell)]
-  (turn +:jon dejs-scell)
-++  dejs-scell
-  |=  jon=json-cell
-  ^-  scell
-  ::  input should have the format [%s p=@t]
-  (so:dejs:format jon)
+  ((ar (ar so)) jon)
 ++  enjs-sheet
   |=  shet=sheet
   ^-  json
