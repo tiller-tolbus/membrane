@@ -1,5 +1,4 @@
 const ROW_COUNT = 1000;
-const jsonSpec = require("../../spec2.json");
 const columns = [
   "",
   "A",

@@ -9,7 +9,7 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "./grid-custom-styles.css";
-import { updateCell, getRows, getColumns, generateRows } from "./helpers";
+import { updateCell, getColumns, generateRows } from "./helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 export default function Grid() {

@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import useStore from "./store";
-import { jsonToData } from "./components/grid/helpers";
+import { getRows, jsonToData } from "./components/grid/helpers";
 
 function App() {
   /*URBIT STUFF HERE */
@@ -19,13 +19,14 @@ function App() {
     /* calls api to get spreadsheet data and sets it  */
     try {
       const data = await api.getSpreadsheetData();
-      const parsedData = jsonToData(data);
-
-      setRows(parsedData);
-
-      if (data) {
-        setConnected(true);
+      //if we have data saved use it, otherwise generate an empty grid
+      if (data && data.length > 0) {
+        const parsedData = jsonToData(data);
+        setRows(parsedData);
+      } else {
+        setRows(getRows());
       }
+      setConnected(true);
     } catch (e) {
       console.log("something went wrong");
     }
