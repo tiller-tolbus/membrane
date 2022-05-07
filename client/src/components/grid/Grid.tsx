@@ -9,22 +9,19 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "./grid-custom-styles.css";
-import { updateCell, getColumns, generateRows } from "./helpers";
+import { updateCell, reiszeColumns, generateRows } from "./helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 export default function Grid() {
-  const [columns, setColumns] = useState([]);
   const rows = useStore((store) => store.rows);
   const setRows = useStore((store) => store.setRows);
 
+  const columns = useStore((store) => store.columns);
+  const setColumns = useStore((store) => store.setColumns);
+
   const handleColumnResize = (ci: Id, width: number) => {
-    setColumns((prevColumns) => {
-      const columnIndex = prevColumns.findIndex((el) => el.columnId === ci);
-      const resizedColumn = prevColumns[columnIndex];
-      const updatedColumn = { ...resizedColumn, width };
-      prevColumns[columnIndex] = updatedColumn;
-      return [...prevColumns];
-    });
+    const newColumns = reiszeColumns(columns, ci, width);
+    setColumns(newColumns);
   };
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
@@ -32,10 +29,7 @@ export default function Grid() {
     //todo: little issues arise from not updating rows each time at the price of performence
     updateCell(changes, rows);
   };
-  useEffect(() => {
-    //todo: make sure this runs before setRows, otherwise issues with rendering the grid arise
-    setColumns(getColumns());
-  }, []);
+
   return (
     <>
       <div className={"grid-container"}>

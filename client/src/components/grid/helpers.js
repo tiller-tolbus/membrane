@@ -1,4 +1,4 @@
-const ROW_COUNT = 1000;
+const ROW_COUNT = 50;
 const columns = [
   "",
   "A",
@@ -153,6 +153,18 @@ const jsonToData = (json) => {
   //combine first row(meta data) with the rest of the rows (data from backend)
   return [...firstRow, ...rows];
 };
+const reiszeColumns = (columns, ci, width) => {
+  /* 
+    Updates columns after resize action
+    returns array of new columns 
+  */
+  const prevColumns = [...columns];
+  const columnIndex = prevColumns.findIndex((el) => el.columnId === ci);
+  const resizedColumn = prevColumns[columnIndex];
+  const updatedColumn = { ...resizedColumn, width };
+  prevColumns[columnIndex] = updatedColumn;
+  return [...prevColumns];
+};
 export {
   getColumns,
   getRows,
@@ -160,4 +172,5 @@ export {
   generateRows,
   dataToJson,
   jsonToData,
+  reiszeColumns,
 };

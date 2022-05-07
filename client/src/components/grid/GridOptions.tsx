@@ -18,10 +18,10 @@ export default function GridOptions({ addRowsCb }) {
       //value too small tell the user to enter something usefull
       setError(true);
       setFeedback("at least 1 row");
-    } else if (val > 1000) {
+    } else if (val > 50) {
       //value too large tell the user to enter something usefull
       setError(true);
-      setFeedback("at most 1000");
+      setFeedback("at most 50");
     } else if (isNaN(val)) {
       setError(true);
       setFeedback("");
@@ -38,19 +38,6 @@ export default function GridOptions({ addRowsCb }) {
       spacing={2}
       alignItems="center"
     >
-      <Button
-        variant="contained"
-        onClick={async () => {
-          try {
-            const pokeTestRes = await api.pokeTest();
-            console.log("pokeTestRes", pokeTestRes);
-          } catch (e) {
-            console.log("pokeTest error", e);
-          }
-        }}
-      >
-        Poke test
-      </Button>
       <Button
         disabled={error}
         variant="contained"
