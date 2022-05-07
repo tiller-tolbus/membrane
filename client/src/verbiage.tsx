@@ -2,9 +2,9 @@ export default {
   connecting: "connecting...",
   tryAgain: "TRY AGAIN",
   error: "Error",
-  serverConnectError: "Couldn't connect to urbit, sorry...",
-  syncFail: "Failed to sync with urbit",
-  syncSuccess: "Sucessfully synced with urbit",
+  serverConnectError: "Failed to connect, please try again",
+  syncFail: "Failed to sync, please try again",
+  syncSuccess: "Synced successfully",
   appName: "%cell",
   sync: "Sync",
   addRowMaxLimit(num) {
