@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import verbiage from "../../verbiage";
 
 export default function GridOptions({ addRowsCb }) {
   const [addMoreInputValue, setAddMoreInputValue] = useState<string>("1");
@@ -13,11 +14,12 @@ export default function GridOptions({ addRowsCb }) {
     if (val <= 0) {
       //value too small tell the user to enter something usefull
       setError(true);
-      setFeedback("at least 1 row");
+      setFeedback(verbiage.addRowMinLimit);
     } else if (val > 50) {
       //value too large tell the user to enter something usefull
       setError(true);
-      setFeedback("at most 50");
+
+      setFeedback(verbiage.addRowMaxLimit(50));
     } else if (isNaN(val)) {
       setError(true);
       setFeedback("");
@@ -29,7 +31,7 @@ export default function GridOptions({ addRowsCb }) {
   };
   return (
     <Stack
-      sx={{ marginTop: "1em", marginBottom:"1em" }}
+      sx={{ marginTop: "1em", marginBottom: "1em" }}
       direction="row"
       spacing={2}
       alignItems="center"
@@ -41,7 +43,7 @@ export default function GridOptions({ addRowsCb }) {
           addRowsCb(addMoreInputValue);
         }}
       >
-        Add
+        {verbiage.add}
       </Button>
       <TextField
         error={error}
@@ -58,7 +60,7 @@ export default function GridOptions({ addRowsCb }) {
         }}
       />
 
-      <p>more rows</p>
+      <p>{verbiage.moreRows}</p>
     </Stack>
   );
 }

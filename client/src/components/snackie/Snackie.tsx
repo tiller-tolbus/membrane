@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 
 import Alert from "../alert/Alert";
+import verbiage from "../../verbiage";
 export default function Snackie({ open, synced, handleClose, errorRetry }) {
   const { success, error } = synced;
   if (success) {
@@ -16,7 +17,7 @@ export default function Snackie({ open, synced, handleClose, errorRetry }) {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert onClose={handleClose} severity={"success"} sx={{ width: 300 }}>
-          Sucessfully synced with urbit
+          {verbiage.syncSuccess}
         </Alert>
       </Snackbar>
     );
@@ -37,11 +38,11 @@ export default function Snackie({ open, synced, handleClose, errorRetry }) {
                 errorRetry();
               }}
             >
-              TRY AGAIN
+              {verbiage.tryAgain}
             </Button>
           }
         >
-          Failed to sync with urbit
+          {verbiage.syncFail}
         </Alert>
       </Snackbar>
     );

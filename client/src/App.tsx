@@ -12,8 +12,7 @@ import AlertTitle from "@mui/material/AlertTitle";
 
 import useStore from "./store";
 import { getColumns, getRows, jsonToData } from "./helpers";
-
-
+import verbiage from "./verbiage";
 
 function CircularIndeterminate() {
   return (
@@ -24,7 +23,7 @@ function CircularIndeterminate() {
       justifyContent="center"
     >
       <CircularProgress />
-      <Typography variant="h6">connecting...</Typography>
+      <Typography variant="h6">{verbiage.connecting}</Typography>
     </Stack>
   );
 }
@@ -41,12 +40,12 @@ function FailedToConnect(getData) {
               getData();
             }}
           >
-            try again
+            {verbiage.tryAgain}
           </Button>
         }
       >
-        <AlertTitle>Error</AlertTitle>
-        Couldn't connect to urbit, sorry...
+        <AlertTitle>{verbiage.error}</AlertTitle>
+        {verbiage.serverConnectError}
       </Alert>
     </Stack>
   );
@@ -90,6 +89,8 @@ function App() {
       setConnected({ success: false, trying: true, error: false });
 
       const data = await api.getSpreadsheetData();
+      console.log("get data success");
+
       //columns are independt of row results but has to be rendered around the same time as rows
       setColumns(getColumns());
 
@@ -104,7 +105,7 @@ function App() {
 
       setConnected({ success: true, trying: false, error: false });
     } catch (e) {
-      console.log("something went wrong");
+      console.log("error getData: ", e);
       setConnected({ success: false, trying: false, error: true });
     }
   };
