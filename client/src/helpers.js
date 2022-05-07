@@ -1,40 +1,12 @@
-const ROW_COUNT = 50;
-const columns = [
-  "",
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-];
+import { ROW_COUNT, COLUMN_NAMES } from "./constants";
+/* GRID HELPERS */
 const getFirstRow = () => {
   /*
   this is our first row (column, generated using data from initialRow)
   */
   return {
     rowId: "header",
-    cells: columns.map((col) => {
+    cells: COLUMN_NAMES.map((col) => {
       return { type: "header", text: col };
     }),
   };
@@ -56,7 +28,7 @@ const getColumns = () => {
     decides metadata like width and height of columns 
     retuns columns
   */
-  return columns.map((text, index) => {
+  return COLUMN_NAMES.map((text, index) => {
     //make first COLUMN smaller
     let width = 100;
     if (index === 0) {
@@ -106,27 +78,19 @@ const generateRows = (rowCount, oldRows) => {
   return newRows;
 };
 
-const dataToJson = (data) => {
-  /*
-    takes grid data(rows) and transform it into what the back-end expects
-    excluding first cell of each row and the first entierly(meta data)
-    returns back end ready data
+const reiszeColumns = (columns, ci, width) => {
+  /* 
+    Updates columns after resize action
+    returns array of new columns 
   */
-  //exclude first row (a,b,c...) (coulmns)
-  let newData = [...data];
-  newData.shift();
-
-  const specData = newData.map((item) => {
-    let newCells = [...item.cells];
-    //exclude the first cell (1,2,3...) (row count cell)
-    newCells.shift();
-    return newCells.map((item) => {
-      return item.text;
-    });
-  });
-
-  return specData;
+  const prevColumns = [...columns];
+  const columnIndex = prevColumns.findIndex((el) => el.columnId === ci);
+  const resizedColumn = prevColumns[columnIndex];
+  const updatedColumn = { ...resizedColumn, width };
+  prevColumns[columnIndex] = updatedColumn;
+  return [...prevColumns];
 };
+/* JSON HELPERS */
 const jsonToData = (json) => {
   /*
     take parsed json from the server and turn it into something client can use
@@ -153,18 +117,31 @@ const jsonToData = (json) => {
   //combine first row(meta data) with the rest of the rows (data from backend)
   return [...firstRow, ...rows];
 };
-const reiszeColumns = (columns, ci, width) => {
-  /* 
-    Updates columns after resize action
-    returns array of new columns 
+const dataToJson = (data) => {
+  /*
+    takes grid data(rows) and transform it into what the back-end expects
+    excluding first cell of each row and the first entierly(meta data)
+    returns back end ready data
   */
-  const prevColumns = [...columns];
-  const columnIndex = prevColumns.findIndex((el) => el.columnId === ci);
-  const resizedColumn = prevColumns[columnIndex];
-  const updatedColumn = { ...resizedColumn, width };
-  prevColumns[columnIndex] = updatedColumn;
-  return [...prevColumns];
+  //exclude first row (a,b,c...) (coulmns)
+  let newData = [...data];
+  newData.shift();
+
+  const specData = newData.map((item) => {
+    let newCells = [...item.cells];
+    //exclude the first cell (1,2,3...) (row count cell)
+    newCells.shift();
+    return newCells.map((item) => {
+      return item.text;
+    });
+  });
+
+  return specData;
 };
+/*ENV HELPERS*/
+const isDev = () =>
+  !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+
 export {
   getColumns,
   getRows,
@@ -173,4 +150,5 @@ export {
   dataToJson,
   jsonToData,
   reiszeColumns,
+  isDev,
 };

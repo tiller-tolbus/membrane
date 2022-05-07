@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { memo } from "react";
+
 import {
   ReactGrid,
   Column,
@@ -9,10 +10,11 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "./grid-custom-styles.css";
-import { updateCell, reiszeColumns, generateRows } from "./helpers";
+import { updateCell, reiszeColumns, generateRows } from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
-export default function Grid() {
+
+function Grid() {
   const rows = useStore((store) => store.rows);
   const setRows = useStore((store) => store.setRows);
 
@@ -25,9 +27,10 @@ export default function Grid() {
   };
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
-    //setting rows directly and updating the rows
+    //setting rows directly and updating the rows in store
     //todo: little issues arise from not updating rows each time at the price of performence
-    updateCell(changes, rows);
+
+    setRows(updateCell(changes, rows));
   };
 
   return (
@@ -53,3 +56,4 @@ export default function Grid() {
     </>
   );
 }
+export default memo(Grid);

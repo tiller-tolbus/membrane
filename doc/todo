@@ -1,15 +1,11 @@
 
 ##### CLIENT
--display loading state when the user is connecting to urbit and fetching his data
--display error state if a user can not reach urbit
--disabled the sync button untill user makes changes
--add a way to remove rows
--feedback when the user adds rows
+-disabled the sync button untill user makes changes(later)
+-add a way to remove rows(later)
+-feedback when the user adds rows(nah)
 -celltemplate https://reactgrid.com/docs/4.0/5-create-your-own-cell-template/#1.defineflagcellinterface (later)
--cap cell count
--remove white space when scrolling fast
--move json utils somewhere better
--start writing some typescript
+-cap cell count(later)
+-remove white space when scrolling fast(later)
+-start writing some typescript(later)
 ##### SERVER
--handle json poke
--finish configuring cell in urbit so we can actually upload our front-end.... https://urbit.org/docs/userspace/full-stack/9-desk
+-test in real life setting

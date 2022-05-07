@@ -3,9 +3,6 @@ import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import api from "../../api";
-import { dataToJson } from "./helpers";
-import useStore from "../../store";
 
 export default function GridOptions({ addRowsCb }) {
   const [addMoreInputValue, setAddMoreInputValue] = useState<string>("1");
@@ -13,7 +10,6 @@ export default function GridOptions({ addRowsCb }) {
   const [feedback, setFeedback] = useState<string>("");
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let val: string | number = parseInt(event.target.value);
-    console.log("val", val);
     if (val <= 0) {
       //value too small tell the user to enter something usefull
       setError(true);
@@ -33,7 +29,7 @@ export default function GridOptions({ addRowsCb }) {
   };
   return (
     <Stack
-      sx={{ marginTop: "1em" }}
+      sx={{ marginTop: "1em", marginBottom:"1em" }}
       direction="row"
       spacing={2}
       alignItems="center"
