@@ -47,14 +47,12 @@
   ^-  (quip card _this)
   ::  assert request came from our ship
   ?>  =(our.bowl src.bowl)
-  ::  we use %noun mark for demo
+  ::  we use %sheet mark for demo
   ::  crash if other mark is used
   ::  later we will specify marks for different actions
   ?+  mark  (on-poke:def mark vase)
     %sheet
-  ::  vase should contain a sheet-push, sending entire spreadsheet
-  ::  crash if other command is sent
-  ::  later we will specify more commands in /sur/cell/hoon
+  ::  vase should contain an entire spreadsheet
   =/  new-sheet  !<(sheet vase)
   `this(state new-sheet)
   ==
