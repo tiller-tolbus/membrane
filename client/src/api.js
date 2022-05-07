@@ -13,7 +13,7 @@ const api = {
 
     const urb = isDev()
       ? new Urbit("http://localhost:80", "lidlut-tabwed-pillex-ridrup")
-      : new Urbit();
+      : new Urbit("");
     urb.ship = isDev() ? "zod" : window.ship; //this shoud be winodw.ship in release
     // Just log errors if we get any
     urb.onError = (message) => console.log("onError: ", message);
