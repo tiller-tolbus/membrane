@@ -14,7 +14,7 @@ We are seeking to build a spreadsheet app capable of handling the basic data-rel
 
 ## Back-end
 
-As per the Terraform design philsophy, we aim to make the back-end of `%cell` as agnostic as possible to front-end considerations. A spreadsheet in `%cell` serves as the ideal form of a spreadsheet in any context, and can be served to any front-end platform through the API.
+We aim to make the back-end of `%cell` as agnostic as possible to front-end considerations. A spreadsheet in `%cell` serves as the ideal form of a spreadsheet in any context, and can be served to any front-end platform through the API.
 
 ### Persistence Model
 
