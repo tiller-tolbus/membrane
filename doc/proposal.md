@@ -14,13 +14,13 @@ We are seeking to build a spreadsheet app capable of handling the basic data-rel
 
 ## Back-end
 
-As per the Terraform design philsophy, we aim to make the back-end of %cell as agnostic as possible to front-end considerations. A spreadsheet in %cell serves as the ideal form of a spreadsheet in any context, and can be served to any front-end platform through the API.
+As per the Terraform design philsophy, we aim to make the back-end of `%cell` as agnostic as possible to front-end considerations. A spreadsheet in `%cell` serves as the ideal form of a spreadsheet in any context, and can be served to any front-end platform through the API.
 
 ### Persistence Model
 
 *  A spreadsheet is a pair of `[meta data]` or metadata and spreadsheet data.
     * Metadata includes a title, a list of tags, and an ACL (access control list). ACLs are modeled after Google Sheets.
-    * Data is a `(list row)` where a row is a `(list scell)` and a `scell` is a triple of `[format code text]`. `format` stores visual formatting applied to the cell, `code` stores what the user has actually input into the cell, and `text` stores what the user sees on the interface. 
+    * Data is a `(list row)` where a row is a `(list scell)` and a `scell` is a triple of `[meta code text]`. `meta` stores all necessary cell metadata, `code` stores what the user has actually input into the cell, and `text` stores what the user sees on the interface when `code` has been parsed and evaluated.
 *  Spreadsheets are stored in the Clay filesystem and are revision controlled therein.
     * Users can use the revision control system to refer back to previous copies of their sheets and restore them. 
 
@@ -71,7 +71,7 @@ The front-end will be created with a combination of [React Grid](https://reactgr
 
 # The Future of Spreadsheets on Urbit
 
-In the future, we'd like to see the following things implemented on %cell to make it the killer app it can be.
+In the future, we'd like to see the following things implemented on `%cell` to make it the killer app it should be. These are not part of the grant proposal, but we will design `%cell` with the implementation of these advanced features in mind.
 
 * Real-time collaboration powered by remote scry or WebRTC
 * Git-like conflict resolution interface
@@ -85,9 +85,9 @@ In the future, we'd like to see the following things implemented on %cell to mak
 
 Terraform is a two-man cohort of `~tiller-tolbus` and `~randes-losrep` that aims to become an Uqbar-native DAO with the express mission of Terraforming Mars for profit. This project is intended to bootstrap Terraform into presence on the platform and attract interest within the community to join us on our mission. Out of the 9-star bounty we are requesting for this project, 3 stars will be reserved to fund or enable future projects under this banner.
 
-Our duo currently works by splitting the front-end and back-end considerations evenly. In simple terms, my job is to talk to Mars, while `~randes-losrep` talks to Earth. 
+Our duo currently works by splitting the front-end and back-end considerations evenly. In simple terms, `~tiller-tolbus` works on Martian code, while `~randes-losrep` works on Terran code. 
 
-As we are both remaining pseudonymous to whatever degree possible, we have developed a demo app showcasing our ability to write apps on Urbit.  
+As we are both remaining pseudonymous to whatever degree possible, we have developed a demo app showcasing our ability to write and distribute apps on Urbit.  
 
 # The name %cell
 
