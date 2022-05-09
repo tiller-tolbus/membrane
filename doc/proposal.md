@@ -6,7 +6,7 @@ Like in many other domains, the native affordances of Urbit make it a promising 
 
 A fully fleshed out version of a spreadsheet app on the Urbit platform would be a powerful business logic machine capable of performing most of the tasks necessary to a small business without the need for sophisticated app development, with federated networking capabilities to handle complex interactions between multiple small businesses. Any spreadsheet, and the logic therein, could be transformed into a permissioned API as secure as Urbit itself, and serve as the database backbone for any number of applications.
 
-This proposal an attempt to lay the foundation for future development by producing a useful tool with the core necessary features of an Urbit-native spreadsheet, in order to accomodate Urbit-native businesses in greater capacity and to provide a concrete basis for what a "Google Sheets killer" app on Urbit should look like.
+This proposal is an attempt to lay the foundation for future development by producing a useful tool with the core necessary features of an Urbit-native spreadsheet, in order to accomodate Urbit-native businesses in greater capacity and to provide a concrete basis for what a "Google Sheets killer" app on Urbit should look like.
 
 # Timeline
 
