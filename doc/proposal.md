@@ -24,6 +24,7 @@ Expected Completion: September 2022
 
 Payment: 2 stars
 
+*  I can create spreadsheets through `%cell` that are saved to my ship's filesystem through Clay and revision controlled therein.
 *  I can view a selection of all of the spreadsheets I have access to from the homepage.
 *  I can view the homepage as a list or a grid and sort spreadsheets by title, tags, or date modified.
 *  I can give my spreadsheets a title, and a list of metadata tags.
@@ -38,12 +39,13 @@ Expected Completion: November 2022
 
 Payment: 3 stars
 
+* I can organize my spreadsheets into folders that are visible from my homepage.
 * I can view an edit history of the sheet I'm working on and revert back to an arbitrary date.
 * I can use any formula from the [Formula.JS](https://formulajs.info/) library to reference other cells within my sheet, and have those formulas automatically update when their referenced cells change.
 * I can select a group of consecutive cells and copy-paste them into another group of consecutive cells.
 * I can search my spreadsheet, or a selection within my spreadsheet, for a pattern of characters, and perform find/replace within my search.
 * I can select a group of cells matching a pattern such as `A1 = 1, A2 = 2, A3 = 3...` and drag so that the following cells follow the pattern, ex. `A4 = 4, A5 = 5...`.
-* I can export my spreadsheets to CSV format and download them onto my desktop computer.
+* I can export my spreadsheets to CSV format and download them onto my Terran computer.
 * I can read about the features of `%cell` by looking at its page in the `Documentation` app.
 * My spreadsheets expose an API that can be accessed by third-party front-ends, as well as other Urbit apps. All pokes and scries are documented in the `Documentation` app.
 
@@ -61,7 +63,7 @@ In the future, we'd like to see the following things implemented on `%cell` to m
 
 # Terraform
 
-Terraform is a two-man cohort of `~tiller-tolbus` and `~randes-losrep` that aims to become an Uqbar-native DAO with the express mission of Terraforming Mars for profit. This project is intended to bootstrap Terraform into presence on the platform and attract interest within the community to join us on our mission. Out of the 9-star bounty we are requesting for this project, 3 stars will be reserved to fund or enable future projects under this banner.
+Terraform is a two-man cohort of `~tiller-tolbus` and `~randes-losrep` that aims to become an Uqbar-native DAO with the express mission of Terraforming Mars for profit. This project is intended to bootstrap Terraform into presence on the platform and attract interest within the community to join us on our mission. Out of the 5-star bounty we are requesting for this project, 2 stars will be reserved to fund or enable future projects under this banner.
 
 Our duo currently works by splitting the front-end and back-end considerations evenly. In simple terms, `~tiller-tolbus` works on Martian code, while `~randes-losrep` works on Terran code. 
 
