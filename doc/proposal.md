@@ -55,9 +55,9 @@ In the future, we'd like to see the following things implemented on `%cell` to m
 
 * Real-time collaboration powered by remote scry or WebRTC
 * Evaluation of spreadsheet functions such as SUM and RATE occur on back-end rather than front-end
-    * Third party apps can thereby poke a spreadsheet with data and receive a subscription update containing the result of some resulting calculation
+    * Third party apps can thereby poke a spreadsheet with data and receive a subscription update containing the result of some calculation
     * This may be paired with ACLs for each individual cell to provide a controlled interface to subscribers
-    * With proper sandboxing, owners of sheets can implement their own custom sheet functions and allow editors to run those functions on their data
+    * With proper sandboxing, owners of sheets can implement their own custom formulas and allow collaborators to run those formulae on their data
 * Users should be able to link together spreadsheets that they have access to and reference data within each other, creating complex relational schemes.
 * Third party spreadsheet programs such as Excel, Google Sheets, and LibreOffice Calc should be able to remotely connect to an Urbit ship and interact with spreadsheets from a familiar interface.
 
