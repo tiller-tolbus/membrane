@@ -6,7 +6,7 @@ Like in many other domains, the native affordances of Urbit make it a promising 
 
 A fully fleshed out version of a spreadsheet app on the Urbit platform would be a powerful business logic machine capable of performing most of the tasks necessary to a small business without the need for sophisticated app development, with federated networking capabilities to handle complex interactions between multiple small businesses. Any spreadsheet, and the logic therein, could be transformed into a permissioned API as secure as Urbit itself, and serve as the database backbone for any number of applications.
 
-This proposal is an attempt to lay the foundation for future development by producing a useful tool with the core necessary features of an Urbit-native spreadsheet, in order to accomodate Urbit-native businesses in greater capacity and to provide a concrete basis for what a "Google Sheets killer" app on Urbit should look like.
+This proposal an attempt to lay the foundation for future development by producing a useful tool with the core necessary features of an Urbit-native spreadsheet, in order to accomodate Urbit-native businesses in greater capacity and to provide a concrete basis for what a "Google Sheets killer" app on Urbit should look like.
 
 # Timeline
 
@@ -16,7 +16,7 @@ Expected Completion: Finished
 
 Payment: None
 
-Our demo has shipped and can be found at `~mister-master-tiller-tolbus/cell`. It is a one-spreadsheet app that can sync its spreadsheet to the user's ship. This is a proof of concept that we can make a spreadsheet application on Urbit.
+Our demo has shipped and can be found at `~mister-master-tiller-tolbus/cell`. It is a one-spreadsheet app that can sync its spreadsheet to the user's ship. This represents the first footsteps of spreadsheets on Mars. It is a proof of concept that we can make a spreadsheet application on Urbit.
 
 ## Milestone 1
 
@@ -24,7 +24,7 @@ Expected Completion: September 2022
 
 Payment: 2 stars
 
-*  I can create spreadsheets through `%cell` that are saved to my ship's filesystem through Clay and revision controlled therein.
+*  I can create spreadsheets through `Membrane` that are saved to my ship's filesystem through Clay and revision controlled therein.
 *  I can view a selection of all of the spreadsheets I have access to from the homepage.
 *  I can view the homepage as a list or a grid and sort spreadsheets by title, tags, or date modified.
 *  I can give my spreadsheets a title, and a list of metadata tags.
@@ -33,7 +33,7 @@ Payment: 2 stars
 *  I can insert rows and columns into my spreadsheet by right-clicking on the column or row header.
 *  I can share my spreadsheets with my pals. This sends them an invite where they can accept my spreadsheet and create a local copy of it on their ship.
 
-## Milestone 2:
+## Milestone 2
 
 Expected Completion: November 2022
 
@@ -46,29 +46,26 @@ Payment: 3 stars
 * I can search my spreadsheet, or a selection within my spreadsheet, for a pattern of characters, and perform find/replace within my search.
 * I can select a group of cells matching a pattern such as `A1 = 1, A2 = 2, A3 = 3...` and drag so that the following cells follow the pattern, ex. `A4 = 4, A5 = 5...`.
 * I can export my spreadsheets to CSV format and download them onto my Terran computer.
-* I can read about the features of `%cell` by looking at its page in the `Documentation` app.
+* I can import CSV spreadsheets from my Terran computer onto Membrane.
+* I can read about the features of `Membrane` by looking at its page in the `Documentation` app.
 * My spreadsheets expose an API that can be accessed by third-party front-ends, as well as other Urbit apps. All pokes and scries are documented in the `Documentation` app.
 
 # The Future of Spreadsheets on Urbit
 
-In the future, we'd like to see the following things implemented on `%cell` to make it the killer app it should be. These are not part of the grant proposal, but we will design `%cell` with the implementation of these advanced features in mind.
+In the future, we'd like to see the following things implemented on `Membrane` to make it the killer app it should be. These are not part of the grant proposal, but we will design `Membrane` with the implementation of these advanced features in mind.
 
 * Real-time collaboration powered by remote scry or WebRTC
 * Evaluation of spreadsheet functions such as SUM and RATE occur on back-end rather than front-end
-    * Third party apps can thereby poke a spreadsheet with data and receive a subscription update containing the result of some calculation
-    * This may be paired with ACLs for each individual cell to provide a controlled interface to subscribers
-    * With proper sandboxing, owners of sheets can implement their own custom formulas and allow collaborators to run those formulae on their data
+    * Third party apps can thereby poke a spreadsheet with data and receive a subscription update containing the result of some calculation.
+    * This may be paired with ACLs for each individual cell to provide a controlled interface to subscribers.
+    * With proper sandboxing, owners of sheets can implement their own custom formulas and allow collaborators to run those formulas on their data.
 * Users should be able to link together spreadsheets that they have access to and reference data within each other, creating complex relational schemes.
 * Third party spreadsheet programs such as Excel, Google Sheets, and LibreOffice Calc should be able to remotely connect to an Urbit ship and interact with spreadsheets from a familiar interface.
 
 # Terraform
 
-Terraform is a two-man cohort of `~tiller-tolbus` and `~randes-losrep` that aims to become an Uqbar-native DAO with the express mission of Terraforming Mars for profit. This project is intended to bootstrap Terraform into presence on the platform and attract interest within the community to join us on our mission. Out of the 5-star bounty we are requesting for this project, 2 stars will be reserved to fund or enable future projects under this banner.
+Terraform is a two-man cohort of `~tiller-tolbus` and `~randes-losrep` that aims to become an Uqbar-native DAO with the express mission of Terraforming Mars for profit. This project is intended to bootstrap Terraform into presence on the platform and attract interest within the community to join us on our mission. 
 
 Our duo currently works by splitting the front-end and back-end considerations evenly. In simple terms, `~tiller-tolbus` works on Martian code, while `~randes-losrep` works on Terran code. 
 
 As we are both remaining pseudonymous to whatever degree possible, we have developed a demo app showcasing our ability to write and distribute apps on Urbit.  
-
-# The name %cell
-
-We are open to suggestions for a different name for the app, as "cell" is already intended to mean a number of different things, most importantly the Hoon data structure. We chose `%cell` because we, like many other app developers on Urbit, like four-letter words with simple purposes. But we have not decided permanently on a name, and other suggestions are welcome.
