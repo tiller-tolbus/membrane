@@ -1,3 +1,5 @@
+The below document is outdated and was an early summary of what we wanted to do with Membrane
+
 ### Demo
 
 * Spreadsheet with text cells that syncs to Urbit ship
