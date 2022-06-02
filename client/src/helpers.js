@@ -43,6 +43,16 @@ const updateCell = (changes, prevRows) => {
   const { rowId, columnId, newCell } = changes[0];
   let newRows = [...prevRows];
   newRows[rowId].cells[columnId].text = newCell.text;
+  const { updateFormulaFoo, formulaLocation } = newRows[rowId].cells[columnId];
+  //F1
+  if (formulaLocation) {
+    updateFormulaFoo(
+      newCell.text,
+      formulaLocation,
+      { columnId, rowId },
+      newRows
+    );
+  }
   return newRows;
 };
 

@@ -33,12 +33,12 @@ function Grid() {
 
     setRows(updateCell(changes, rows));
   };
-  const fetchCellValue = (cellName: string): string | false => {
+  const fetchCellValue = (cellName: string): object | false | any => {
     /*
      * Given a celll name
      * (pattern =>  alphabet char followed by a numeric string) (for now)
      * assumes grid is in Alphanumerical order (x and y)
-     * it will output the current content of that cell
+     * it will output the current content of that cell along with it's coordinates in rows (columnId, rowId)
      * todo: should also eventually do arrays
      * and eventually cells should have identifiers for easy of use and to give the user freedom to rename their cells...
      */
@@ -51,7 +51,6 @@ function Grid() {
     let columnName = splitName[0];
     let row = splitName[1];
 
-
     let column;
     //find column in the header list, and the index will be the position in row
     rows[0].cells.forEach((cell: any, index: number) => {
@@ -63,10 +62,18 @@ function Grid() {
     //if we have both row and column value, try to access the cell, and return it's content (text)
     if (row !== null && column !== null) {
       let cellValue = rows[row].cells[column];
-      return cellValue.text;
+      return { value: cellValue.text, columnId: column, rowId: row };
     }
   };
-  const formulateFormula = (cellValue: string) => {
+  const isFormula = (value: string): boolean => {
+    //todo: do dis
+    return true;
+  };
+  const formulateFormula = (
+    cellValue: string,
+    columnId: number,
+    rowId: number
+  ) => {
     /**
      * todo: comment better
      * check to find our avlbl forumla between "=" and the first "("
@@ -100,18 +107,88 @@ function Grid() {
     //todo: remove space around characeters? help user out
     const valueList = paramList.map((item) => fetchCellValue(item));
 
-    console.log("currentFormula", currentFormula);
-    console.log("betweenBrackets", betweenBrackets);
-    console.log("paramList", paramList);
-    console.log("valueList", valueList);
+    //before we can actually excute we need to transform the list into [1,2,3,4,5]
+    const executableList = valueList.map((item) => item.value);
 
-    console.log("fooo", currentFormula[0].execute(valueList));
+    //add onChange
+    const formulaData = { ...currentFormula[0], valueList };
+
+    //update formula cell withe formula data using row and column id
+    let newRows = [...rows];
+    newRows[rowId].cells[columnId] = {
+      ...newRows[rowId].cells[columnId],
+      formulaData,
+    };
+    //update each param cell to have formulaLocation and update function too trigger on change
+    valueList.forEach((item) => {
+      let cellRowId = item.rowId;
+      let cellColumnId = item.columnId;
+      //add on change function that updates the value in formula cells
+
+      newRows[cellRowId].cells[cellColumnId] = {
+        ...newRows[cellRowId].cells[cellColumnId],
+        formulaLocation: { columnId, rowId },
+        updateFormulaFoo(
+          updatedValue,
+          formulaLocation,
+          currentCellLocation,
+          rows
+        ) {
+          /**
+           * this runs on cell change
+           * this goes to formula cell and updates it depending on the updatedValue
+           * todo:clean it up
+           * todo: validate input (display error state in formula cell if no logic value can be derived here)
+           */
+          const formulaColId = formulaLocation.columnId;
+          const formulaRowId = formulaLocation.rowId;
+          const { columnId, rowId } = currentCellLocation;
+
+          let newFormulaCell = { ...rows[formulaRowId].cells[formulaColId] };
+          let newFormulaData = {
+            ...rows[formulaRowId].cells[formulaColId].formulaData,
+          };
+
+          let newValueList = newFormulaData.valueList.map((item) => {
+            //todo: make all the values (ids) numbers not stringed numbers
+            if (columnId == item.columnId && rowId == item.rowId) {
+              //found the value to update
+              return { ...item, value: updatedValue };
+            }
+            return item;
+          });
+          newFormulaData.valueList = newValueList;
+          //we have change in our param cells, that means update formula cell
+          const executableList = newFormulaData.valueList.map(
+            (item) => item.value
+          );
+
+          //update the value
+          newFormulaCell.formulaData = newFormulaData;
+          newFormulaCell.text = newFormulaData
+            .execute(executableList)
+            .toString();
+          //update the formula cell with our values
+          rows[formulaRowId].cells[formulaColId] = newFormulaCell;
+        },
+      };
+    });
+    //update the cell with the new formula data and update the param cells with their data
+    setRows(newRows);
+    return { ...currentFormula[0], valueList };
   };
+  /**
+   * compile formulas on load
+   * todo: two formulas and more can have a param cell in common
+   * display error state in formulas
+   */
   return (
     <>
       <div className={"grid-container"}>
         <Button
-          onClick={() => console.log(formulateFormula("=SUM(A1,A2,F1,K52,Z41)"))}
+          onClick={() =>
+            console.log(formulateFormula("=SUM(A1,A2,F1,K52,Z41)", 13, 7))
+          }
         >
           sds
         </Button>
