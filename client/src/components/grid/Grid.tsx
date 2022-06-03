@@ -15,6 +15,8 @@ import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { Button } from "@mui/material";
 import availableFormulas from "./formulajs";
+import { MenuOption, SelectionMode } from "@silevis/reactgrid";
+
 function Grid() {
   const rows = useStore((store) => store.rows);
   const setRows = useStore((store) => store.setRows);
@@ -182,16 +184,73 @@ function Grid() {
    * todo: two formulas and more can have a param cell in common
    * display error state in formulas
    */
+  const handleContextMenu = (
+    selectedRowIds: Id[],
+    selectedColIds: Id[],
+    selectionMode: SelectionMode,
+    menuOptions: MenuOption[]
+  ): MenuOption[] => {
+    /* our menu that appears on right click */
+
+    if (selectionMode === "row") {
+      menuOptions = [
+        ...menuOptions,
+        {
+          id: "insertRowTopMenuItem",
+          label: "Insert 1 row top",
+          handler: () => {
+            console.log("selectedRowIds", selectedRowIds);
+            console.log("selectedColIds", selectedColIds);
+            console.log("selectionMode", selectionMode);
+          },
+        },
+        {
+          id: "insertRowBottomMenuItem",
+          label: "Insert 1 row bottom",
+          handler: () => {
+            console.log("selectedRowIds", selectedRowIds);
+            console.log("selectedColIds", selectedColIds);
+            console.log("selectionMode", selectionMode);
+          },
+        },
+      ];
+    }
+    if (selectionMode === "column") {
+      menuOptions = [
+        ...menuOptions,
+        {
+          id: "insertColumnRightMenuItem",
+          label: "Insert 1 column right",
+          handler: () => {
+            console.log("selectedRowIds", selectedRowIds);
+            console.log("selectedColIds", selectedColIds);
+            console.log("selectionMode", selectionMode);
+          },
+        },
+        {
+          id: "insertColumnLeftMenuItem",
+          label: "Insert 1 column left",
+          handler: () => {
+            console.log("selectedRowIds", selectedRowIds);
+            console.log("selectedColIds", selectedColIds);
+            console.log("selectionMode", selectionMode);
+          },
+        },
+      ];
+    }
+
+    return menuOptions;
+  };
   return (
     <>
+      <Button
+        onClick={() =>
+          console.log(formulateFormula("=SUM(A1,A2,F1,K52,Z41)", 13, 7))
+        }
+      >
+        sds
+      </Button>
       <div className={"grid-container"}>
-        <Button
-          onClick={() =>
-            console.log(formulateFormula("=SUM(A1,A2,F1,K52,Z41)", 13, 7))
-          }
-        >
-          sds
-        </Button>
         <ReactGrid
           rows={rows}
           columns={columns}
@@ -201,6 +260,7 @@ function Grid() {
           onColumnResized={handleColumnResize}
           enableRowSelection
           enableColumnSelection
+          onContextMenu={handleContextMenu}
         />
       </div>
       <GridOptions
