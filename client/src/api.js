@@ -9,8 +9,6 @@ const api = {
     Connect to urbit and return the urbit instance
     returns urbit instance
   */
-    //when we release should just call new Urbit("")
-
     const urb = isDev()
       ? new Urbit("http://localhost:80", "lidlut-tabwed-pillex-ridrup")
       : new Urbit("");
