@@ -32,7 +32,6 @@ function Grid() {
   const handleChanges = (changes: CellChange<TextCell>[]) => {
     //setting rows directly and updating the rows in store
     //todo: little issues arise from not updating rows each time at the price of performence
-
     setRows(updateCell(changes, rows));
   };
   const fetchCellValue = (cellName: string): object | false | any => {
@@ -43,6 +42,8 @@ function Grid() {
      * it will output the current content of that cell along with it's coordinates in rows (columnId, rowId)
      * todo: should also eventually do arrays
      * and eventually cells should have identifiers for easy of use and to give the user freedom to rename their cells...
+     * 
+     * todo: return false if the cell can't be found or if no columnName, row.....
      */
 
     //no cellName nothing to do
@@ -67,8 +68,9 @@ function Grid() {
       return { value: cellValue.text, columnId: column, rowId: row };
     }
   };
-  const isFormula = (value: string): boolean => {
-    //todo: do dis
+  const isFormula = (value: string): boolean | [] => {
+    //returns false if no formula found
+    //returns formula object when we detect a formula
     return true;
   };
   const formulateFormula = (
@@ -83,7 +85,7 @@ function Grid() {
     if (!cellValue) return false;
     //if our cellValue starts with "=" than we have a formula on our hands
     if (cellValue[0] !== "=") {
-      return;
+      return false;
     }
     //get at the formula
     const foundFormula = cellValue.slice(
@@ -92,7 +94,8 @@ function Grid() {
     );
     //no formula bye bye
     if (!foundFormula) return false;
-    //formula doesn't not found in our formulas list bye bye
+    //formula function not found in our availableFormulas list, nothing to evaluate
+    //todo: add feedback in above case
     const currentFormula = availableFormulas.filter(
       (formula) => formula.name === foundFormula
     );
@@ -181,6 +184,7 @@ function Grid() {
   };
   /**
    * compile formulas on load
+   * before settings rows go through every
    * todo: two formulas and more can have a param cell in common
    * display error state in formulas
    */
@@ -191,7 +195,6 @@ function Grid() {
     menuOptions: MenuOption[]
   ): MenuOption[] => {
     /* our menu that appears on right click */
-
     if (selectionMode === "row") {
       menuOptions = [
         ...menuOptions,
@@ -245,7 +248,7 @@ function Grid() {
     <>
       <Button
         onClick={() =>
-          console.log(formulateFormula("=SUM(A1,A2,F1,K52,Z41)", 13, 7))
+          console.log(formulateFormula("=SUM(A1,A2,F1,K741,Z41)", 13, 7))
         }
       >
         sds

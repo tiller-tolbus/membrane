@@ -31,8 +31,14 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-
+import Grid from "@mui/material/Grid";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { useNavigate } from "react-router-dom";
+import FilterListIcon from "@mui/icons-material/FilterList";
+
+import Chip from "@mui/material/Chip";
+import TagFacesIcon from "@mui/icons-material/TagFaces";
 
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
@@ -43,23 +49,85 @@ const Item = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1),
   color: theme.palette.text.primary,
   "&:hover": { background: blue[100], cursor: "pointer" },
+  margin: theme.spacing(1),
 }));
 const data = [
   {
     title: "sheet 1",
+    lastEdited: "10:58 PM",
     id: 1,
   },
   {
     title: "sheet 2",
+    lastEdited: "Apr 10, 2022",
+
     id: 2,
   },
   {
     title: "sheet 3",
+    lastEdited: "Apr 10, 2022",
+
     id: 3,
   },
   {
     title: "sheet 4",
+    lastEdited: "Apr 10, 2022",
+
     id: 4,
+  },
+  {
+    title: "sheet 5",
+    lastEdited: "Apr 10, 2022",
+
+    id: 5,
+  },
+  {
+    title: "sheet 6",
+    lastEdited: "Apr 10, 2022",
+
+    id: 6,
+  },
+  {
+    title: "sheet 7",
+    lastEdited: "Apr 10, 2022",
+
+    id: 7,
+  },
+  {
+    title: "sheet 8",
+    lastEdited: "Apr 10, 2022",
+
+    id: 8,
+  },
+  {
+    title: "sheet 9",
+    lastEdited: "Apr 10, 2022",
+
+    id: 9,
+  },
+  {
+    title: "sheet 10",
+    lastEdited: "Apr 10, 2022",
+
+    id: 10,
+  },
+  {
+    title: "sheet 11",
+    lastEdited: "Apr 10, 2022",
+
+    id: 11,
+  },
+  {
+    title: "sheet 12",
+    lastEdited: "Apr 10, 2022",
+
+    id: 12,
+  },
+  {
+    title: "sheet 13",
+    lastEdited: "Apr 10, 2022",
+
+    id: 13,
   },
 ];
 export default function Home() {
@@ -95,48 +163,100 @@ export default function Home() {
   };
   return (
     <Container sx={{ marginTop: 10 }} fixed>
-      <Fab
-        sx={{ position: "fixed", right: 20, bottom: 20 }}
-        color="primary"
-        aria-label="add"
-        onClick={() => onAddDialogOpen()}
-      >
-        <AddIcon />
-      </Fab>
-      <AddDialog
-        open={addDialogOpen}
-        onConfirm={onAddDialogUpdate}
-        onClose={onAddDialogClose}
-      />
-      <Box>
-        <Stack spacing={2}>
+     {/* <ChipsArray />*/}
+
+      <Grid container>
+        <Grid item xs={8}>
+          <Button
+            sx={{ border: "none", color: "black" }}
+            endIcon={<AddIcon />}
+            onClick={() => onAddDialogOpen()}
+          >
+            Add a sheet
+          </Button>
+        </Grid>
+        <Grid item xs={2} marginLeft={-1.5}>
+          <Button
+            sx={{ border: "none", color: "black" }}
+            endIcon={<ArrowDropDownIcon />}
+            onClick={() => console.log("here")}
+          >
+            last edited
+          </Button>
+        </Grid>
+        <Grid item xs={2}>
+          <Stack
+            flexDirection={"row"}
+            justifyContent={"flex-end"}
+            alignItems={"flex-start"}
+          >
+            <Button
+              sx={{ border: "none", color: "black" }}
+              endIcon={<FilterListIcon />}
+              onClick={() => console.log("here")}
+            >
+              filter
+            </Button>
+          </Stack>
+        </Grid>
+      </Grid>
+      <Box sx={{ marginTop: 2 }}>
+        <Stack>
           {data.map((item, index) => {
             return (
               <Item key={index} variant="outlined" onClick={() => goToSheet()}>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  justifyContent={"space-between"}
-                >
-                  <Typography variant="h6" gutterBottom component="div">
-                    {item.title}
-                  </Typography>
-                  <SheetMenu
-                    onRename={onRename}
-                    onDelete={onDelete}
-                    onShare={onShare}
-                    onAdd={onAdd}
-                    sheetId={item.id}
-                  />
-                </Stack>
+                <Grid container>
+                  <Grid item xs={8}>
+                    <Typography
+                      variant="subtitle1"
+                      gutterBottom
+                      component="div"
+                    >
+                      {item.title}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Typography
+                      variant="subtitle1"
+                      gutterBottom
+                      component="div"
+                    >
+                      {item.lastEdited}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Stack
+                      flexDirection={"row"}
+                      justifyContent={"flex-end"}
+                      alignItems={"flex-start"}
+                    >
+                      <SheetMenu
+                        onRename={onRename}
+                        onDelete={onDelete}
+                        onShare={onShare}
+                        onAdd={onAdd}
+                        sheetId={item.id}
+                      />
+                    </Stack>
+                  </Grid>
+                </Grid>
               </Item>
             );
           })}
         </Stack>
       </Box>
+      <AddDialog
+        open={addDialogOpen}
+        onConfirm={onAddDialogUpdate}
+        onClose={onAddDialogClose}
+      />
     </Container>
   );
 }
+/*
+  open={deletDialogOpen}
+        onConfirm={onDeleteDialogUpdate}
+        onClose={onDeleteDialogClose} */
 function SheetMenu({ onRename, onDelete, onAdd, onShare, sheetId }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [renameDialogOpen, setRenameDialogOpen] =
@@ -410,5 +530,92 @@ function AddDialog({ open, onConfirm, onClose }) {
         <Button onClick={handleAdd}>Add</Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+interface ChipData {
+  key: number;
+  label: string;
+}
+
+const ListItem = styled("li")(({ theme }) => ({
+  margin: theme.spacing(0.5),
+}));
+
+function ChipsArray() {
+  const [inputValue, setInputValue] = React.useState<string>("");
+
+  const [chipData, setChipData] = React.useState<readonly ChipData[]>([]);
+
+  const handleDelete = (chipToDelete: ChipData) => () => {
+    setChipData((chips) =>
+      chips.filter((chip) => chip.key !== chipToDelete.key)
+    );
+  };
+
+  const handleAdd = () => {
+    console.log("here");
+    const newChipData = [
+      ...chipData,
+      { key: chipData.length + 1, label: inputValue },
+    ];
+    setChipData(newChipData);
+    setInputValue("");
+  };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+  const keyHandler = (event) => {
+    console.log("here,", event);
+    if (event.keyCode === 13) {
+      handleAdd();
+    }
+  };
+  return (
+    <React.Fragment>
+      <TextField
+        autoFocus
+        margin="dense"
+        id="name"
+        label="enter new tag"
+        type="text"
+        variant="standard"
+        fullWidth
+        value={inputValue}
+        onChange={handleChange}
+        onKeyUp={keyHandler}
+      />
+      <Paper
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          listStyle: "none",
+          p: 0.5,
+          m: 0,
+        }}
+        component="ul"
+      >
+        {chipData.map((data) => {
+          let icon;
+
+          if (data.label === "React") {
+            icon = <TagFacesIcon />;
+          }
+
+          return (
+            <ListItem key={data.key}>
+              <Chip
+                icon={icon}
+                label={data.label}
+                onDelete={
+                  data.label === "React" ? undefined : handleDelete(data)
+                }
+              />
+            </ListItem>
+          );
+        })}
+      </Paper>
+    </React.Fragment>
   );
 }

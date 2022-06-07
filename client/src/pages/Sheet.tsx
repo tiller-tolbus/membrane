@@ -97,6 +97,7 @@ function Sheet() {
       //if we have data saved use it, otherwise generate an empty grid
 
       if (data && data.length > 0) {
+        /* do formula stuff here ???????? */
         const parsedData = jsonToData(data);
         setRows(parsedData);
       } else {
