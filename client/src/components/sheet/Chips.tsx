@@ -21,18 +21,18 @@ export default function Chips({
   onDelete = null,
 }) {
   return (
-    <Stack
-      flexDirection="row"
-      flexWrap="wrap"
-      sx={{ listStyle: "none", cursor: "pointer" }}///fix curosr
-    >
+    <Stack flexDirection="row" flexWrap="wrap" sx={{ listStyle: "none" }}>
       {chipData.map((data, index) => {
         return (
           <ListItem key={index}>
             {canDelete ? (
-              <Chip label={data.label} onDelete={() => onDelete(data)} />
+              <Chip
+                sx={{ cursor: "pointer" }}
+                label={data.label}
+                onDelete={() => onDelete(data)}
+              />
             ) : (
-              <Chip label={data.label} />
+              <Chip sx={{ cursor: "pointer" }} label={data.label} />
             )}
           </ListItem>
         );

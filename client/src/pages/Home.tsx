@@ -16,8 +16,10 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import SheetItem from "../components/sheet";
+import SheetItem from "../components/sheet"; //todo: change to import from /componnents
+import { SearchBar } from "../components";
+import Divider from "@mui/material/Divider";
+
 const data = [
   {
     title: "sheet 1",
@@ -141,57 +143,67 @@ export default function Home() {
     onAdd(name);
   };
   return (
-    <Container sx={{ marginTop: 10 }} fixed>
-      <Grid container>
-        <Grid item xs={8}>
-          <Button
-            sx={{ border: "none", color: "black" }}
-            endIcon={<AddIcon />}
-            onClick={() => onAddDialogOpen()}
-          >
-            Add a sheet
-          </Button>
-        </Grid>
-        <Grid item xs={2} marginLeft={-1.5}>
-          <Button
-            sx={{ border: "none", color: "black" }}
-            endIcon={<ArrowDropDownIcon />}
-            onClick={() => console.log("here")}
-          >
-            last edited
-          </Button>
-        </Grid>
-        <Grid item xs={2}></Grid>
-      </Grid>
-      <Box sx={{ marginTop: 2 }}>
-        <Stack justifyContent={"center"}>
-          {data.map((item, index) => {
-            return (
-              <SheetItem
-                key={index}
-                item={item}
-                onAdd={onAdd}
-                onRename={onRename}
-                onDelete={onDelete}
-                onShare={onShare}
-                goToSheet={goToSheet}
-              />
-            );
-          })}
-        </Stack>
-      </Box>
-      <AddDialog
-        open={addDialogOpen}
-        onConfirm={onAddDialogUpdate}
-        onClose={onAddDialogClose}
-      />
-    </Container>
+    <>
+      <Container sx={{ paddingBottom: 20 }} fixed>
+        <Box
+          sx={{
+            paddingTop: 5,
+            position: "sticky",
+            backgroundColor: "white",
+            top: 0,
+            zIndex: 100, //to be over tooltips
+          }}
+        >
+          <SearchBar />
+          <Grid container>
+            <Grid item xs={8}>
+              <Button
+                sx={{ border: "none", color: "black" }}
+                endIcon={<AddIcon />}
+                onClick={() => onAddDialogOpen()}
+              >
+                Add a sheet
+              </Button>
+            </Grid>
+            <Grid item xs={2} marginLeft={-1.5}>
+              <Button
+                sx={{ border: "none", color: "black" }}
+                endIcon={<ArrowDropDownIcon />}
+                onClick={() => console.log("here")}
+              >
+                last edited
+              </Button>
+            </Grid>
+            <Grid item xs={2}></Grid>
+          </Grid>
+          <Divider light />
+        </Box>
+        <Box sx={{ paddingTop: 1 }}>
+          <Stack justifyContent={"center"}>
+            {data.map((item, index) => {
+              return (
+                <SheetItem
+                  key={index}
+                  item={item}
+                  onAdd={onAdd}
+                  onRename={onRename}
+                  onDelete={onDelete}
+                  onShare={onShare}
+                  goToSheet={goToSheet}
+                />
+              );
+            })}
+          </Stack>
+        </Box>
+        <AddDialog
+          open={addDialogOpen}
+          onConfirm={onAddDialogUpdate}
+          onClose={onAddDialogClose}
+        />
+      </Container>
+    </>
   );
 }
-/*
-  open={deletDialogOpen}
-        onConfirm={onDeleteDialogUpdate}
-        onClose={onDeleteDialogClose} */
 
 function AddDialog({ open, onConfirm, onClose }) {
   const [inputValue, setInputValue] = React.useState<string>("");

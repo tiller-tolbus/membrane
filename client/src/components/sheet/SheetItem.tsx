@@ -20,6 +20,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.primary,
   "&:hover": { background: blue[100], cursor: "pointer" },
   margin: theme.spacing(1),
+  borderRadius: 10, //todo: start building our theme
 }));
 
 export default function SheetItem({
@@ -33,10 +34,9 @@ export default function SheetItem({
   const { title, lastEdited, id, tags } = item;
   return (
     <Item variant="outlined" onClick={() => goToSheet()}>
-      <Grid container   alignItems="center"
->
-        <Grid  sx={{alignItems:"center"}} item xs={3}>
-          <Typography  variant="subtitle1" gutterBottom component="div">
+      <Grid container alignItems="center">
+        <Grid sx={{ alignItems: "center" }} item xs={3}>
+          <Typography variant="subtitle1" gutterBottom component="div">
             {title}
           </Typography>
         </Grid>
