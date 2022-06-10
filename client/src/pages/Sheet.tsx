@@ -89,18 +89,23 @@ function Sheet() {
       setConnected({ success: false, trying: true, error: false });
 
       const data = await api.getSpreadsheetData();
-      console.log("get data success");
 
-      //columns are independt of row results but has to be rendered around the same time as rows
-      setColumns(getColumns());
+      console.log("get data success");
 
       //if we have data saved use it, otherwise generate an empty grid
 
       if (data && data.length > 0) {
-        /* do formula stuff here ???????? */
+        //columns are independt of row results (need column length to generate names)
+
+        const columnLength = data[0].length + 1; // +1 because the first column is the row count one
+        // but has to be rendered around the same time as rows
+        setColumns(getColumns(columnLength));
+
+        /* do formula stuff before setting rows ???????? */
         const parsedData = jsonToData(data);
         setRows(parsedData);
       } else {
+        setColumns(getColumns());
         setRows(getRows());
       }
 

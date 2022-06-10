@@ -42,7 +42,7 @@ function Grid() {
      * it will output the current content of that cell along with it's coordinates in rows (columnId, rowId)
      * todo: should also eventually do arrays
      * and eventually cells should have identifiers for easy of use and to give the user freedom to rename their cells...
-     * 
+     *
      * todo: return false if the cell can't be found or if no columnName, row.....
      */
 
@@ -189,8 +189,8 @@ function Grid() {
    * display error state in formulas
    */
   const handleContextMenu = (
-    selectedRowIds: Id[],
-    selectedColIds: Id[],
+    selectedRowIds: number[],
+    selectedColIds: number[],
     selectionMode: SelectionMode,
     menuOptions: MenuOption[]
   ): MenuOption[] => {
@@ -225,18 +225,14 @@ function Grid() {
           id: "insertColumnRightMenuItem",
           label: "Insert 1 column right",
           handler: () => {
-            console.log("selectedRowIds", selectedRowIds);
-            console.log("selectedColIds", selectedColIds);
-            console.log("selectionMode", selectionMode);
+            addColumn(selectedColIds[0], "right");
           },
         },
         {
           id: "insertColumnLeftMenuItem",
           label: "Insert 1 column left",
           handler: () => {
-            console.log("selectedRowIds", selectedRowIds);
-            console.log("selectedColIds", selectedColIds);
-            console.log("selectionMode", selectionMode);
+            addColumn(selectedColIds[0], "left");
           },
         },
       ];
@@ -244,6 +240,60 @@ function Grid() {
 
     return menuOptions;
   };
+  const arrayInsertItemAtIndex = (index, item, array) => {
+    array.splice(index, 0, item);
+  };
+  const addColumn = (selectedColumnId: number, direction: "left" | "right") => {
+    /**
+     * given a columnId and direction
+     * insert a whole column
+     * i.e add a cell in each row at the given columnId
+     * offset either to the left or right
+     * updates state (rows and columns)
+     **/
+    //make a copy of current rows
+    let newRows = [...rows];
+    //cell index is offset by direction from columnId
+    let cellIndex =
+      direction === "left" ? selectedColumnId : selectedColumnId + 1;
+
+    newRows.forEach((item, index) => {
+      //todo: make a function or something that spits out these values
+      let newCell;
+      if (index === 0) {
+        //make sure this is a header cell
+        newCell = { type: "header", text: "na eee" };
+      } else {
+        //regular cell
+        newCell = { type: "text", text: "hehe" };
+      }
+      arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
+    });
+    //update our columns here
+    //split into two arrays, before and after cellIndex
+    let newColumnsBefore = columns.slice(0, cellIndex);
+    let newColumnsAfter = columns.slice(cellIndex);
+    //add our new column in the before array
+    newColumnsBefore.push({
+      //todo: make a function that spits out this data in our helper
+      columnId: newColumnsBefore.length,
+      //todo: use base26string on this and on the rest of the columnNames
+      columnName: "na eee",
+      width: 100,
+      resizable: true,
+    });
+    //adjust the after array's indecies
+    let startIndex = newColumnsBefore.length;
+    newColumnsAfter = newColumnsAfter.map((item, index) => {
+      return { ...item, columnId: startIndex + index };
+    });
+    //merge the two parts
+    let newColumns = [...newColumnsBefore, ...newColumnsAfter];
+    //update our app's state
+    setRows(newRows);
+    setColumns(newColumns);
+  };
+
   return (
     <>
       <Button

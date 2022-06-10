@@ -1,13 +1,57 @@
 import { ROW_COUNT, COLUMN_NAMES } from "./constants";
 /* GRID HELPERS */
-const getFirstRow = () => {
+const charRange = (start, stop) => {
+  var result = [];
+
+  // get all chars from starting char
+  // to ending char
+  var i = start.charCodeAt(0),
+    last = stop.charCodeAt(0) + 1;
+  for (i; i < last; i++) {
+    result.push(String.fromCharCode(i));
+  }
+
+  return result;
+};
+const toString26 = (num) => {
+  var alpha = charRange("a", "z");
+  var result = "";
+
+  // no letters for 0 or less
+  if (num < 1) {
+    return result;
+  }
+
+  var quotient = num,
+    remainder;
+
+  // until we have a 0 quotient
+  while (quotient !== 0) {
+    // compensate for 0 based array
+    var decremented = quotient - 1;
+
+    // divide by 26
+    quotient = Math.floor(decremented / 26);
+
+    // get remainder
+    remainder = decremented % 26;
+
+    // prepend the letter at index of remainder
+    result = alpha[remainder] + result;
+  }
+
+  return result;
+};
+
+const getFirstRow = (length = 27) => {
   /*
-  this is our first row (column, generated using data from initialRow)
+  this is our first row
   */
+  const columns = getColumns(length);
   return {
     rowId: "header",
-    cells: COLUMN_NAMES.map((col) => {
-      return { type: "header", text: col };
+    cells: columns.map((col) => {
+      return { type: "header", text: col.columnName };
     }),
   };
 };
@@ -23,19 +67,30 @@ const getRows = () => {
   return generateRows(ROW_COUNT, [getFirstRow()]);
 };
 
-const getColumns = () => {
-  /* 
-    decides metadata like width and height of columns 
-    retuns columns
-  */
-  return COLUMN_NAMES.map((text, index) => {
+const getColumns = (length = 27) => {
+  /**
+   * given a length generate the columns react-grid needs and we need to display stuff
+   * note this is different from first row in our rows
+   *
+   * decides metadata like width and height of columns
+   * retuns columns
+   **/
+  let columns = [];
+  for (let i = 0; i < length; i++) {
     //make first COLUMN smaller
     let width = 100;
-    if (index === 0) {
+    if (i === 0) {
       width = 60;
     }
-    return { columnId: index, columnName: text, width, resizable: true };
-  });
+
+    columns.push({
+      columnId: i,
+      columnName: toString26(i).toUpperCase(),
+      width: width,
+      resizable: true,
+    });
+  }
+  return columns;
 };
 
 const updateCell = (changes, prevRows) => {
@@ -106,8 +161,11 @@ const jsonToData = (json) => {
     take parsed json from the server and turn it into something client can use
     returns rows
  */
+  //todo: add a check?
+  //if (!json || json.length === 0)return false;
+  let columnLength = json[0].length + 1; // +1 because the first column is the row count one
   //our first row (columns)
-  const firstRow = [getFirstRow()];
+  const firstRow = [getFirstRow(columnLength)];
 
   const rows = json.map((row, index) => {
     //since we're inserting a first row after this, we offset our index by 1
