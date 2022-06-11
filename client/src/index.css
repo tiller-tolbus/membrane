@@ -11,10 +11,8 @@ code {
 }
 main {
   margin-left: 1em;
-  width: 95vw;
 }
 .grid-container {
-  width: 95vw;
   height: 85vh;
   overflow: scroll;
 }

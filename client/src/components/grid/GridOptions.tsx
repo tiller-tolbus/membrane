@@ -31,7 +31,13 @@ export default function GridOptions({ addRowsCb }) {
   };
   return (
     <Stack
-      sx={{ marginTop: "1em", marginBottom: "1em" }}
+      sx={{
+        marginTop: "1em",
+        marginBottom: "1em",
+        position: "absolute",
+        bottom: 0,
+        backgroundColor: "#fff",
+      }}
       direction="row"
       spacing={2}
       alignItems="center"

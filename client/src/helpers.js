@@ -219,4 +219,5 @@ export {
   jsonToData,
   reiszeColumns,
   isDev,
+  toString26,
 };

@@ -10,7 +10,12 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "./grid-custom-styles.css";
-import { updateCell, reiszeColumns, generateRows } from "../../helpers";
+import {
+  updateCell,
+  reiszeColumns,
+  generateRows,
+  toString26,
+} from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { Button } from "@mui/material";
@@ -200,25 +205,23 @@ function Grid() {
         ...menuOptions,
         {
           id: "insertRowTopMenuItem",
-          label: "Insert 1 row top",
+          label: "Insert 1 row above",
           handler: () => {
-            console.log("selectedRowIds", selectedRowIds);
-            console.log("selectedColIds", selectedColIds);
-            console.log("selectionMode", selectionMode);
+            addRow(selectedRowIds[0], "above");
           },
         },
         {
           id: "insertRowBottomMenuItem",
-          label: "Insert 1 row bottom",
+          label: "Insert 1 row below",
           handler: () => {
-            console.log("selectedRowIds", selectedRowIds);
-            console.log("selectedColIds", selectedColIds);
-            console.log("selectionMode", selectionMode);
+            addRow(selectedRowIds[0], "below");
           },
         },
       ];
     }
     if (selectionMode === "column") {
+      //exclude the first column from having these extra options
+      if (selectedColIds[0] === 0) return menuOptions;
       menuOptions = [
         ...menuOptions,
         {
@@ -251,58 +254,122 @@ function Grid() {
      * offset either to the left or right
      * updates state (rows and columns)
      **/
+
     //make a copy of current rows
     let newRows = [...rows];
+    let newColumns = [...columns];
     //cell index is offset by direction from columnId
     let cellIndex =
       direction === "left" ? selectedColumnId : selectedColumnId + 1;
 
-    newRows.forEach((item, index) => {
-      //todo: make a function or something that spits out these values
-      let newCell;
-      if (index === 0) {
-        //make sure this is a header cell
-        newCell = { type: "header", text: "na eee" };
-      } else {
-        //regular cell
-        newCell = { type: "text", text: "hehe" };
-      }
-      arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
-    });
     //update our columns here
     //split into two arrays, before and after cellIndex
-    let newColumnsBefore = columns.slice(0, cellIndex);
-    let newColumnsAfter = columns.slice(cellIndex);
+    //todo: interact with a copy of columns.... not columns itself
+    let newColumnsBefore = newColumns.slice(0, cellIndex);
+    let newColumnsAfter = newColumns.slice(cellIndex);
     //add our new column in the before array
     newColumnsBefore.push({
       //todo: make a function that spits out this data in our helper
       columnId: newColumnsBefore.length,
       //todo: use base26string on this and on the rest of the columnNames
-      columnName: "na eee",
+      columnName: toString26(newColumnsBefore.length).toUpperCase(),
       width: 100,
       resizable: true,
     });
     //adjust the after array's indecies
     let startIndex = newColumnsBefore.length;
     newColumnsAfter = newColumnsAfter.map((item, index) => {
-      return { ...item, columnId: startIndex + index };
+      return {
+        ...item,
+        columnId: startIndex + index,
+        columnName: toString26(startIndex + index).toUpperCase(),
+      };
     });
     //merge the two parts
-    let newColumns = [...newColumnsBefore, ...newColumnsAfter];
+    const finalColumns = [...newColumnsBefore, ...newColumnsAfter];
+    //update our rows here
+    newRows.forEach((item, index) => {
+      let newCell;
+      if (index === 0) {
+        //header cells
+        //use the generated columns above here
+        //update the title of the first row (columns)
+        let newCells = finalColumns.map((item) => {
+          console.log("item", item);
+          return { type: "header", text: item.columnName };
+        });
+        newRows[0].cells = newCells;
+      } else {
+        //regular cells
+        //add a new empty cell in this row at the index we have
+        newCell = { type: "text", text: "" };
+        //insert newCells at the current index
+        arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
+      }
+    });
+
     //update our app's state
     setRows(newRows);
-    setColumns(newColumns);
+    setColumns(finalColumns);
+  };
+  const addRow = (selectedRowId: number, direction: "above" | "below") => {
+    /**
+     * given a row id and direction
+     * insert a whole row
+     * offset either to be above or below currently selected row
+     * updates state (rows )
+     **/
+    //make a copy of current rows
+    let newRows = [...rows];
+    //cell index is offset by direction from columnId
+    let rowIndex = direction === "above" ? selectedRowId : selectedRowId + 1;
+    //split into tow arrays, before rowIndex and afterRowIndex
+    //split into two arrays, before and after cellIndex
+    let newRowsBefore = newRows.slice(0, rowIndex);
+    let newRowsAfter = newRows.slice(rowIndex);
+
+    //add our new row in the before array
+
+    newRowsBefore.push({
+      rowId: newRowsBefore.length,
+      //only really using this for the length value
+      cells: newRowsBefore[0].cells.map((item, index) => {
+        if (index === 0) {
+          return {
+            type: "text",
+            text: newRowsBefore.length.toString(),
+            nonEditable: true,
+          };
+        }
+        return { type: "text", text: "" };
+      }),
+    });
+    let startIndex = newRowsBefore.length;
+
+    //increment the row ids and the first cell  text(count cell ) of each of these rows
+    newRowsAfter = newRowsAfter.map((item, index) => {
+      let newCells = [...item.cells];
+      newCells[0].text = (startIndex + index).toString();
+      return {
+        rowId: startIndex + index,
+        cells: newCells,
+      };
+    });
+    //merge the two arrays
+    let finalRows = [...newRowsBefore, ...newRowsAfter];
+    //update rows state
+    setRows(finalRows);
   };
 
   return (
-    <>
-      <Button
+    <div>
+      {/*  <Button
         onClick={() =>
           console.log(formulateFormula("=SUM(A1,A2,F1,K741,Z41)", 13, 7))
         }
       >
         sds
-      </Button>
+      </Button>*/}
       <div className={"grid-container"}>
         <ReactGrid
           rows={rows}
@@ -322,7 +389,7 @@ function Grid() {
           setRows(newRows);
         }}
       />
-    </>
+    </div>
   );
 }
 export default memo(Grid);

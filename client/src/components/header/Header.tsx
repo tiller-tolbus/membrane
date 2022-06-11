@@ -10,10 +10,15 @@ import verbiage from "../../verbiage";
 export default function Header({ connected, synced, syncSheet }) {
   return (
     <Stack
-      marginTop={"1.5em"}
-      marginBottom={"1em"}
       direction="row"
       justifyContent={"space-between"}
+      sx={{
+        position: "sticky",
+        top: 0,
+        paddingTop: 1,
+        paddingBottom: 1,
+        paddingRight: 2,
+      }}
     >
       <Stack direction="row" spacing={1} alignItems="center">
         <Typography variant="h4">{verbiage.appName}</Typography>
