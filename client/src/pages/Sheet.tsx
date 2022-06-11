@@ -11,7 +11,7 @@ import Box from "@mui/material/Box";
 import AlertTitle from "@mui/material/AlertTitle";
 
 import useStore from "../store";
-import { getColumns, getRows, jsonToData } from "../helpers";
+import { getColumns, getRows, jsonToData, formulateFormula } from "../helpers";
 import verbiage from "../verbiage";
 
 function CircularIndeterminate() {
@@ -95,16 +95,34 @@ function Sheet() {
       //if we have data saved use it, otherwise generate an empty grid
 
       if (data && data.length > 0) {
-        //columns are independt of row results (need column length to generate names)
-
+        /**
+         *columns are independt of row results (need column length to generate names)
+         *but has to be rendered around the same time as rows
+         **/
         const columnLength = data[0].length + 1; // +1 because the first column is the row count one
-        // but has to be rendered around the same time as rows
-        setColumns(getColumns(columnLength));
 
-        /* do formula stuff before setting rows ???????? */
+        /* do formula stuff before setting rows  */
         const parsedData = jsonToData(data);
-        setRows(parsedData);
+        let newRows;
+        //go through each cell to eval formula if any
+        parsedData.forEach((row, rowIndex) => {
+          row.cells.forEach((cell, cellIndex) => {
+            let potentiallyNewerRows = formulateFormula(
+              cell.text,
+              cellIndex,
+              rowIndex,
+              parsedData
+            );
+            if (potentiallyNewerRows) newRows = potentiallyNewerRows;
+          });
+        });
+        //we didn't eval a single formula default to the parsed data
+        if (!newRows || newRows.length === 0) newRows = parsedData;
+
+        setColumns(getColumns(columnLength));
+        setRows(newRows);
       } else {
+        //no data could be fetched, intitalise grid with generated data
         setColumns(getColumns());
         setRows(getRows());
       }

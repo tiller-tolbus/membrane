@@ -1,4 +1,6 @@
 import { ROW_COUNT, COLUMN_NAMES } from "./constants";
+import availableFormulas from "./components/grid/formulajs";
+
 /* GRID HELPERS */
 const charRange = (start, stop) => {
   var result = [];
@@ -92,7 +94,173 @@ const getColumns = (length = 27) => {
   }
   return columns;
 };
+const fetchCellValue = (cellName, rows) => {
+  /*
+   * Given a celll name
+   * (pattern =>  alphabet char followed by a numeric string) (for now)
+   * assumes grid is in Alphanumerical order (x and y)
+   * it will output the current content of that cell along with it's coordinates in rows (columnId, rowId)
+   * todo: should also eventually do arrays
+   * and eventually cells should have identifiers for ease of use...
+   *
+   */
 
+  //no cellName nothing to do
+  if (!cellName) return false;
+
+  //split string into alphabet / numeral
+  let splitName = cellName.match(/[a-zA-Z]+|[0-9]+/g);
+
+  let columnName = splitName[0];
+  let row = splitName[1];
+  //either value doesn't exist, return false
+  if (!columnName || !row) return false;
+
+  let column;
+  //find column in the header list, and the index will be the position in row
+  rows[0].cells.forEach((cell, index) => {
+    if (cell.text === columnName) {
+      //found our column here, save the index
+      column = index;
+    }
+  });
+  //nothing found return false
+  if (!column) return false;
+  //if we have both row and column value, try to access the cell, and return it's content
+  let cellValue = rows[row].cells[column];
+  //for some reason, no cellValue can be found, return false
+  if (!cellValue) return;
+  //found the value we need, construct an object we can use elsewhere
+  return { value: cellValue.text, columnId: column, rowId: row };
+};
+const fetchFormulaData = (cellValue, rows) => {
+  if (!cellValue) return false;
+  //if our cellValue starts with "=" than we have a formula on our hands
+  if (cellValue[0] !== "=") {
+    return false;
+  }
+  //try to get at the formula
+  const foundFormula = cellValue.slice(
+    cellValue.indexOf("=") + 1,
+    cellValue.indexOf("(")
+  );
+  //no formula bye bye
+  if (!foundFormula) return false;
+
+  //todo: add feedback in above case
+  const currentFormula = availableFormulas.filter(
+    (formula) => formula.name === foundFormula
+  );
+  //formula function not found in our availableFormulas list, nothing to evaluate, return false
+  if (currentFormula && currentFormula.length === 0) return false;
+  //get all our params here
+  //our params are in between "(" ")", seprated by ","
+  const betweenBrackets = cellValue.slice(
+    cellValue.indexOf("(") + 1,
+    cellValue.indexOf(")")
+  );
+  const paramList = betweenBrackets.split(",");
+  //convert paramsInto values we can pass to our Formula
+  //todo: remove space around characeters? help user out
+  const valueList = paramList.map((item) => fetchCellValue(item, rows));
+  let allValuesExist = true;
+  valueList.forEach((item) => {
+    if (item === false) {
+      allValuesExist = false;
+    }
+  });
+  //some of the cells did not evulate, can't proceed, return false
+  //todo: feedback
+  if (!allValuesExist) return false;
+  //before we can actually excute we need to transform the list into [1,2,3,4,5]
+  const executableList = valueList.map((item) => item.value);
+  //add onChange
+  const formulaData = {
+    ...currentFormula[0],
+    valueList,
+    nonEvaledText: cellValue,
+  };
+  return formulaData;
+};
+const formulateFormula = (cellValue, columnId, rowId, rows) => {
+  /**
+   * todo: comment better
+   * check to find our avlbl forumla between "=" and the first "("
+   */
+  const formulaData = fetchFormulaData(cellValue, rows);
+
+  if (formulaData === false) return false;
+  //update formula cell withe formula data using row and column id
+  let newRows = [...rows];
+
+  newRows[rowId].cells[columnId] = {
+    ...newRows[rowId].cells[columnId],
+    formulaData,
+    //update the formula cell value too using our value list and execute foo
+    text: formulaData
+      .execute(formulaData.valueList.map((item) => item.value))
+      .toString(),
+  };
+  //update each param cell to have formulaLocation and update function too trigger on change
+  formulaData.valueList.forEach((item) => {
+    let cellRowId = item.rowId;
+    let cellColumnId = item.columnId;
+    //TODO: handle having multiple of these
+    //ie one data structure containing all the formula cells depending on this one's value
+
+    //add on change function that updates the value in formula cells
+    newRows[cellRowId].cells[cellColumnId] = {
+      ...newRows[cellRowId].cells[cellColumnId],
+      formulaLocation: { columnId, rowId },
+      updateFormulaFoo(
+        updatedValue,
+        formulaLocation,
+        currentCellLocation,
+        rows
+      ) {
+        /**
+         * this runs on cell change
+         * this goes to formula cell and updates it depending on the updatedValue
+         * todo:clean it up
+         * todo: validate input (display error state in formula cell if no logic value can be derived here)
+         */
+        const formulaColId = formulaLocation.columnId;
+        const formulaRowId = formulaLocation.rowId;
+        const { columnId, rowId } = currentCellLocation;
+
+        let newFormulaCell = { ...rows[formulaRowId].cells[formulaColId] };
+        let newFormulaData = {
+          ...rows[formulaRowId].cells[formulaColId].formulaData,
+        };
+        //update valueList with the current cellValue
+        //TODO: optmise if no changes cancel the rest of this
+
+        let newValueList = newFormulaData.valueList.map((item) => {
+          //todo: make all the values (ids) numbers not stringed numbers
+          if (columnId == item.columnId && rowId == item.rowId) {
+            //found the value to update
+            return { ...item, value: updatedValue };
+          }
+          return item;
+        });
+        newFormulaData.valueList = newValueList;
+        //we have change in our param cells, that means update formula cell
+        const executableList = newFormulaData.valueList.map(
+          (item) => item.value
+        );
+
+        //update the value
+        newFormulaCell.formulaData = newFormulaData;
+        newFormulaCell.text = newFormulaData.execute(executableList).toString();
+        //update the formula cell with our values
+        rows[formulaRowId].cells[formulaColId] = newFormulaCell;
+      },
+    };
+  });
+  //update the cell with the new formula data and update the param cells with their data
+  //setRows(newRows);
+  return newRows;
+};
 const updateCell = (changes, prevRows) => {
   //use the changes object to directly access the correct cell and update it using the new text!
   const { rowId, columnId, newCell } = changes[0];
@@ -100,6 +268,8 @@ const updateCell = (changes, prevRows) => {
   newRows[rowId].cells[columnId].text = newCell.text;
   const { updateFormulaFoo, formulaLocation } = newRows[rowId].cells[columnId];
   //F1
+  //todo: multiple of these [...]
+  //todo: handle if this is a formula
   if (formulaLocation) {
     updateFormulaFoo(
       newCell.text,
@@ -108,6 +278,17 @@ const updateCell = (changes, prevRows) => {
       newRows
     );
   }
+  /*
+  let potentiallyNewerRows = formulateFormula(
+    newCell.text,
+    columnId,
+    rowId,
+    newRows
+  );
+  console.log("potentiallyNewerRows", potentiallyNewerRows);
+  if (potentiallyNewerRows && potentiallyNewerRows.length > 0)
+    newRows = potentiallyNewerRows;
+    */
   return newRows;
 };
 
@@ -200,6 +381,10 @@ const dataToJson = (data) => {
     //exclude the first cell (1,2,3...) (row count cell)
     newCells.shift();
     return newCells.map((item) => {
+      //handle formula cell values (don't send formula results, send formula)
+      if (item.formulaData && item.formulaData.nonEvaledText) {
+        return item.formulaData.nonEvaledText;
+      }
       return item.text;
     });
   });
@@ -220,4 +405,5 @@ export {
   reiszeColumns,
   isDev,
   toString26,
+  formulateFormula,
 };
