@@ -206,6 +206,7 @@ function Grid() {
     let finalRows = [...newRowsBefore, ...newRowsAfter];
     //update rows state
     setRows(finalRows);
+    
   };
   /**
    * todo: two formulas and more can have a param cell in common
