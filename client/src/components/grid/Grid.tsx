@@ -18,8 +18,8 @@ import {
 } from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
-import { Button } from "@mui/material";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
+import SelectedCell from "./SelectedCell";
 
 function Grid() {
   const rows = useStore((store) => store.rows);
@@ -27,6 +27,8 @@ function Grid() {
 
   const columns = useStore((store) => store.columns);
   const setColumns = useStore((store) => store.setColumns);
+
+  const setSelectedCell = useStore((store) => store.setSelectedCell);
 
   const handleColumnResize = (ci: Id, width: number) => {
     const newColumns = reiszeColumns(columns, ci, width);
@@ -38,7 +40,6 @@ function Grid() {
     //todo: little issues arise from not updating rows each time at the price of performence
     setRows(updateCell(changes, rows));
   };
-
 
   const handleContextMenu = (
     selectedRowIds: number[],
@@ -206,16 +207,18 @@ function Grid() {
     let finalRows = [...newRowsBefore, ...newRowsAfter];
     //update rows state
     setRows(finalRows);
-    
   };
   /**
    * todo: two formulas and more can have a param cell in common
    * display error state in formulas
-   * see formula value here
+   * show formula value
+   * user can edit formulas, find a way to unhook and rehook...
+   * show selected cell name (A1)
    */
   return (
     <div>
       <div className={"grid-container"}>
+        <SelectedCell />
         <ReactGrid
           rows={rows}
           columns={columns}
@@ -226,6 +229,13 @@ function Grid() {
           enableRowSelection
           enableColumnSelection
           onContextMenu={handleContextMenu}
+          onFocusLocationChanged={(cellLocation) => {
+            const { columnId, rowId } = cellLocation;
+            const cellData = rows[rowId]?.cells[columnId];
+            if (cellData) {
+              setSelectedCell(cellData);
+            }
+          }}
         />
       </div>
       <GridOptions
