@@ -266,6 +266,21 @@ const updateCell = (changes, prevRows) => {
   const { rowId, columnId, newCell } = changes[0];
   let newRows = [...prevRows];
   newRows[rowId].cells[columnId].text = newCell.text;
+  //uncomment this to get cell styles
+  /*
+  newRows[rowId].cells[columnId].type = "extendedText";
+  newRows[rowId].cells[columnId].customStyles = {
+    backgroundColor: "#4caf50",
+    bold: true,
+    italic: true,
+    color: "purple",
+    fontSize: 16,
+    strikeThrough: true,
+  };
+  */
+  /* newRows[rowId].cells[columnId].renderer = () => (
+    <Foo bg={"orange"} text={newCell.text} />
+  );*/
   const { updateFormulaFoo, formulaLocation } = newRows[rowId].cells[columnId];
   //F1
   //todo: multiple of these [...]
