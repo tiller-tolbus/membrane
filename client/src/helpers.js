@@ -59,7 +59,7 @@ const getFirstRow = (length = 27) => {
 };
 const getFirstCell = (text) => {
   /* returns what the first cell of each row should contain and what mete data it should have */
-  return { type: "text", text, nonEditable: true };
+  return { type: "extendedText", text, nonEditable: true };
 };
 const getRows = () => {
   /*
@@ -328,7 +328,7 @@ const generateRows = (rowCount, oldRows) => {
         extraParams = getFirstCell(newRows.length.toString());
       }
 
-      cells.push({ type: "text", text: "", ...extraParams });
+      cells.push({ type: "extendedText", text: "", ...extraParams });
     }
     //insert the id of the new row and insert the row
     newRows.push({
@@ -371,7 +371,7 @@ const jsonToData = (json) => {
     cells.push(getFirstCell(offsetIndex.toString()));
     //add the rest of the data from the json
     row.map((item) => {
-      cells.push({ type: "text", text: item });
+      cells.push({ type: "extendedText", text: item });
     });
     return {
       rowId: offsetIndex,

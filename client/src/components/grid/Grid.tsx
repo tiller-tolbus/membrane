@@ -19,7 +19,7 @@ import {
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
-import SelectedCell from "./SelectedCell";
+import CellOptions from "./CellOptions";
 import { ExtendedTextCell } from "./ExtendedTextCell";
 
 function Grid() {
@@ -218,8 +218,9 @@ function Grid() {
    */
   return (
     <div>
+      <CellOptions />
+
       <div className={"grid-container"}>
-        <SelectedCell />
         <ReactGrid
           rows={rows}
           columns={columns}
@@ -234,7 +235,13 @@ function Grid() {
             const { columnId, rowId } = cellLocation;
             const cellData = rows[rowId]?.cells[columnId];
             if (cellData) {
-              setSelectedCell(cellData);
+              //make the cell name
+              let name = (toString26(columnId) + rowId)?.toUpperCase();
+              setSelectedCell({
+                cellData: { ...cellData },
+                location: { columnId, rowId },
+                name,
+              });
             }
           }}
           customCellTemplates={{ extendedText: new ExtendedTextCell() }}

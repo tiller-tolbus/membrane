@@ -117,7 +117,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
             top: 0,
             display: "flex",
             alignItems: "center",
-            fontWeight: customStyles?.bold ? "bold" : "auto",
+            fontWeight: customStyles?.bold ? "bold" : "normal",
             fontStyle: customStyles?.italic ? "italic" : "normal",
             textDecoration: customStyles?.strikeThrough
               ? "line-through"
