@@ -210,6 +210,7 @@ function Grid() {
     setRows(finalRows);
   };
   /**
+   * -important: start using deep copy https://lodash.com/docs/4.17.15#cloneDeep 
    * todo: two formulas and more can have a param cell in common
    * display error state in formulas
    * show formula value

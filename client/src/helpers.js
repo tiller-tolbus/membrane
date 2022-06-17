@@ -182,6 +182,51 @@ const fetchFormulaData = (cellValue, rows) => {
   };
   return formulaData;
 };
+const updateFormulaFoo = (
+  updatedValue,
+  formulaLocation,
+  currentCellLocation,
+  rows
+) => {
+  /**
+   * this runs on cell change
+   * this goes to formula cell and updates it depending on the updatedValue
+   * todo:clean it up
+   * todo: validate input (display error state in formula cell if no logic value can be derived here)
+   */
+  let newRows = [...rows];
+  const formulaColId = formulaLocation.columnId;
+  const formulaRowId = formulaLocation.rowId;
+  const { columnId, rowId } = currentCellLocation;
+
+  let newFormulaCell = { ...newRows[formulaRowId].cells[formulaColId] };
+  let newFormulaData = {
+    ...newRows[formulaRowId].cells[formulaColId].formulaData,
+  };
+  //update valueList with the current cellValue
+  //TODO: optmise if no changes cancel the rest of this
+
+  let newValueList = newFormulaData.valueList.map((item) => {
+    //todo: make all the values (ids) numbers not stringed numbers
+    if (columnId == item.columnId && rowId == item.rowId) {
+      //found the value to update
+      return { ...item, value: updatedValue };
+    }
+    return item;
+  });
+  newFormulaData.valueList = newValueList;
+  //we have change in our param cells, that means update formula cell
+  const executableList = newFormulaData.valueList.map((item) => item.value);
+
+  //update the value
+  newFormulaCell.formulaData = newFormulaData;
+  newFormulaCell.text = newFormulaData.execute(executableList).toString();
+  //update the formula cell with our values
+  newRows[formulaRowId].cells[formulaColId] = newFormulaCell;
+
+  return newRows;
+};
+
 const formulateFormula = (cellValue, columnId, rowId, rows) => {
   /**
    * todo: comment better
@@ -207,58 +252,34 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     let cellColumnId = item.columnId;
     //TODO: handle having multiple of these
     //ie one data structure containing all the formula cells depending on this one's value
-
-    //add on change function that updates the value in formula cells
-    newRows[cellRowId].cells[cellColumnId] = {
-      ...newRows[cellRowId].cells[cellColumnId],
-      formulaLocation: { columnId, rowId },
-      updateFormulaFoo(
-        updatedValue,
-        formulaLocation,
-        currentCellLocation,
-        rows
-      ) {
-        /**
-         * this runs on cell change
-         * this goes to formula cell and updates it depending on the updatedValue
-         * todo:clean it up
-         * todo: validate input (display error state in formula cell if no logic value can be derived here)
-         */
-        const formulaColId = formulaLocation.columnId;
-        const formulaRowId = formulaLocation.rowId;
-        const { columnId, rowId } = currentCellLocation;
-
-        let newFormulaCell = { ...rows[formulaRowId].cells[formulaColId] };
-        let newFormulaData = {
-          ...rows[formulaRowId].cells[formulaColId].formulaData,
-        };
-        //update valueList with the current cellValue
-        //TODO: optmise if no changes cancel the rest of this
-
-        let newValueList = newFormulaData.valueList.map((item) => {
-          //todo: make all the values (ids) numbers not stringed numbers
-          if (columnId == item.columnId && rowId == item.rowId) {
-            //found the value to update
-            return { ...item, value: updatedValue };
-          }
-          return item;
-        });
-        newFormulaData.valueList = newValueList;
-        //we have change in our param cells, that means update formula cell
-        const executableList = newFormulaData.valueList.map(
-          (item) => item.value
-        );
-
-        //update the value
-        newFormulaCell.formulaData = newFormulaData;
-        newFormulaCell.text = newFormulaData.execute(executableList).toString();
-        //update the formula cell with our values
-        rows[formulaRowId].cells[formulaColId] = newFormulaCell;
-      },
-    };
+    //make a copy
+    const currentCell = { ...newRows[cellRowId].cells[cellColumnId] };
+    //this cell already has a formula, concat the new one on top of these
+    if (
+      currentCell.dependantFormulas &&
+      currentCell.dependantFormulas.length > 0
+    ) {
+      newRows[cellRowId].cells[cellColumnId] = {
+        ...currentCell,
+        //CONSIDERATION: do we always concat?
+        //CONSIDERATION: is there possible duplication here?
+        dependantFormulas: [
+          ...currentCell.dependantFormulas,
+          { columnId, rowId },
+        ],
+      };
+    }
+    //this is the first formula here
+    else {
+      newRows[cellRowId].cells[cellColumnId] = {
+        ...currentCell,
+        //CONSIDERATION: do we always concat?
+        //CONSIDERATION: is there possible duplication here?
+        dependantFormulas: [{ columnId, rowId }],
+      };
+    }
   });
-  //update the cell with the new formula data and update the param cells with their data
-  //setRows(newRows);
+  //return the new udpate rows
   return newRows;
 };
 const updateCell = (changes, prevRows) => {
@@ -266,33 +287,29 @@ const updateCell = (changes, prevRows) => {
   const { rowId, columnId, newCell } = changes[0];
   let newRows = [...prevRows];
   newRows[rowId].cells[columnId].text = newCell.text;
-  //uncomment this to get cell styles
-  /*
-  newRows[rowId].cells[columnId].type = "extendedText";
-  newRows[rowId].cells[columnId].customStyles = {
-    backgroundColor: "#4caf50",
-    bold: true,
-    italic: true,
-    color: "purple",
-    fontSize: 16,
-    strikeThrough: true,
-  };
-  */
-  /* newRows[rowId].cells[columnId].renderer = () => (
-    <Foo bg={"orange"} text={newCell.text} />
-  );*/
-  const { updateFormulaFoo, formulaLocation } = newRows[rowId].cells[columnId];
-  //F1
-  //todo: multiple of these [...]
-  //todo: handle if this is a formula
-  if (formulaLocation) {
-    updateFormulaFoo(
-      newCell.text,
-      formulaLocation,
-      { columnId, rowId },
-      newRows
-    );
+
+  const { dependantFormulas } = newRows[rowId].cells[columnId];
+  //this cell has one or more depandant formulas
+  if (dependantFormulas && dependantFormulas.length > 0) {
+    dependantFormulas.forEach((item) => {
+      const formulaLocation = item;
+      newRows = updateFormulaFoo(
+        newCell.text,
+        formulaLocation,
+        { columnId, rowId },
+        newRows
+      );
+    });
   }
+  //check if user entered a formula
+  //CONSIDERATION: does the below and above conflict (rows updates)????
+  let potentiallyNewerRows = formulateFormula(
+    newCell.text,
+    columnId,
+    rowId,
+    newRows
+  );
+  if (potentiallyNewerRows) newRows = potentiallyNewerRows;
   /*
   let potentiallyNewerRows = formulateFormula(
     newCell.text,
