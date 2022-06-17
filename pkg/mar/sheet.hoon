@@ -1,5 +1,5 @@
-/-  *cell
-/+  *cell
+/-  *membrane
+/+  *membrane
 |_  shet=sheet
 ::  grow: methods for converting from our mark to another mark
 ::

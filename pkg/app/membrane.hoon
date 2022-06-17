@@ -1,6 +1,6 @@
 ::  Imports
 ::
-/-  *cell
+/-  *membrane
 /+  default-agent, dbug
 ::  Type core
 ::

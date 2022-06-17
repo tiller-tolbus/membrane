@@ -1,4 +1,4 @@
-/-  *cell
+/-  *membrane
 !:
 |%
 ::  Type core
