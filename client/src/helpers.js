@@ -1,5 +1,6 @@
 import { ROW_COUNT, COLUMN_NAMES } from "./constants";
 import availableFormulas from "./components/grid/formulajs";
+import cloneDeep from "lodash/cloneDeep";
 
 /* GRID HELPERS */
 const charRange = (start, stop) => {
@@ -182,6 +183,130 @@ const fetchFormulaData = (cellValue, rows) => {
   };
   return formulaData;
 };
+
+const formulateFormula = (cellValue, columnId, rowId, rows) => {
+  /**
+   * todo: comment better
+   */
+  const formulaData = fetchFormulaData(cellValue, rows);
+
+  if (formulaData === false) return false;
+  //update formula cell withe formula data using row and column id
+  let newRows = [...rows];
+  //update formula cell with the needed values
+  newRows[rowId].cells[columnId] = {
+    ...newRows[rowId].cells[columnId],
+    formulaData,
+    //update the formula cell value too using our value list and execute foo
+    text: formulaData
+      .execute(formulaData.valueList.map((item) => item.value))
+      .toString(),
+  };
+  //update each param cell to have formulaLocation and update function too trigger on change
+  formulaData.valueList.forEach((item) => {
+    //add current formula to the list of deps in this param cell
+    let cellRowId = item.rowId;
+    let cellColumnId = item.columnId;
+    const currentCell = { ...newRows[cellRowId].cells[cellColumnId] };
+    //this cell already has a formula, concat the new one on top of these
+    if (
+      currentCell.dependantFormulas &&
+      currentCell.dependantFormulas.length > 0
+    ) {
+      newRows[cellRowId].cells[cellColumnId] = {
+        ...currentCell,
+        //CONSIDERATION: do we always concat?
+        //CONSIDERATION: is there possible duplication here?
+        dependantFormulas: [
+          ...currentCell.dependantFormulas,
+          { columnId, rowId },
+        ],
+      };
+    }
+    //this is the first formula here
+    else {
+      newRows[cellRowId].cells[cellColumnId] = {
+        ...currentCell,
+        //CONSIDERATION: do we always concat?
+        //CONSIDERATION: is there possible duplication here?
+        dependantFormulas: [{ columnId, rowId }],
+      };
+    }
+  });
+  //return the new udpate rows
+  return newRows;
+};
+const unHookFormula = (formulaData, columnId, rowId, rows) => {
+  /**
+   * unlike param cells
+   * i.e deleting the ref to the formula cell in dependantFormulas array in param cells
+   * and remove formulaData from given formula cell
+   **/
+  if (formulaData === false) return false;
+  //update formula cell removing the formulaData obj
+  let newRows = cloneDeep(rows);
+  //update formula cell, deleting formulaData
+  let formulaCell = newRows[rowId].cells[columnId];
+  delete formulaCell.formulaData;
+  //update each param cell, removing the link between it and the formula cell
+  formulaData.valueList.forEach((item) => {
+    let cellRowId = item.rowId;
+    let cellColumnId = item.columnId;
+    const currentCell = { ...newRows[cellRowId].cells[cellColumnId] };
+    if (
+      currentCell.dependantFormulas &&
+      currentCell.dependantFormulas.length > 0
+    ) {
+      //make a new dependantFormulas array, removing the current formula
+      let newDependantFormulas = currentCell.dependantFormulas.filter(
+        (item) => {
+          return item.columnId !== columnId || rowId !== item.rowId;
+        }
+      );
+      //if newDependantFormulas are empty ie length == 0, remove them entirely
+      newRows[cellRowId].cells[cellColumnId] = {
+        ...currentCell,
+        dependantFormulas: newDependantFormulas,
+      };
+      if (newDependantFormulas.length === 0) {
+        delete newRows[cellRowId].cells[cellColumnId].dependantFormulas;
+      }
+    }
+  });
+  //return the new udpate rows
+  return newRows;
+};
+const updateCell = (changes, prevRows) => {
+  //use the changes object to directly access the correct cell and update it using the new text!
+  const { rowId, columnId, newCell } = changes[0];
+  let newRows = cloneDeep(prevRows);
+  newRows[rowId].cells[columnId].text = newCell.text;
+
+  const { dependantFormulas } = newRows[rowId].cells[columnId];
+  //this cell has one or more depandant formulas,
+  //we run updateFormulaFoo
+  if (dependantFormulas && dependantFormulas.length > 0) {
+    dependantFormulas.forEach((item) => {
+      const formulaLocation = item;
+      newRows = updateFormulaFoo(
+        newCell.text,
+        formulaLocation,
+        { columnId, rowId },
+        newRows
+      );
+    });
+  }
+  //check if user entered a formula
+  //CONSIDERATION: does the below and above conflict (rows updates)????
+  let potentiallyNewerRows = formulateFormula(
+    newCell.text,
+    columnId,
+    rowId,
+    newRows
+  );
+  if (potentiallyNewerRows) newRows = potentiallyNewerRows;
+  return newRows;
+};
 const updateFormulaFoo = (
   updatedValue,
   formulaLocation,
@@ -226,104 +351,6 @@ const updateFormulaFoo = (
 
   return newRows;
 };
-
-const formulateFormula = (cellValue, columnId, rowId, rows) => {
-  /**
-   * todo: comment better
-   * check to find our avlbl forumla between "=" and the first "("
-   */
-  const formulaData = fetchFormulaData(cellValue, rows);
-
-  if (formulaData === false) return false;
-  //update formula cell withe formula data using row and column id
-  let newRows = [...rows];
-
-  newRows[rowId].cells[columnId] = {
-    ...newRows[rowId].cells[columnId],
-    formulaData,
-    //update the formula cell value too using our value list and execute foo
-    text: formulaData
-      .execute(formulaData.valueList.map((item) => item.value))
-      .toString(),
-  };
-  //update each param cell to have formulaLocation and update function too trigger on change
-  formulaData.valueList.forEach((item) => {
-    let cellRowId = item.rowId;
-    let cellColumnId = item.columnId;
-    //TODO: handle having multiple of these
-    //ie one data structure containing all the formula cells depending on this one's value
-    //make a copy
-    const currentCell = { ...newRows[cellRowId].cells[cellColumnId] };
-    //this cell already has a formula, concat the new one on top of these
-    if (
-      currentCell.dependantFormulas &&
-      currentCell.dependantFormulas.length > 0
-    ) {
-      newRows[cellRowId].cells[cellColumnId] = {
-        ...currentCell,
-        //CONSIDERATION: do we always concat?
-        //CONSIDERATION: is there possible duplication here?
-        dependantFormulas: [
-          ...currentCell.dependantFormulas,
-          { columnId, rowId },
-        ],
-      };
-    }
-    //this is the first formula here
-    else {
-      newRows[cellRowId].cells[cellColumnId] = {
-        ...currentCell,
-        //CONSIDERATION: do we always concat?
-        //CONSIDERATION: is there possible duplication here?
-        dependantFormulas: [{ columnId, rowId }],
-      };
-    }
-  });
-  //return the new udpate rows
-  return newRows;
-};
-const updateCell = (changes, prevRows) => {
-  //use the changes object to directly access the correct cell and update it using the new text!
-  const { rowId, columnId, newCell } = changes[0];
-  let newRows = [...prevRows];
-  newRows[rowId].cells[columnId].text = newCell.text;
-
-  const { dependantFormulas } = newRows[rowId].cells[columnId];
-  //this cell has one or more depandant formulas
-  if (dependantFormulas && dependantFormulas.length > 0) {
-    dependantFormulas.forEach((item) => {
-      const formulaLocation = item;
-      newRows = updateFormulaFoo(
-        newCell.text,
-        formulaLocation,
-        { columnId, rowId },
-        newRows
-      );
-    });
-  }
-  //check if user entered a formula
-  //CONSIDERATION: does the below and above conflict (rows updates)????
-  let potentiallyNewerRows = formulateFormula(
-    newCell.text,
-    columnId,
-    rowId,
-    newRows
-  );
-  if (potentiallyNewerRows) newRows = potentiallyNewerRows;
-  /*
-  let potentiallyNewerRows = formulateFormula(
-    newCell.text,
-    columnId,
-    rowId,
-    newRows
-  );
-  console.log("potentiallyNewerRows", potentiallyNewerRows);
-  if (potentiallyNewerRows && potentiallyNewerRows.length > 0)
-    newRows = potentiallyNewerRows;
-    */
-  return newRows;
-};
-
 const generateRows = (rowCount, oldRows) => {
   /* 
     generate X more rows 
@@ -438,4 +465,5 @@ export {
   isDev,
   toString26,
   formulateFormula,
+  unHookFormula,
 };

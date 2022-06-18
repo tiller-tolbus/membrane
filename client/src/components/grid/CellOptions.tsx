@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useStore from "../../store";
 import Paper from "@mui/material/Paper";
 
@@ -11,34 +11,66 @@ import Button from "@mui/material/Button";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import Box from "@mui/material/Box";
-
+import InputBase from "@mui/material/InputBase";
+import { updateCell, unHookFormula } from "../../helpers";
+interface CellMetaData {
+  cellName: string;
+  cellText: string;
+  isBold: boolean;
+  isItalic: boolean;
+  isFormula: boolean;
+}
 //this component is seperate to avoid rerendirng the whole grid each time focus goes somewhere else
 export default function CellOptions() {
   const [textColor, setTextColor] = useState("");
   const [backgroundColor, setBackgroundColor] = useState("");
 
+  const [cellValueInput, setCellValueInput] = useState<string>("");
+  const [selectedCellMetaData, setSelectedCellMetaData] =
+    useState<CellMetaData>({
+      cellName: "",
+      cellText: "",
+      isBold: false,
+      isItalic: false,
+      isFormula: false,
+    });
   const rows = useStore((store) => store.rows);
   const setRows = useStore((store) => store.setRows);
 
   const selectedCell = useStore((store) => store.selectedCell);
   const setSelectedCell = useStore((store) => store.setSelectedCell);
 
-  //if we have formula, display it's non evaled text, else just display the text
-  let text;
-  let isBold;
-  let isItalic;
-  let cellName;
-  const cellData = selectedCell.cellData;
-  if (cellData) {
-    cellName = selectedCell.name;
-    isBold = !!cellData.customStyles?.bold;
-    isItalic = !!cellData.customStyles?.italic;
-    if (cellData.formulaData && cellData.formulaData.nonEvaledText) {
-      text = cellData.formulaData.nonEvaledText;
-    } else {
-      text = cellData.text;
+  useEffect(() => {
+    if (selectedCell?.cellData) {
+      const cellData = selectedCell.cellData;
+      //if we have formula, display it's non evaled text, else just display the text
+      let cellText = "";
+      let isBold = false;
+      let isItalic = false;
+      let cellName = "";
+      let isFormula = false;
+
+      cellName = selectedCell.name;
+      isBold = !!cellData.customStyles?.bold;
+      isItalic = !!cellData.customStyles?.italic;
+      if (cellData.formulaData && cellData.formulaData.nonEvaledText) {
+        isFormula = true;
+        cellText = cellData.formulaData.nonEvaledText;
+      } else {
+        cellText = cellData.text;
+      }
+      const newCellMetaData = {
+        cellText,
+        isBold,
+        isItalic,
+        cellName,
+        isFormula,
+      };
+      setSelectedCellMetaData(newCellMetaData);
+      //default value for our input
+      setCellValueInput(cellText);
     }
-  }
+  }, [selectedCell]);
 
   const makeCellBold = () => {
     if (!selectedCell) return false;
@@ -134,11 +166,47 @@ export default function CellOptions() {
     //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
   };
+
+  const updateCellValue = () => {
+    /**
+     * updates cell value and updates formula if need be
+     *  */
+    const { columnId, rowId } = selectedCell.location;
+    //get the location
+    //update the text here before calling updateCell
+    const newCell = { ...selectedCell.cellData, text: cellValueInput };
+    const updateCellData = { columnId, rowId, newCell };
+
+    if (selectedCellMetaData.isFormula) {
+      //we have a new formula
+      //unhook all the deps of the previous formula
+      let newRows = unHookFormula(
+        selectedCell.cellData.formulaData,
+        columnId,
+        rowId,
+        rows
+      );
+      //pass the data so the changes can be made (handles the new value wether it's a new formula or just a plain text)
+      //commit to state
+      setRows(updateCell([updateCellData], newRows));
+    } else {
+      //pass the data so the changes can be made, and commit to state
+      setRows(updateCell([updateCellData], rows));
+    }
+
+    return;
+  };
+  const keyHandler = (event) => {
+    //if a user pressed enter in the cell value input
+    if (event.keyCode === 13) {
+      updateCellValue();
+    }
+  };
   //todo: user can edit this cell here
-  //todo: add the name of the currently selected cell (A1....)
   //todo: make sticky(style this in general)
   //todo: refractor these functions
-  //todo: if no styles; disable remove styles button
+  //todo: on keydown, remove focus from input to tell the user a change has been affected
+  const { isBold, isItalic, cellName, cellText } = selectedCellMetaData;
   return (
     <>
       <Stack flexDirection="row">
@@ -225,7 +293,15 @@ export default function CellOptions() {
             flexItem
             sx={{ paddingLeft: 1, paddingRight: 1 }}
           />
-          <p style={{ marginLeft: 0.5 }}>{text}</p>
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            value={cellValueInput}
+            onChange={(e) => {
+              setCellValueInput(e.target.value);
+            }}
+            inputProps={{ "aria-label": "update the currently selected cell" }}
+            onKeyDown={keyHandler}
+          />
         </Stack>
       </Paper>
     </>

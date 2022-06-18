@@ -308,12 +308,9 @@ function Grid() {
   };
   /**
    * -important: start using deep copy https://lodash.com/docs/4.17.15#cloneDeep
-   * todo: two formulas and more can have a param cell in common
    * display error state in formulas
-   * show formula value
-   * user can edit formulas, find a way to unhook and rehook...
-   * show selected cell name (A1)
    * todo: update formulas on deleting rows/columns since the deletion can probably affect the param cells/formula cells
+   * todo: update selected cell value to display correctly
    */
   return (
     <div>
