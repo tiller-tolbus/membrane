@@ -4,12 +4,14 @@ type Sheet = {
 }
 
 type SheetMeta = {
+    id: string;
     title: string;
     owner: string;
     tags: Set<Tag>;
-    rowMeta: Set<RowVisual>;
-    columnMeta: Set<ColumnVisual>;
+    rowMeta: Map<number, Set<Visual>>;
+    columnMeta: Map<number, Set<Visual>>;
     whitelist: Whitelist;
+    lastModified: Date;
 }
 
 type Address = {
@@ -20,16 +22,11 @@ type Address = {
 type Tag = string;
 
 type Cell = {
-    meta: CellMeta;
+    meta: Set<Visual>;
     data: {
         input: string;
         output: string;
     }
-}
-
-type CellMeta = {
-    format: Set<Visual>;
-    whitelist: Whitelist;
 }
 
 type Visual = {
@@ -42,15 +39,9 @@ type Visual = {
     background: string;
     size: number;
     font: string;
+    height?: number;
+    width?: number;
 }
-
-type RowVisual = Visual | Height;
-
-type ColumnVisual = Visual | Width;
-
-type Height = number;
-
-type Width = number;
 
 type Whitelist = Map<string, Access>;
 
