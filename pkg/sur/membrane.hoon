@@ -17,22 +17,24 @@
 +$  sell  [meta=sell-meta data=[input=@t output=@t]]
 +$  sell-meta  (set visual)
 +$  visual  $%
-  [%bold  ?]
-  [%italic  ?]
-  [%underline  ?]
-  [%monospace  ?]
-  [%strikethrough  ?]
-  [%foreground  tape]
-  [%background  tape]
-  [%size  @ud]
-  [%font  @t]
+  [%bold ?]
+  [%italic ?]
+  [%underline ?]
+  [%monospace ?]
+  [%strikethrough ?]
+  [%foreground tape]
+  [%background tape]
+  [%size @ud]
+  [%font @t]
   ==
 +$  row-visual  $%
   [%base visual]
   [%alte height]
-+$  column-visual  $?
+  ==
++$  column-visual  $%
   [%base visual]
   [%alte width]
+  ==
 +$  height  @ud
 +$  width  @ud
 +$  whitelist  (map @p access)
