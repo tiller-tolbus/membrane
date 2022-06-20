@@ -11,17 +11,30 @@
   =,  dejs:format
   |=  jon=json
   ^-  sheet
-  ((ar (ar so)) jon)
-++  enjs-sheet
-  |=  shet=sheet
-  ^-  json
-  :-  %a  (turn shet enjs-row)
-++  enjs-row
-  |=  ro=row
-  ^-  json
-  :-  %a  (turn ro enjs-scell)
-++  enjs-scell
-  |=  cel=scell
-  ^-  json
-  :-  %s  cel
+  %-  ot
+  :~  meta+dejs-sheet-meta
+  data+dejs-sheet-data
+  ==
+++  dejs-sheet-meta
+  =,  dejs:format
+  |=  jon=json
+  ^-  sheet-meta
+  %-  ot
+  :_  jon
+  :~  [%id dejs-id]
+  [%title dejs-title]
+  [%owner dejs-owner]
+  [%tags dejs-tags]
+  [%row-meta dejs-row-meta]
+  [%column-meta dejs-column-meta]
+  [%whitelist dejs-whitelist]
+  [%last-modified dejs-date]
+  [%row-count dejs-num]
+  [%column-count dejs-num]
+  ==
+++  dejs-id
+  =,  dejs:format
+  |=  jon=json
+  ^-  @uw
+  ((se %uw) jon)
 --
