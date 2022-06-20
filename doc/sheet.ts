@@ -12,6 +12,8 @@ type SheetMeta = {
     columnMeta: Map<number, Set<Visual>>;
     whitelist: Whitelist;
     lastModified: Date;
+    rowCount: number;
+    columnCount: number;
 }
 
 type Address = {

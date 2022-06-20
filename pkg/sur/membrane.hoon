@@ -8,7 +8,9 @@
   row-meta=(map @ud (set row-visual))
   column-meta=(map @ud (set column-visual))
   =whitelist
-  last-modified=date
+  last-modified=@da
+  row-count=@ud
+  column-count=@ud
   ==
 +$  address  [row-address=@ud column-address=@ud]
 +$  tag  @t
