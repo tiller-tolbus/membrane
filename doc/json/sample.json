@@ -6,6 +6,8 @@
         "tags": ["demo"],
         "row-meta": [[1, { "bold": true, "italics": true }]],
         "column-meta": [],
+        "row-count": 1000,
+        "column-count": 50,
         "whitelist": [ ["~zod", "write"], ["~nec", "read"] ],
         "last-modified": 1655594322246
     },
