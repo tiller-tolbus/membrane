@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import api from "../api";
-import { Grid, Header, Alert, Snackie } from "../components";
+import { Grid, Header, Alert, Snackie, CellOptions } from "../components";
 //mui
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
@@ -165,7 +165,9 @@ function Sheet() {
         handleClose={handleSanckieClose}
         errorRetry={syncSheet}
       />
-      <Header synced={synced} connected={connected} syncSheet={syncSheet} />
+      <Header synced={synced} connected={connected} syncSheet={syncSheet}>
+        <CellOptions />
+      </Header>
       {connected.trying && CircularIndeterminate()}
       {connected.success && <Grid />}
       {connected.error && FailedToConnect(getData)}

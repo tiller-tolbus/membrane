@@ -208,7 +208,7 @@ export default function CellOptions() {
   //todo: on keydown, remove focus from input to tell the user a change has been affected
   const { isBold, isItalic, cellName, cellText } = selectedCellMetaData;
   return (
-    <>
+    <div >
       <Stack flexDirection="row">
         <Stack flexDirection="row">
           <input
@@ -304,6 +304,6 @@ export default function CellOptions() {
           />
         </Stack>
       </Paper>
-    </>
+    </div>
   );
 }

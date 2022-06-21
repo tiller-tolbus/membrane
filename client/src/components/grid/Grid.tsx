@@ -314,8 +314,7 @@ function Grid() {
    */
   return (
     <div>
-      <CellOptions />
-
+      
       <div className={"grid-container"}>
         <ReactGrid
           rows={rows}
@@ -342,13 +341,13 @@ function Grid() {
           }}
           customCellTemplates={{ extendedText: new ExtendedTextCell() }}
         />
+        <GridOptions
+          addRowsCb={(rowCount: string) => {
+            const newRows = generateRows(parseInt(rowCount), rows);
+            setRows(newRows);
+          }}
+        />
       </div>
-      <GridOptions
-        addRowsCb={(rowCount: string) => {
-          const newRows = generateRows(parseInt(rowCount), rows);
-          setRows(newRows);
-        }}
-      />
     </div>
   );
 }
