@@ -1,0 +1,209 @@
+{
+    "meta": {
+        "id": "0w3ns.NLSMC.E4W3l.UEXXy.Cg~SM.iDFy-.aXAlv.nrBhc.RVfB2",
+        "title": "DemoSheet",
+        "owner": "~zod",
+        "tags": [
+            "demo"
+        ],
+        "row-meta": [
+            [
+                1,
+                {
+                    "bold": true,
+                    "italics": true
+                }
+            ]
+        ],
+        "column-meta": [],
+        "row-count": 1000,
+        "column-count": 50,
+        "whitelist": [
+            [
+                "~zod",
+                "write"
+            ],
+            [
+                "~nec",
+                "read"
+            ]
+        ],
+        "last-modified": 1655594322246
+    },
+    "data": [
+        [
+            [
+                1,
+                1
+            ],
+            {
+                "meta": {},
+                "data": {
+                    "input": "ID",
+                    "output": "ID"
+                }
+            }
+        ],
+        [
+            [
+                1,
+                2
+            ],
+            {
+                "meta": {
+                    "bold": true,
+                    "italics": true,
+                    "foreground": "#000",
+                    "background": "#b98d8d",
+                    "strikethrough": true
+                },
+                "data": {
+                    "input": "Name",
+                    "output": "Name"
+                }
+            }
+        ],
+        [
+            [
+                1,
+                3
+            ],
+            {
+                "meta": {
+                    "strikethrough": true
+                },
+                "data": {
+                    "input": "Birthday",
+                    "output": "Birthday"
+                }
+            }
+        ],
+        [
+            [
+                2,
+                1
+            ],
+            {
+                "meta": {},
+                "data": {
+                    "input": "1",
+                    "output": "1"
+                }
+            }
+        ],
+        [
+            [
+                2,
+                2
+            ],
+            {
+                "meta": {
+                    "foreground": "#da4c2d"
+                },
+                "data": {
+                    "input": "Isaac Newton",
+                    "output": "Isaac Newton"
+                }
+            }
+        ],
+        [
+            [
+                2,
+                3
+            ],
+            {
+                "meta": {
+                    "monospace": true
+                },
+                "data": {
+                    "input": "December 25, 1642",
+                    "output": "December 25, 1642"
+                }
+            }
+        ],
+        [
+            [
+                3,
+                1
+            ],
+            {
+                "meta": {
+                    "underline": true
+                },
+                "data": {
+                    "input": "2",
+                    "output": "2"
+                }
+            }
+        ],
+        [
+            [
+                3,
+                2
+            ],
+            {
+                "meta": {
+                    "background": "#6c2dda"
+                },
+                "data": {
+                    "input": "James Clerk Maxwell",
+                    "output": "James Clerk Maxwell"
+                }
+            }
+        ],
+        [
+            [
+                3,
+                3
+            ],
+            {
+                "meta": {
+                    "size": 16
+                },
+                "data": {
+                    "input": "June 13, 1831",
+                    "output": "June 13, 1831"
+                }
+            }
+        ],
+        [
+            [
+                4,
+                1
+            ],
+            {
+                "meta": {},
+                "data": {
+                    "input": "3",
+                    "output": "3"
+                }
+            }
+        ],
+        [
+            [
+                4,
+                2
+            ],
+            {
+                "meta": {},
+                "data": {
+                    "input": "Albert Einstein",
+                    "output": "Albert Einstein"
+                }
+            }
+        ],
+        [
+            [
+                4,
+                3
+            ],
+            {
+                "meta": {},
+                "data": {
+                    "input": "March 14, 1879",
+                    "output": "March 14, 1879"
+                }
+            }
+        ]
+    ]
+}

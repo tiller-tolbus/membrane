@@ -7,7 +7,14 @@ import Typography from "@mui/material/Typography";
 import LoadingButton from "@mui/lab/LoadingButton";
 import verbiage from "../../verbiage";
 
-export default function Header({ connected, synced, syncSheet, children }) {
+export default function Header({
+  children,
+
+  connected,
+  synced,
+  syncSheet,
+  sheetName,
+}) {
   return (
     <Stack
       sx={{
@@ -20,7 +27,7 @@ export default function Header({ connected, synced, syncSheet, children }) {
     >
       <Stack direction="row" justifyContent={"space-between"}>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Typography variant="h4">{verbiage.appName}</Typography>
+          <Typography variant="h5">{sheetName}</Typography>
         </Stack>
         {connected.success && (
           <LoadingButton

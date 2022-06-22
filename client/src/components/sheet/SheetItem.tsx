@@ -31,9 +31,12 @@ export default function SheetItem({
   onShare,
   onAdd,
 }) {
-  const { title, lastEdited, id, tags } = item;
+  const { title, id, tags, lastEdited, sheetMeta, sheetData } = item;
   return (
-    <Item variant="outlined" onClick={() => goToSheet()}>
+    <Item
+      variant="outlined"
+      onClick={() => goToSheet({ sheetMeta, sheetData, title })}
+    >
       <Grid container alignItems="center">
         <Grid sx={{ alignItems: "center" }} item xs={3}>
           <Typography variant="subtitle1" gutterBottom component="div">

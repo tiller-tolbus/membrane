@@ -62,12 +62,11 @@ const getFirstCell = (text) => {
   /* returns what the first cell of each row should contain and what mete data it should have */
   return { type: "extendedText", text, nonEditable: true };
 };
-const getRows = () => {
+const getRows = (columnCount = 27, rowCount = ROW_COUNT) => {
   /*
   main grid data is returned here
   */
-  // return jsonToData(jsonSpec);
-  return generateRows(ROW_COUNT, [getFirstRow()]);
+  return generateRows(rowCount, [getFirstRow(columnCount)]);
 };
 
 const getColumns = (length = 27) => {
@@ -382,7 +381,41 @@ const generateRows = (rowCount, oldRows) => {
   }
   return newRows;
 };
+const inCell = (cellArray, rows) => {
+  /***
+   * given cells array
+   * example: [[1,1],{"meta":{ "bold":true },"data":{"input":"ID","output":"ID"}}]
+   * put them in their place!
+   * and return an updated rows array
+   */
+  let newRows = cloneDeep(rows);
+  cellArray.forEach((item) => {
+    let rowId = item[0][0];
+    let columnId = item[0][1];
+    let cellData = item[1];
+    const cellToUpdate = newRows[rowId].cells[columnId];
+    cellToUpdate.text = cellData.data.input;
 
+    //make our customStyles obj from this data
+    let customStyles = {
+      bold: cellData.meta.bold,
+      italic: cellData.meta.italics,
+      color: cellData.meta.foreground,
+      background: cellData.meta.background,
+      strikeThrough: cellData.meta.strikethrough,
+      fontSize: cellData.meta.size,
+    };
+    //remove all the fields that evaled to undefined (don't exist)
+    Object.keys(customStyles).forEach(
+      (key) => customStyles[key] === undefined && delete customStyles[key]
+    );
+    //update the customStyles obj only if we end up with any defined properties
+    if (Object.keys(customStyles).length > 0) {
+      cellToUpdate.customStyles = customStyles;
+    }
+  });
+  return newRows;
+};
 const reiszeColumns = (columns, ci, width) => {
   /* 
     Updates columns after resize action
@@ -466,4 +499,5 @@ export {
   toString26,
   formulateFormula,
   unHookFormula,
+  inCell,
 };

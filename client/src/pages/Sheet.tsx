@@ -11,8 +11,15 @@ import Box from "@mui/material/Box";
 import AlertTitle from "@mui/material/AlertTitle";
 
 import useStore from "../store";
-import { getColumns, getRows, jsonToData, formulateFormula } from "../helpers";
+import {
+  getColumns,
+  getRows,
+  jsonToData,
+  formulateFormula,
+  inCell,
+} from "../helpers";
 import verbiage from "../verbiage";
+import { useLocation } from "react-router-dom";
 
 function CircularIndeterminate() {
   return (
@@ -64,6 +71,9 @@ function Sheet() {
     success: false,
     error: false,
   });
+  const [title, setTitle] = useState<string>("");
+  //the data passed when navigating here by click an item in the home list
+  let location: any = useLocation();
 
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
@@ -133,6 +143,7 @@ function Sheet() {
       setConnected({ success: false, trying: false, error: true });
     }
   };
+
   const syncSheet = async () => {
     /*
       PUT the new sheets to urbit
@@ -153,8 +164,30 @@ function Sheet() {
       setSnackieOpen(true);
     }
   };
+  const doSampleData = async () => {
+    /* use the sample json spec to generate something that works for us here */
+    //the data passed when navigating here
+    const state: any = location.state;
+
+    const data = state.data;
+    const { columnCount, rowCount } = data.sheetMeta;
+    //generate grid of x size
+    const rows = getRows(columnCount, rowCount);
+    //go ahead and insert the values into this row
+    //todo: do formulas here
+    let newRows = inCell(data.sheetData, rows);
+    //make our columns based on the length
+    let newColumns = getColumns(columnCount);
+    //update rows and columns state
+    setColumns(newColumns);
+    setRows(newRows);
+    //set the sheet title here
+    setTitle(data.title);
+    //have to do this, since you need to tell the grid u got a response and so on
+    setConnected({ success: true, trying: false, error: false });
+  };
   useEffect(() => {
-    getData();
+    doSampleData();
   }, []);
 
   return (
@@ -165,7 +198,12 @@ function Sheet() {
         handleClose={handleSanckieClose}
         errorRetry={syncSheet}
       />
-      <Header synced={synced} connected={connected} syncSheet={syncSheet}>
+      <Header
+        sheetName={title}
+        synced={synced}
+        connected={connected}
+        syncSheet={syncSheet}
+      >
         <CellOptions />
       </Header>
       {connected.trying && CircularIndeterminate()}
