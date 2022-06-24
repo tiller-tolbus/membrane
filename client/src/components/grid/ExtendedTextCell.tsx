@@ -27,7 +27,7 @@ export interface TextCell extends Cell {
     color?: string;
     bold?: boolean;
     italic?: boolean;
-    strikeThrough?: boolean;
+    strikethrough?: boolean;
     fontSize?: number;
   };
 }
@@ -119,7 +119,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
             alignItems: "center",
             fontWeight: customStyles?.bold ? "bold" : "normal",
             fontStyle: customStyles?.italic ? "italic" : "normal",
-            textDecoration: customStyles?.strikeThrough
+            textDecoration: customStyles?.strikethrough
               ? "line-through"
               : "auto",
           }}
@@ -137,7 +137,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
           ...customStyles,
           fontWeight: customStyles?.bold ? "bold" : "auto",
           fontStyle: customStyles?.italic ? "italic" : "normal",
-          textDecoration: customStyles?.strikeThrough ? "line-through" : "auto",
+          textDecoration: customStyles?.strikethrough ? "line-through" : "auto",
         }}
         ref={(input) => {
           if (input) {

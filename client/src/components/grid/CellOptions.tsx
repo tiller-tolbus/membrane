@@ -13,18 +13,24 @@ import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import Box from "@mui/material/Box";
 import InputBase from "@mui/material/InputBase";
 import { updateCell, unHookFormula } from "../../helpers";
+
+import { ColorPopover } from "../index";
+import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
+import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
+import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
+
 interface CellMetaData {
   cellName: string;
   cellText: string;
   isBold: boolean;
   isItalic: boolean;
   isFormula: boolean;
+  isStrikethrough: boolean;
+  textColor: string;
+  backgroundColor: string;
 }
 //this component is seperate to avoid rerendirng the whole grid each time focus goes somewhere else
 export default function CellOptions() {
-  const [textColor, setTextColor] = useState("");
-  const [backgroundColor, setBackgroundColor] = useState("");
-
   const [cellValueInput, setCellValueInput] = useState<string>("");
   const [selectedCellMetaData, setSelectedCellMetaData] =
     useState<CellMetaData>({
@@ -33,6 +39,9 @@ export default function CellOptions() {
       isBold: false,
       isItalic: false,
       isFormula: false,
+      isStrikethrough: false,
+      textColor: "",
+      backgroundColor: "",
     });
   const rows = useStore((store) => store.rows);
   const setRows = useStore((store) => store.setRows);
@@ -49,22 +58,33 @@ export default function CellOptions() {
       let isItalic = false;
       let cellName = "";
       let isFormula = false;
+      let isStrikethrough = false;
+      let textColor = "";
+      let backgroundColor = "";
 
       cellName = selectedCell.name;
       isBold = !!cellData.customStyles?.bold;
       isItalic = !!cellData.customStyles?.italic;
+      isStrikethrough = !!cellData.customStyles?.strikethrough;
+      textColor = cellData.customStyles?.color;
+      backgroundColor = cellData.customStyles?.backgroundColor;
+
       if (cellData.formulaData && cellData.formulaData.nonEvaledText) {
         isFormula = true;
         cellText = cellData.formulaData.nonEvaledText;
       } else {
         cellText = cellData.text;
       }
+
       const newCellMetaData = {
         cellText,
         isBold,
         isItalic,
         cellName,
         isFormula,
+        isStrikethrough,
+        textColor,
+        backgroundColor,
       };
       setSelectedCellMetaData(newCellMetaData);
       //default value for our input
@@ -116,14 +136,15 @@ export default function CellOptions() {
     //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
   };
-  const setCellTextColor = () => {
+  const setCellTextColor = (color: "") => {
+    //TODO: what's a good default value here?
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
     let newRows = [...rows];
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = { ...currentCell.customStyles, color: textColor };
+    let newCustomStyle = { ...currentCell.customStyles, color: color };
 
     currentCell.customStyles = newCustomStyle;
     //update rows to affect changes
@@ -131,7 +152,8 @@ export default function CellOptions() {
     //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
   };
-  const setCellBackgroundColor = () => {
+  const setCellBackgroundColor = (color: "") => {
+    //TODO: what's a good default value here?
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
@@ -140,9 +162,59 @@ export default function CellOptions() {
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = {
       ...currentCell.customStyles,
-      backgroundColor: backgroundColor,
+      backgroundColor: color,
     };
 
+    currentCell.customStyles = newCustomStyle;
+    //update rows to affect changes
+    setRows(newRows);
+    //we also need to change the selectedCell, sincec we just changed it
+    setSelectedCell({ ...selectedCell, cellData: currentCell });
+  };
+  const updateCellValue = () => {
+    /**
+     * updates cell value and updates formula if need be
+     **/
+    const { columnId, rowId } = selectedCell.location;
+    //get the location
+    //update the text here before calling updateCell
+    const newCell = { ...selectedCell.cellData, text: cellValueInput };
+    const updateCellData = { columnId, rowId, newCell };
+
+    if (selectedCellMetaData.isFormula) {
+      //we have a new formula
+      //unhook all the deps of the previous formula
+      let newRows = unHookFormula(
+        selectedCell.cellData.formulaData,
+        columnId,
+        rowId,
+        rows
+      );
+      //pass the data so the changes can be made (handles the new value wether it's a new formula or just a plain text)
+      //commit to state
+      setRows(updateCell([updateCellData], newRows));
+    } else {
+      //pass the data so the changes can be made, and commit to state
+      setRows(updateCell([updateCellData], rows));
+    }
+    return;
+  };
+  const makeCellStrikethrough = () => {
+    if (!selectedCell) return false;
+    const { columnId, rowId } = selectedCell.location;
+    //make a copy of rows
+    let newRows = [...rows];
+    //update the select cell with the new styles
+    let currentCell = newRows[rowId].cells[columnId];
+    let newCustomStyle = { ...currentCell.customStyles };
+    if (isStrikethrough) {
+      //if this evaluates to true, it's already strikethrough, so remove the strikethrough value from customStyles
+      delete newCustomStyle.strikethrough;
+    } else {
+      //is not already strikethrough, set strikethrough to true
+      newCustomStyle = { ...newCustomStyle, strikethrough: true };
+    }
+    //commit changes
     currentCell.customStyles = newCustomStyle;
     //update rows to affect changes
     setRows(newRows);
@@ -166,36 +238,6 @@ export default function CellOptions() {
     //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
   };
-
-  const updateCellValue = () => {
-    /**
-     * updates cell value and updates formula if need be
-     *  */
-    const { columnId, rowId } = selectedCell.location;
-    //get the location
-    //update the text here before calling updateCell
-    const newCell = { ...selectedCell.cellData, text: cellValueInput };
-    const updateCellData = { columnId, rowId, newCell };
-
-    if (selectedCellMetaData.isFormula) {
-      //we have a new formula
-      //unhook all the deps of the previous formula
-      let newRows = unHookFormula(
-        selectedCell.cellData.formulaData,
-        columnId,
-        rowId,
-        rows
-      );
-      //pass the data so the changes can be made (handles the new value wether it's a new formula or just a plain text)
-      //commit to state
-      setRows(updateCell([updateCellData], newRows));
-    } else {
-      //pass the data so the changes can be made, and commit to state
-      setRows(updateCell([updateCellData], rows));
-    }
-
-    return;
-  };
   const keyHandler = (event) => {
     //if a user pressed enter in the cell value input
     if (event.keyCode === 13) {
@@ -206,59 +248,46 @@ export default function CellOptions() {
   //todo: make sticky(style this in general)
   //todo: refractor these functions
   //todo: on keydown, remove focus from input to tell the user a change has been affected
-  const { isBold, isItalic, cellName, cellText } = selectedCellMetaData;
+  const {
+    isBold,
+    isItalic,
+    cellName,
+    isStrikethrough,
+    backgroundColor,
+    textColor,
+  } = selectedCellMetaData;
   return (
-    <div >
+    <div>
       <Stack flexDirection="row">
         <Stack flexDirection="row">
-          <input
-            type="color"
-            value={textColor}
-            onChange={(e) => {
-              console.log("e.target.value", e.target.value);
-              setTextColor(e.target.value);
-            }}
+          <ColorPopover
+            updateCell={setCellTextColor}
+            icon={<FormatColorTextIcon />}
+            passedId={"text-color-popover"}
+            disabled={!selectedCell?.cellData}
+            selectedColorIcon={textColor}
           />
-          <Button
-            disabled={!textColor}
-            variant="text"
-            size="small"
-            onClick={setCellTextColor}
-          >
-            set as text color
-          </Button>
-        </Stack>
-        <Stack flexDirection="row">
-          <input
-            type="color"
-            value={backgroundColor}
-            onChange={(e) => {
-              console.log("e.target.value", e.target.value);
-              setBackgroundColor(e.target.value);
-            }}
+          <ColorPopover
+            updateCell={setCellBackgroundColor}
+            icon={<FormatColorFillIcon />}
+            passedId={"background-color-popover"}
+            disabled={!selectedCell?.cellData}
+            selectedColorIcon={backgroundColor}
           />
-          <Button
-            disabled={!backgroundColor}
-            variant="text"
-            size="small"
-            onClick={setCellBackgroundColor}
-          >
-            set as backgroundColor
-          </Button>
         </Stack>
-
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             width: "fit-content",
-            // border: (theme) => `1px solid ${theme.palette.divider}`,
+            //border: (theme) => `1px solid ${theme.palette.divider}`,
           }}
         >
           <IconButton
             aria-label="make cell bold"
             onClick={() => makeCellBold()}
             color={isBold ? "primary" : "default"}
+            disabled={!selectedCell?.cellData}
           >
             <FormatBoldIcon />
           </IconButton>
@@ -266,12 +295,26 @@ export default function CellOptions() {
             aria-label="make cell italic"
             onClick={() => makeCellItalic()}
             color={isItalic ? "primary" : "default"}
+            disabled={!selectedCell?.cellData}
           >
             <FormatItalicIcon />
           </IconButton>
+          <IconButton
+            aria-label="make cell strikethrough"
+            onClick={() => makeCellStrikethrough()}
+            color={isStrikethrough ? "primary" : "default"}
+            disabled={!selectedCell?.cellData}
+          >
+            <StrikethroughSIcon />
+          </IconButton>
         </Box>
-        <Button variant="text" size="small" onClick={clearStyles}>
-          clear all styles
+        <Button
+          disabled={!selectedCell?.cellData}
+          variant="text"
+          size="small"
+          onClick={clearStyles}
+        >
+          clear style
         </Button>
       </Stack>
       <Paper variant="outlined">

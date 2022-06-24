@@ -401,7 +401,7 @@ const inCell = (cellArray, rows) => {
       bold: cellData.meta.bold,
       italic: cellData.meta.italics,
       color: cellData.meta.foreground,
-      background: cellData.meta.background,
+      backgroundColor: cellData.meta.background,
       strikeThrough: cellData.meta.strikethrough,
       fontSize: cellData.meta.size,
     };
