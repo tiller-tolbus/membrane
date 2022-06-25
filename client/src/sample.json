@@ -80,6 +80,21 @@
         ],
         [
             [
+                1,
+                4
+            ],
+            {
+                "meta": {
+                    "strikethrough": true
+                },
+                "data": {
+                    "input": "Formula",
+                    "output": "Formula"
+                }
+            }
+        ],
+        [
+            [
                 2,
                 1
             ],
@@ -118,6 +133,21 @@
                 "data": {
                     "input": "December 25, 1642",
                     "output": "December 25, 1642"
+                }
+            }
+        ],
+        [
+            [
+                2,
+                4
+            ],
+            {
+                "meta": {
+                    "monospace": true
+                },
+                "data": {
+                    "input": "=SUM(A7,B7)",
+                    "output": "=SUM(A7,B7)"
                 }
             }
         ],

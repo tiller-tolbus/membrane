@@ -174,13 +174,28 @@ function Sheet() {
     //generate grid of x size
     const rows = getRows(columnCount, rowCount);
     //go ahead and insert the values into this row
-    //todo: do formulas here
     let newRows = inCell(data.sheetData, rows);
     //make our columns based on the length
     let newColumns = getColumns(columnCount);
-    //update rows and columns state
+    //go through each cell to eval formula if any
+    let newRowsFormulas;
+
+    newRows.forEach((row, rowIndex) => {
+      row.cells.forEach((cell, cellIndex) => {
+        let potentiallyNewerRows = formulateFormula(
+          cell.text,
+          cellIndex,
+          rowIndex,
+          newRows
+        );
+        if (potentiallyNewerRows) newRowsFormulas = potentiallyNewerRows;
+      });
+    });
+    //we didn't eval a single formula default to the regular data
+    if (!newRowsFormulas || newRowsFormulas.length === 0) newRowsFormulas = newRows;
+        //update rows and columns state
     setColumns(newColumns);
-    setRows(newRows);
+    setRows(newRowsFormulas);
     //set the sheet title here
     setTitle(data.title);
     //have to do this, since you need to tell the grid u got a response and so on

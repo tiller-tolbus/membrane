@@ -191,7 +191,7 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
 
   if (formulaData === false) return false;
   //update formula cell withe formula data using row and column id
-  let newRows = [...rows];
+  let newRows = cloneDeep(rows);
   //update formula cell with the needed values
   newRows[rowId].cells[columnId] = {
     ...newRows[rowId].cells[columnId],
@@ -318,7 +318,7 @@ const updateFormulaFoo = (
    * todo:clean it up
    * todo: validate input (display error state in formula cell if no logic value can be derived here)
    */
-  let newRows = [...rows];
+  let newRows = cloneDeep(rows);
   const formulaColId = formulaLocation.columnId;
   const formulaRowId = formulaLocation.rowId;
   const { columnId, rowId } = currentCellLocation;
@@ -329,7 +329,8 @@ const updateFormulaFoo = (
   };
   //update valueList with the current cellValue
   //TODO: optmise if no changes cancel the rest of this
-
+  //TODO: sometimes, for some reason, no newFormulaData, just return the unchanged rows
+  if (!newFormulaData) return newRows;
   let newValueList = newFormulaData.valueList.map((item) => {
     //todo: make all the values (ids) numbers not stringed numbers
     if (columnId == item.columnId && rowId == item.rowId) {
