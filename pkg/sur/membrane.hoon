@@ -7,15 +7,16 @@
   tags=(set tag)
   row-meta=(map @ud (set row-visual))
   column-meta=(map @ud (set column-visual))
-  =whitelist
-  last-modified=@da
   row-count=@ud
   column-count=@ud
+  =whitelist
+  last-modified=@da
   ==
 +$  address  [row-address=@ud column-address=@ud]
 +$  tag  @t
-+$  sell  [meta=sell-meta data=[input=@t output=@t]]
++$  sell  [meta=sell-meta data=sell-data]
 +$  sell-meta  (set visual)
++$  sell-data  [input=@t output=@t]
 +$  visual  $%
   [%bold ?]
   [%italic ?]
@@ -25,7 +26,7 @@
   [%foreground tape]
   [%background tape]
   [%size @ud]
-  [%font @t]
+  [%font tape]
   ==
 +$  row-visual  $%
   [%base visual]
