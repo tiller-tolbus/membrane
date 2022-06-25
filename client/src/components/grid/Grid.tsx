@@ -165,7 +165,7 @@ function Grid() {
       } else {
         //regular cells
         //add a new empty cell in this row at the index we have
-        newCell = { type: "text", text: "" };
+        newCell = { type: "extendedText", text: "" };
         //insert newCells at the current index
         arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
       }
@@ -199,12 +199,12 @@ function Grid() {
       cells: newRowsBefore[0].cells.map((item, index) => {
         if (index === 0) {
           return {
-            type: "text",
+            type: "extendedText",
             text: newRowsBefore.length.toString(),
             nonEditable: true,
           };
         }
-        return { type: "text", text: "" };
+        return { type: "extendedText", text: "" };
       }),
     });
     let startIndex = newRowsBefore.length;
