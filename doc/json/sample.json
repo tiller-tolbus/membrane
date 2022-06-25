@@ -15,7 +15,7 @@
         [
             [1, 1], 
                 {
-                "meta": [],
+                "meta": {},
                 "data": {
                     "input": "ID",
                     "output": "ID"
@@ -25,7 +25,7 @@
         [
             [1, 2], 
                 {
-                "meta": [],
+                "meta": {},
                 "data": {
                     "input": "Name",
                     "output": "Name"
@@ -35,7 +35,7 @@
         [
             [1, 3], 
                 {
-                "meta": [],
+                "meta": {"strikethrough": true},
                 "data": {
                     "input": "Birthday",
                     "output": "Birthday"
@@ -45,7 +45,7 @@
         [
             [2, 1], 
                 {
-                "meta": [],
+                "meta": {},
                 "data": {
                     "input": "1",
                     "output": "1"
@@ -55,7 +55,7 @@
         [
             [2, 2], 
                 {
-                "meta": [],
+                "meta": {"foreground": "0xda4c2d"},
                 "data": {
                     "input": "Isaac Newton",
                     "output": "Isaac Newton"
@@ -65,7 +65,7 @@
         [
             [2, 3], 
                 {
-                "meta": [],
+                "meta": {"monospace": true},
                 "data": {
                     "input": "December 25, 1642",
                     "output": "December 25, 1642"
@@ -75,7 +75,7 @@
         [
             [3, 1], 
                 {
-                "meta": [],
+                "meta": {"underline": true},
                 "data": {
                     "input": "2",
                     "output": "2"
@@ -85,7 +85,7 @@
         [
             [3, 2], 
                 {
-                "meta": [],
+                "meta": {"background": "0x6c2dda"},
                 "data": {
                     "input": "James Clerk Maxwell",
                     "output": "James Clerk Maxwell"
@@ -95,7 +95,7 @@
         [
             [3, 3], 
                 {
-                "meta": [],
+                "meta": {"size": 16},
                 "data": {
                     "input": "June 13, 1831",
                     "output": "June 13, 1831"
@@ -105,7 +105,7 @@
         [
             [4, 1], 
                 {
-                "meta": [],
+                "meta": {},
                 "data": {
                     "input": "3",
                     "output": "3"
@@ -115,7 +115,7 @@
         [
             [4, 2], 
                 {
-                "meta": [],
+                "meta": {},
                 "data": {
                     "input": "Albert Einstein",
                     "output": "Albert Einstein"
@@ -125,7 +125,7 @@
         [
             [4, 3], 
                 {
-                "meta": [],
+                "meta": {},
                 "data": {
                     "input": "March 14, 1879",
                     "output": "March 14, 1879"
