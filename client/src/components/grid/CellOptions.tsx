@@ -19,6 +19,7 @@ import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
 import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
 import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
 
+import { MultiSelect } from "../index";
 interface CellMetaData {
   cellName: string;
   cellText: string;
@@ -28,6 +29,7 @@ interface CellMetaData {
   isStrikethrough: boolean;
   textColor: string;
   backgroundColor: string;
+  fontSize: number;
 }
 //this component is seperate to avoid rerendirng the whole grid each time focus goes somewhere else
 export default function CellOptions() {
@@ -42,6 +44,7 @@ export default function CellOptions() {
       isStrikethrough: false,
       textColor: "",
       backgroundColor: "",
+      fontSize: 14,
     });
   const rows = useStore((store) => store.rows);
   const setRows = useStore((store) => store.setRows);
@@ -61,6 +64,7 @@ export default function CellOptions() {
       let isStrikethrough = false;
       let textColor = "";
       let backgroundColor = "";
+      let fontSize;
 
       cellName = selectedCell.name;
       isBold = !!cellData.customStyles?.bold;
@@ -68,6 +72,9 @@ export default function CellOptions() {
       isStrikethrough = !!cellData.customStyles?.strikethrough;
       textColor = cellData.customStyles?.color;
       backgroundColor = cellData.customStyles?.backgroundColor;
+      fontSize = cellData.customStyles?.fontSize
+        ? cellData.customStyles?.fontSize
+        : 14;
 
       if (cellData.formulaData && cellData.formulaData.nonEvaledText) {
         isFormula = true;
@@ -85,6 +92,7 @@ export default function CellOptions() {
         isStrikethrough,
         textColor,
         backgroundColor,
+        fontSize,
       };
       setSelectedCellMetaData(newCellMetaData);
       //default value for our input
@@ -244,6 +252,26 @@ export default function CellOptions() {
       updateCellValue();
     }
   };
+  const setCellFontSize = (fontSize: "") => {
+    //TODO: what's a good default value here?
+    if (!selectedCell) return false;
+
+    const { columnId, rowId } = selectedCell.location;
+    //make a copy of rows
+    let newRows = [...rows];
+    //update the select cell with the new styles
+    let currentCell = newRows[rowId].cells[columnId];
+    let newCustomStyle = {
+      ...currentCell.customStyles,
+      fontSize: parseInt(fontSize),
+    };
+    currentCell.customStyles = newCustomStyle;
+    //update rows to affect changes
+    setRows(newRows);
+
+    //we also need to change the selectedCell, sincec we just changed it
+    setSelectedCell({ ...selectedCell, cellData: currentCell });
+  };
   //todo: user can edit this cell here
   //todo: make sticky(style this in general)
   //todo: refractor these functions
@@ -255,11 +283,25 @@ export default function CellOptions() {
     isStrikethrough,
     backgroundColor,
     textColor,
+    fontSize,
   } = selectedCellMetaData;
   return (
     <div>
       <Stack flexDirection="row">
         <Stack flexDirection="row">
+          <MultiSelect
+            onSelection={(value) => setCellFontSize(value)}
+            defaultValue={fontSize}
+            options={[
+              { value: 8 },
+              { value: 10 },
+              { value: 12 },
+              { value: 14 },
+              { value: 16 },
+              { value: 18 },
+              { value: 24 },
+            ]}
+          />
           <ColorPopover
             updateCell={setCellTextColor}
             icon={<FormatColorTextIcon />}
