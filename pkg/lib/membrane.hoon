@@ -121,7 +121,11 @@
 ++  dejs-sell
   |=  jon=json
   ^-  sell
-  ((at ~[dejs-sell-meta dejs-sell-data]) jon)
+  %.  jon
+  %-  at
+  :~  dejs-sell-meta
+  dejs-sell-data
+  ==
 ++  dejs-sell-meta
   |=  jon=json
   ^-  sell-meta
