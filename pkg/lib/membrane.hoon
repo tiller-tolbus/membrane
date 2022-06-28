@@ -123,7 +123,10 @@
 ++  dejs-scell
   |=  jon=json
   ^-  scell
-  ((at ~[dejs-scell-meta dejs-scell-data]) jon)
+  %.  jon
+  %-  at
+  :~  dejs-sell-meta
+  dejs-sell-data
 ++  dejs-scell-meta
   |=  jon=json
   ^-  scell-meta
