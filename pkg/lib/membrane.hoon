@@ -1,7 +1,6 @@
 /-  *membrane
 =,  dejs:format
 !:
-|%
 ::  Type core
 |%
 ++  dejs-sheet
@@ -9,15 +8,14 @@
   ^-  sheet
   %.  jon
   %-  ot
-  :~  meta+dejs-sheet-meta jon
+  :~  meta+dejs-sheet-meta  
   data+dejs-sheet-data
   ==
 ++  dejs-sheet-meta
   |=  jon=json
   ^-  sheet-meta
-  %-  silt
   %.  jon
-  %-  of
+  %-  ot
   :~  [%id dejs-id]
   [%title dejs-title]
   [%owner dejs-owner]
@@ -44,11 +42,11 @@
 ++  dejs-tags
   |=  jon=json
   ^-  (set tag)
-  ((as so) jon))
+  ((as so) jon)
 ++  dejs-row-meta
   |=  jon=json
   ^-  (map @ud (set row-visual))
-  %-  my
+  %-  molt
   ((ar (at ~[ni dejs-row-visual])) jon)
 ++  dejs-row-visual
   |=  jon=json
@@ -56,6 +54,7 @@
   %-  silt
   %.  jon
   %-  of
+  %-  ar
   :~  [%bold bo]
   [%italic bo]
   [%underline bo]
@@ -70,13 +69,14 @@
 ++  dejs-column-meta
   |=  jon=json
   ^-  (map @ud (set column-visual))
-  %-  my
+  %-  molt
   ((ar (at ~[ni dejs-column-visual])) jon)
 ++  dejs-column-visual
   |=  jon=json
   ^-  (set column-visual)
   %.  jon
-  %-  ot
+  %-  ar
+  %-  of
   :~  [%bold bo]
   [%italic bo]
   [%underline bo]
@@ -99,34 +99,37 @@
 ++  dejs-whitelist
   |=  jon=json
   ^-  whitelist
-  %-  my
-  (ar (at ~[(se %p) dejs-access]))
+  %-  molt
+  ((ar (at ~[(se %p) dejs-access])) jon)
 ++  dejs-access
   |=  jon=json
   ^-  access
-  (so jon)
+  =/  acc  (so jon)
+  ?>  ?=(access acc)
+  acc
 ++  dejs-date
   |=  jon=json
   ^-  @da
   (di jon)
 ++  dejs-sheet-data
   |=  jon=json
-  ^-  (map address sell)
-  %-  my
-  ((ar (at ~[dejs-address dejs-sell])) jon)
+  ^-  (map address scell)
+  %-  molt
+  ((ar (at ~[dejs-address dejs-scell])) jon)
 ++  dejs-address
   |=  jon=json
   ^-  address
   ((at ~[ni ni]) jon)
-++  dejs-sell
+++  dejs-scell
   |=  jon=json
-  ^-  sell
-  ((at ~[dejs-sell-meta dejs-sell-data]) jon)
-++  dejs-sell-meta
+  ^-  scell
+  ((at ~[dejs-scell-meta dejs-scell-data]) jon)
+++  dejs-scell-meta
   |=  jon=json
-  ^-  sell-meta
+  ^-  scell-meta
   %-  silt
   %.  jon
+  %-  ar
   %-  of
   :~  [%bold bo]
   [%italic bo]
@@ -138,8 +141,8 @@
   [%size ni]
   [%font sa]
   ==
-++  dejs-sell-data
+++  dejs-scell-data
   |=  jon=json
-  ^-  sell-data
-  ((ot ~[so so]) jon)
+  ^-  scell-data
+  ((ot ~[input+so output+so]) jon)
 --
