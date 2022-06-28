@@ -1,5 +1,5 @@
 |%
-+$  sheet  $:(meta=sheet-meta data=(map address sell))
++$  sheet  $:(meta=sheet-meta data=(map address scell))
 +$  sheet-meta  $:
   id=@uw
   title=path
@@ -14,9 +14,9 @@
   ==
 +$  address  [row-address=@ud column-address=@ud]
 +$  tag  @t
-+$  sell  [meta=sell-meta data=sell-data]
-+$  sell-meta  (set visual)
-+$  sell-data  [input=@t output=@t]
++$  scell  [meta=scell-meta data=scell-data]
++$  scell-meta  (set visual)
++$  scell-data  [input=@t output=@t]
 +$  visual  $%
   [%bold ?]
   [%italic ?]
@@ -30,14 +30,12 @@
   ==
 +$  row-visual  $%
   [%base visual]
-  [%alte height]
+  [%height @ud]
   ==
 +$  column-visual  $%
   [%base visual]
-  [%alte width]
+  [%width @ud]
   ==
-+$  height  @ud
-+$  width  @ud
 +$  whitelist  (map @p access)
 +$  access  ?(%read %write)
 --
