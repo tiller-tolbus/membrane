@@ -487,7 +487,20 @@ const dataToJson = (data) => {
 /*ENV HELPERS*/
 const isDev = () =>
   !process.env.NODE_ENV || process.env.NODE_ENV === "development";
-
+/* TIME HELPERS */
+//TODO: should be it's own file
+const formatDate = (dateNumber) => {
+  if (!dateNumber) return "no date given";
+  //converts a given date object into something we can show the user
+  var options = {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+  const dateObj = new Date(dateNumber);
+  return dateObj.toLocaleDateString("en-US", options);
+};
 export {
   getColumns,
   getRows,
@@ -501,4 +514,5 @@ export {
   formulateFormula,
   unHookFormula,
   inCell,
+  formatDate,
 };

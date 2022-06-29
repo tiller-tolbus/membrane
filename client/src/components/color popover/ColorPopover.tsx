@@ -4,9 +4,28 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-
-const colorArray = require("./colors.json");
-
+import Typography from "@mui/material/Typography";
+const allColors = require("./colors.json");
+const standardColors = require("./standardColors.json");
+function ColorCircle({ color, onClick }) {
+  return (
+    <div
+      onClick={() => {
+        //commit the changes to the cell and close the popover
+        onClick();
+      }}
+      style={{
+        backgroundColor: color,
+        width: 20,
+        height: 20,
+        borderRadius: 20,
+        margin: 1,
+        border: ".2px solid lightgrey",
+        cursor: "pointer",
+      }}
+    ></div>
+  );
+}
 export default function ColorPopover({
   updateCell,
   icon,
@@ -54,10 +73,15 @@ export default function ColorPopover({
           horizontal: "left",
         }}
         transitionDuration={0}
+        sx={{
+          maxHeight: 450,
+          scrollbarColor: "#6969dd #e0e0e0",
+          scrollbarWidth: "thin",
+        }}
       >
         <Stack flexDirection={"row"} alignItems="center" padding={0.5}>
           <Button
-            sx={{ border: "none", color: "black" }}
+            sx={{ border: "none", color: "rgba(0, 0, 0, 0.87)" }}
             onClick={() => {
               //commit the changes to the cell and close the popover
               updateCell(selectedColor);
@@ -76,28 +100,47 @@ export default function ColorPopover({
           />
         </Stack>
         <Divider light />
-        <Stack flexDirection="row" padding={1} flexWrap="wrap" width={200}>
-          {colorArray.map((item, index) => {
-            return (
-              <div
-                key={index}
-                onClick={() => {
-                  //commit the changes to the cell and close the popover
-                  updateCell(item);
-                  handleClose();
-                }}
-                style={{
-                  backgroundColor: item,
-                  width: 20,
-                  height: 20,
-                  borderRadius: 20,
-                  margin: 1,
-                  border: ".2px solid lightgrey",
-                  cursor: "pointer",
-                }}
-              ></div>
-            );
-          })}
+        <Stack flexDirection="column" padding={1}>
+          <Typography variant="button" display="block" gutterBottom>
+            Standard Colors
+          </Typography>
+          <Stack flexDirection="row" flexWrap="wrap" width={200}>
+            {standardColors.map((item, index) => {
+              return (
+                <ColorCircle
+                  key={index}
+                  onClick={() => {
+                    //commit the changes to the cell and close the popover
+                    updateCell(item);
+                    handleClose();
+                  }}
+                  color={item}
+                />
+              );
+            })}
+          </Stack>
+        </Stack>
+        <Divider light />
+
+        <Stack flexDirection="column" padding={1}>
+          <Typography variant="button" display="block" gutterBottom>
+            Plenty of Colors
+          </Typography>
+          <Stack flexDirection="row" flexWrap="wrap" width={200}>
+            {allColors.map((item, index) => {
+              return (
+                <ColorCircle
+                  key={index}
+                  onClick={() => {
+                    //commit the changes to the cell and close the popover
+                    updateCell(item);
+                    handleClose();
+                  }}
+                  color={item}
+                />
+              );
+            })}
+          </Stack>
         </Stack>
       </Popover>
     </div>

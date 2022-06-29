@@ -1,10 +1,14 @@
 import * as React from "react";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-export default function MultiSelect({ options, onSelection, defaultValue }) {
+export default function MultiSelect({
+  options,
+  onSelection,
+  defaultValue,
+  disabled,
+}) {
   const [selectedValue, setSelectedValue] = React.useState(null);
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -14,15 +18,13 @@ export default function MultiSelect({ options, onSelection, defaultValue }) {
   };
 
   return (
-    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-      <InputLabel id="font-size-select">Font Size</InputLabel>
+    <FormControl sx={{ m: 1, minWidth: "65px" }} size="small">
       <Select
-        labelId="font-size-select"
         id="font-size-select"
         //if no selected value use default one
         value={selectedValue ? selectedValue : defaultValue}
         onChange={handleChange}
-        label="Font Size"
+        disabled={disabled}
       >
         {options.map((item, index) => {
           return (

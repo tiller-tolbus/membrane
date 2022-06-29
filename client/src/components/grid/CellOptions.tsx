@@ -288,35 +288,20 @@ export default function CellOptions() {
   return (
     <div>
       <Stack flexDirection="row">
-        <Stack flexDirection="row">
-          <MultiSelect
-            onSelection={(value) => setCellFontSize(value)}
-            defaultValue={fontSize}
-            options={[
-              { value: 8 },
-              { value: 10 },
-              { value: 12 },
-              { value: 14 },
-              { value: 16 },
-              { value: 18 },
-              { value: 24 },
-            ]}
-          />
-          <ColorPopover
-            updateCell={setCellTextColor}
-            icon={<FormatColorTextIcon />}
-            passedId={"text-color-popover"}
-            disabled={!selectedCell?.cellData}
-            selectedColorIcon={textColor}
-          />
-          <ColorPopover
-            updateCell={setCellBackgroundColor}
-            icon={<FormatColorFillIcon />}
-            passedId={"background-color-popover"}
-            disabled={!selectedCell?.cellData}
-            selectedColorIcon={backgroundColor}
-          />
-        </Stack>
+        <MultiSelect
+          onSelection={(value) => setCellFontSize(value)}
+          defaultValue={fontSize}
+          options={[
+            { value: 8 },
+            { value: 10 },
+            { value: 12 },
+            { value: 14 },
+            { value: 16 },
+            { value: 18 },
+            { value: 24 },
+          ]}
+          disabled={!selectedCell?.cellData}
+        />
         <Box
           sx={{
             display: "flex",
@@ -350,6 +335,22 @@ export default function CellOptions() {
             <StrikethroughSIcon />
           </IconButton>
         </Box>
+        <Stack flexDirection="row" alignItems="center">
+          <ColorPopover
+            updateCell={setCellTextColor}
+            icon={<FormatColorTextIcon />}
+            passedId={"text-color-popover"}
+            disabled={!selectedCell?.cellData}
+            selectedColorIcon={textColor}
+          />
+          <ColorPopover
+            updateCell={setCellBackgroundColor}
+            icon={<FormatColorFillIcon />}
+            passedId={"background-color-popover"}
+            disabled={!selectedCell?.cellData}
+            selectedColorIcon={backgroundColor}
+          />
+        </Stack>
         <Button
           disabled={!selectedCell?.cellData}
           variant="text"

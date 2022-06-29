@@ -9,7 +9,7 @@ import { blue } from "@mui/material/colors";
 import Grid from "@mui/material/Grid";
 import Chips from "./Chips";
 import SheetMenu from "./SheetMenu";
-
+import { formatDate} from "../../helpers"
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
     duration: theme.transitions.duration.short,
@@ -48,7 +48,7 @@ export default function SheetItem({
         </Grid>
         <Grid item xs={2}>
           <Typography variant="subtitle1" gutterBottom component="div">
-            {lastEdited}
+            {formatDate(lastEdited)}
           </Typography>
         </Grid>
         <Grid item xs={2}>

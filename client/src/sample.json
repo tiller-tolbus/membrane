@@ -16,8 +16,8 @@
             ]
         ],
         "column-meta": [],
-        "row-count": 1000,
-        "column-count": 50,
+        "row-count": 100,
+        "column-count": 30,
         "whitelist": [
             [
                 "~zod",

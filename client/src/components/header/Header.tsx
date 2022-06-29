@@ -6,6 +6,9 @@ import Typography from "@mui/material/Typography";
 
 import LoadingButton from "@mui/lab/LoadingButton";
 import verbiage from "../../verbiage";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({
   children,
@@ -15,6 +18,8 @@ export default function Header({
   syncSheet,
   sheetName,
 }) {
+  let navigate = useNavigate();
+
   return (
     <Stack
       sx={{
@@ -25,9 +30,19 @@ export default function Header({
         paddingRight: 2,
       }}
     >
+      <Button
+        size={"small"}
+        startIcon={<ArrowBackIcon />}
+        sx={{ border: "none", color: "black", width: 100 }}
+        onClick={() => {
+          navigate(-1); 
+        }}
+      >
+        go back
+      </Button>
       <Stack direction="row" justifyContent={"space-between"}>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Typography variant="h5">{sheetName}</Typography>
+          <Typography variant="h6">{sheetName}</Typography>
         </Stack>
         {connected.success && (
           <LoadingButton

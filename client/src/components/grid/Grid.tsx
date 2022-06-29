@@ -19,8 +19,8 @@ import {
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
-import CellOptions from "./CellOptions";
 import { ExtendedTextCell } from "./ExtendedTextCell";
+
 import cloneDeep from "lodash/cloneDeep";
 function Grid() {
   const rows = useStore((store) => store.rows);
