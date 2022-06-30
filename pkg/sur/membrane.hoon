@@ -5,8 +5,8 @@
   title=path
   owner=@p
   tags=(set tag)
-  row-meta=(map @ud (set row-visual))
-  column-meta=(map @ud (set column-visual))
+  row-meta=(map @ud (set visual))
+  column-meta=(map @ud (set visual))
   row-count=@ud
   column-count=@ud
   =whitelist
@@ -27,13 +27,7 @@
   [%background tape]
   [%size @ud]
   [%font tape]
-  ==
-+$  row-visual  $%
-  [%base visual]
   [%height @ud]
-  ==
-+$  column-visual  $%
-  [%base visual]
   [%width @ud]
   ==
 +$  whitelist  (map @p access)

@@ -1,7 +1,24 @@
 /-  *membrane
 =,  dejs:format
 !:
-::  Type core
+|%
+:: Helper core 
+++  visual-ops
+  :~
+  [%bold bo]
+  [%italic bo]
+  [%underline bo]
+  [%monospace bo]
+  [%strikethrough bo]
+  [%foreground sa]
+  [%background sa]
+  [%size ni]
+  [%font sa]
+  [%height ni]
+  [%width ni]
+  ==
+--
+::  DeJS core
 |%
 ++  dejs-sheet
   |=  jon=json
@@ -45,49 +62,28 @@
   ((as so) jon)
 ++  dejs-row-meta
   |=  jon=json
-  ^-  (map @ud (set row-visual))
+  ^-  (map @ud (set visual))
   %-  molt
   ((ar (at ~[ni dejs-row-visual])) jon)
 ++  dejs-row-visual
   |=  jon=json
-  ^-  (set row-visual)
+  ^-  (set visual)
   %-  silt
   %.  jon
-  %-  of
   %-  ar
-  :~  [%bold bo]
-  [%italic bo]
-  [%underline bo]
-  [%monospace bo]
-  [%strikethrough bo]
-  [%foreground sa]
-  [%background sa]
-  [%size ni]
-  [%font sa]
-  [%height ni]
-  ==
-++  dejs-column-meta
+  (of visual-ops)
+  ++  dejs-column-meta
   |=  jon=json
-  ^-  (map @ud (set column-visual))
+  ^-  (map @ud (set visual))
   %-  molt
   ((ar (at ~[ni dejs-column-visual])) jon)
 ++  dejs-column-visual
   |=  jon=json
-  ^-  (set column-visual)
+  ^-  (set visual)
+  %-  silt
   %.  jon
   %-  ar
-  %-  of
-  :~  [%bold bo]
-  [%italic bo]
-  [%underline bo]
-  [%monospace bo]
-  [%strikethrough bo]
-  [%foreground sa]
-  [%background sa]
-  [%size ni]
-  [%font sa]
-  [%width ni] 
-  ==
+  (of visual-ops)    
 ++  dejs-row-count
   |=  jon=json
   ^-  @ud
@@ -125,25 +121,16 @@
   ^-  scell
   %.  jon
   %-  at
-  :~  dejs-sell-meta
-  dejs-sell-data
+  :~  dejs-scell-meta
+  dejs-scell-data
+  ==
 ++  dejs-scell-meta
   |=  jon=json
   ^-  scell-meta
   %-  silt
   %.  jon
   %-  ar
-  %-  of
-  :~  [%bold bo]
-  [%italic bo]
-  [%underline bo]
-  [%monospace bo]
-  [%strikethrough bo]
-  [%foreground sa]
-  [%background sa]
-  [%size ni]
-  [%font sa]
-  ==
+  (of visual-ops)
 ++  dejs-scell-data
   |=  jon=json
   ^-  scell-data
