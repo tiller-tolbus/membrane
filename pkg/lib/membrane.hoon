@@ -34,6 +34,7 @@
   %.  jon
   %-  ot
   :~  [%id dejs-id]
+  [%path dejs-path]
   [%title dejs-title]
   [%owner dejs-owner]
   [%tags dejs-tags]
@@ -48,10 +49,14 @@
   |=  jon=json
   ^-  @uw
   ((se %uw) jon)
-++  dejs-title
+++  dejs-path
   |=  jon=json
   ^-  path
-  ((ar so) jon)
+  (stab (so jon))
+++  dejs-title
+  |=  jon=json
+  ^-  @t
+  (so jon)
 ++  dejs-owner
   |=  jon=json
   ^-  @p
@@ -72,7 +77,7 @@
   %.  jon
   %-  ar
   (of visual-ops)
-  ++  dejs-column-meta
+++  dejs-column-meta
   |=  jon=json
   ^-  (map @ud (set visual))
   %-  molt
@@ -120,9 +125,9 @@
   |=  jon=json
   ^-  scell
   %.  jon
-  %-  at
-  :~  dejs-scell-meta
-  dejs-scell-data
+  %-  ot
+  :~  meta+dejs-scell-meta
+  data+dejs-scell-data
   ==
 ++  dejs-scell-meta
   |=  jon=json

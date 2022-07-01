@@ -2,7 +2,8 @@
 +$  sheet  $:(meta=sheet-meta data=(map address scell))
 +$  sheet-meta  $:
   id=@uw
-  title=path
+  =path
+  title=@t
   owner=@p
   tags=(set tag)
   row-meta=(map @ud (set visual))
