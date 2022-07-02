@@ -1,7 +1,10 @@
-import { ROW_COUNT, COLUMN_NAMES } from "./constants";
+import { ROW_COUNT, CELL_CAP } from "./constants";
 import availableFormulas from "./components/grid/formulajs";
 import cloneDeep from "lodash/cloneDeep";
 
+const arrayInsertItemAtIndex = (index, item, array) => {
+  array.splice(index, 0, item);
+};
 /* GRID HELPERS */
 const charRange = (start, stop) => {
   var result = [];
@@ -78,7 +81,9 @@ const getColumns = (length = 27) => {
    * retuns columns
    **/
   let columns = [];
-  for (let i = 0; i < length; i++) {
+  //we have to account for our meta column
+  let newLength = length + 1;
+  for (let i = 0; i < newLength; i++) {
     //make first COLUMN smaller
     let width = 100;
     if (i === 0) {
@@ -182,7 +187,6 @@ const fetchFormulaData = (cellValue, rows) => {
   };
   return formulaData;
 };
-
 const formulateFormula = (cellValue, columnId, rowId, rows) => {
   /**
    * todo: comment better
@@ -352,12 +356,13 @@ const updateFormulaFoo = (
   return newRows;
 };
 const generateRows = (rowCount, oldRows) => {
+  //++cellcount
   /* 
     generate X more rows 
     returns all new grid rows 
   */
   //make a copy of the old rows
-  const newRows = [...oldRows];
+  const newRows = cloneDeep(oldRows);
   //establish the number of columns
   const colCount = newRows[0].cells.length;
   //add x rows (rowCount)
@@ -381,6 +386,20 @@ const generateRows = (rowCount, oldRows) => {
     });
   }
   return newRows;
+};
+const verifyCellCount = (columns, rows, offset) => {
+  //returns true/false appropriately
+  //we're interested in the cells that end up being saved to the backend here
+  //deduct none useable columns and rows (from offset too)
+
+  const futureCount = (rows.length - 1) * (columns.length - 1) + (offset - 1);
+  if (futureCount > CELL_CAP) {
+    //alert the user
+    //return false
+    alert("you can not add anymore cells, current cell cap is: " + CELL_CAP);
+    return false;
+  }
+  return true;
 };
 const inCell = (cellArray, rows) => {
   /***
@@ -428,6 +447,198 @@ const reiszeColumns = (columns, ci, width) => {
   const updatedColumn = { ...resizedColumn, width };
   prevColumns[columnIndex] = updatedColumn;
   return [...prevColumns];
+};
+const addColumn = (selectedColumnId, direction, columns, rows) => {
+  //++cellcount
+  /**
+   * given a columnId and direction
+   * insert a whole column
+   * i.e add a cell in each row at the given columnId(cells[x])
+   * offset either to the left or right
+   * updates state (rows and columns)
+   **/
+
+  //make a copy of current rows and columns
+  let newRows = cloneDeep(rows);
+  let newColumns = cloneDeep(columns);
+  //cell index is offset by direction from columnId
+  let cellIndex =
+    direction === "left" ? selectedColumnId : selectedColumnId + 1;
+
+  //update our columns here
+  //split into two arrays, before and after cellIndex
+  //todo: interact with a copy of columns.... not columns itself
+  let newColumnsBefore = newColumns.slice(0, cellIndex);
+  let newColumnsAfter = newColumns.slice(cellIndex);
+  //add our new column in the before array
+  newColumnsBefore.push({
+    //todo: make a function that spits out this data in our helper
+    columnId: newColumnsBefore.length,
+    //todo: use base26string on this and on the rest of the columnNames
+    columnName: toString26(newColumnsBefore.length).toUpperCase(),
+    width: 100,
+    resizable: true,
+  });
+  //adjust the after array's indecies
+  let startIndex = newColumnsBefore.length;
+  newColumnsAfter = newColumnsAfter.map((item, index) => {
+    return {
+      ...item,
+      columnId: startIndex + index,
+      columnName: toString26(startIndex + index).toUpperCase(),
+    };
+  });
+  //merge the two parts
+  const finalColumns = [...newColumnsBefore, ...newColumnsAfter];
+  //update our rows here
+  newRows.forEach((item, index) => {
+    let newCell;
+    if (index === 0) {
+      //header cells
+      //use the generated columns above here
+      //update the title of the first row (columns)
+      let newCells = finalColumns.map((item) => {
+        console.log("item", item);
+        return { type: "header", text: item.columnName };
+      });
+      newRows[0].cells = newCells;
+    } else {
+      //regular cells
+      //add a new empty cell in this row at the index we have
+      newCell = { type: "extendedText", text: "" };
+      //insert newCells at the current index
+      arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
+    }
+  });
+  return { newColumns: finalColumns, newRows: newRows };
+};
+const addRow = (selectedRowId, direction, rows) => {
+  //++cellcount
+  /**
+   * given a row id and direction
+   * insert a whole row
+   * offset either to be above or below currently selected row
+   * updates state (rows )
+   **/
+  //make a copy of current rows
+  let newRows = cloneDeep(rows);
+  //cell index is offset by direction from columnId
+  let rowIndex = direction === "above" ? selectedRowId : selectedRowId + 1;
+  //split into tow arrays, before rowIndex and afterRowIndex
+  //split into two arrays, before and after cellIndex
+  let newRowsBefore = newRows.slice(0, rowIndex);
+  let newRowsAfter = newRows.slice(rowIndex);
+
+  //add our new row in the before array
+
+  newRowsBefore.push({
+    rowId: newRowsBefore.length,
+    //only really using this for the length value
+    cells: newRowsBefore[0].cells.map((item, index) => {
+      if (index === 0) {
+        return {
+          type: "extendedText",
+          text: newRowsBefore.length.toString(),
+          nonEditable: true,
+        };
+      }
+      return { type: "extendedText", text: "" };
+    }),
+  });
+  let startIndex = newRowsBefore.length;
+
+  //increment the row ids and the first cell  text(count cell ) of each of these rows
+  newRowsAfter = newRowsAfter.map((item, index) => {
+    let newCells = [...item.cells];
+    newCells[0].text = (startIndex + index).toString();
+    return {
+      rowId: startIndex + index,
+      cells: newCells,
+    };
+  });
+  //merge the two arrays
+  let finalRows = [...newRowsBefore, ...newRowsAfter];
+  return { newRows: finalRows };
+};
+const deleteColumn = (selectedColumnId, columns, rows) => {
+  /**
+   * Given columnId, delete a whole column
+   * i.e delete from each row the cell at selectedColumnId (cells[x])
+   * updates row and column state
+   * todo: in the future should just return new rows/columns
+   *  */
+  //make a copy of current rows and columns
+  let newRows = cloneDeep(rows);
+  let newColumns = cloneDeep(columns);
+
+  //update our columns here
+  //split into two arrays, before and after cellIndex
+  let newColumnsBefore = newColumns.slice(0, selectedColumnId);
+  let newColumnsAfter = newColumns.slice(selectedColumnId);
+  //the column to remove is here in the front of the after array, shift it
+  console.log(newColumnsAfter.shift());
+  //adjust the after array's indecies and names
+  let startIndex = selectedColumnId;
+  newColumnsAfter = newColumnsAfter.map((item, index) => {
+    return {
+      ...item,
+      columnId: startIndex + index,
+      columnName: toString26(startIndex + index).toUpperCase(),
+    };
+  });
+  //merge the two parts
+  const finalColumns = [...newColumnsBefore, ...newColumnsAfter];
+  //update our rows, deleteing the cells that need to be
+  const finalRows = newRows.map((item, index) => {
+    if (index === 0) {
+      //header cells
+      //use the generated columns above here
+      //update the title of the first row (columns)
+      let newCells = finalColumns.map((item) => {
+        return { type: "header", text: item.columnName };
+      });
+      return { ...item, cells: newCells };
+    } else {
+      //regular cells
+      let newCells = cloneDeep(item.cells);
+      //remove the cell we want to get rid of
+      newCells.splice(selectedColumnId, 1);
+      return { ...item, cells: newCells };
+    }
+  });
+  return { newColumns: finalColumns, newRows: finalRows };
+};
+const deleteRow = (selectedRowId, rows) => {
+  /**
+   * Given rowId, delete a whole row
+   * i.e delete a whole entry from rows array, offseting the count
+   * updates rows state
+   * todo: in the future should just return new rows
+   *  */
+
+  //split into tow arrays, before rowIndex and afterRowIndex
+  //split into two arrays, before and after cellIndex
+  let newRows = cloneDeep(rows);
+  let newRowsBefore = newRows.slice(0, selectedRowId);
+  let newRowsAfter = newRows.slice(selectedRowId);
+
+  //the row we want to delete is in the after array (at 0 index), we shift it off
+  newRowsAfter.shift();
+
+  let startIndex = selectedRowId;
+
+  //increment the row ids and the first cell  text(count cell ) of each of these rows
+  newRowsAfter = newRowsAfter.map((item, index) => {
+    let newCells = [...item.cells];
+    newCells[0].text = (startIndex + index).toString();
+    return {
+      rowId: startIndex + index,
+      cells: newCells,
+    };
+  });
+  //merge the two arrays
+  let finalRows = [...newRowsBefore, ...newRowsAfter];
+  return { newRows: finalRows };
 };
 /* JSON HELPERS */
 const jsonToData = (json) => {
@@ -515,4 +726,9 @@ export {
   unHookFormula,
   inCell,
   formatDate,
+  addColumn,
+  addRow,
+  deleteColumn,
+  deleteRow,
+  verifyCellCount,
 };
