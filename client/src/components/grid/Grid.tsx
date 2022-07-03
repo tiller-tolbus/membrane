@@ -25,6 +25,7 @@ import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
 import { ExtendedTextCell } from "./ExtendedTextCell";
+import CellCapDialog from "./CellCapDialog";
 
 function Grid() {
   const rows = useStore((store) => store.rows);
@@ -34,6 +35,8 @@ function Grid() {
   const setColumns = useStore((store) => store.setColumns);
 
   const setSelectedCell = useStore((store) => store.setSelectedCell);
+
+  const cellCapAlertToggle = useStore((store) => store.cellCapAlertToggle);
 
   const handleColumnResize = (ci: Id, width: number) => {
     const newColumns = reiszeColumns(columns, ci, width);
@@ -65,7 +68,10 @@ function Grid() {
             const canAddMore = verifyCellCount(columns, rows, addedCellsCount);
             //we can't add anymore rows :shrug:
             //TODO: use a modal here
-            if (!canAddMore) return;
+            if (!canAddMore) {
+              cellCapAlertToggle(true);
+              return;
+            }
 
             const { newRows } = addRow(selectedRowIds[0], "above", rows);
             //update our app's state
@@ -81,7 +87,10 @@ function Grid() {
             const canAddMore = verifyCellCount(columns, rows, addedCellsCount);
             //we can't add anymore rows :shrug:
             //TODO: use a modal here
-            if (!canAddMore) return;
+            if (!canAddMore) {
+              cellCapAlertToggle(true);
+              return;
+            }
 
             const { newRows } = addRow(selectedRowIds[0], "below", rows);
             //update our app's state
@@ -113,7 +122,10 @@ function Grid() {
             const canAddMore = verifyCellCount(columns, rows, addedCellsCount);
             //we can't add anymore rows :shrug:
             //TODO: use a modal here
-            if (!canAddMore) return;
+            if (!canAddMore) {
+              cellCapAlertToggle(true);
+              return;
+            }
 
             const { newColumns, newRows } = addColumn(
               selectedColIds[0],
@@ -135,7 +147,10 @@ function Grid() {
             const canAddMore = verifyCellCount(columns, rows, addedCellsCount);
             //we can't add anymore rows :shrug:
             //TODO: use a modal here
-            if (!canAddMore) return;
+            if (!canAddMore) {
+              cellCapAlertToggle(true);
+              return;
+            }
             const { newColumns, newRows } = addColumn(
               selectedColIds[0],
               "left",
@@ -174,6 +189,7 @@ function Grid() {
    */
   return (
     <div>
+      <CellCapDialog />
       <div className={"grid-container"}>
         <ReactGrid
           rows={rows}
@@ -210,7 +226,10 @@ function Grid() {
             );
             //we can't add anymore rows :shrug:
             //TODO: use a modal here
-            if (!canAddMore) return;
+            if (!canAddMore) {
+              cellCapAlertToggle(true);
+              return;
+            }
 
             const newRows = generateRows(parseInt(rowCount), rows);
             setRows(newRows);

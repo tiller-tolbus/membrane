@@ -394,9 +394,7 @@ const verifyCellCount = (columns, rows, offset) => {
 
   const futureCount = (rows.length - 1) * (columns.length - 1) + (offset - 1);
   if (futureCount > CELL_CAP) {
-    //alert the user
     //return false
-    alert("you can not add anymore cells, current cell cap is: " + CELL_CAP);
     return false;
   }
   return true;

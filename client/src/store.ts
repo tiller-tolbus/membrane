@@ -7,8 +7,11 @@ interface Store extends State {
   columns: Array<any>;
   setColumns: (columns) => void;
 
-  selectedCell: any;//todo: make a structure
+  selectedCell: any; //todo: make a structure
   setSelectedCell: (selectedCell) => void;
+
+  cellCapAlertOpen: boolean;
+  cellCapAlertToggle: (state: boolean) => void;
 }
 
 const useStore = create<Store>((set, get) => ({
@@ -20,6 +23,9 @@ const useStore = create<Store>((set, get) => ({
 
   selectedCell: {},
   setSelectedCell: (selectedCell) => set(() => ({ selectedCell })),
+
+  cellCapAlertOpen: false,
+  cellCapAlertToggle: (state: boolean) => set(() => ({ cellCapAlertOpen:state })),
 }));
 
 export default useStore;

@@ -12,5 +12,7 @@ export default {
   },
   addRowMinLimit: "at least 1 row",
   add: "Add",
-  moreRows: "more rows"
+  moreRows: "more rows",
+  cellCapAlertTitle: "Cell cap reached",
+  cellCapAlertDescription: "Can not create anymore cells, limit reached",
 };
