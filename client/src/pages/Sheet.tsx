@@ -192,8 +192,9 @@ function Sheet() {
       });
     });
     //we didn't eval a single formula default to the regular data
-    if (!newRowsFormulas || newRowsFormulas.length === 0) newRowsFormulas = newRows;
-        //update rows and columns state
+    if (!newRowsFormulas || newRowsFormulas.length === 0)
+      newRowsFormulas = newRows;
+    //update rows and columns state
     setColumns(newColumns);
     setRows(newRowsFormulas);
     //set the sheet title here

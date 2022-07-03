@@ -32,11 +32,12 @@ export default function GridOptions({ addRowsCb }) {
   };
   return (
     <Stack direction="row" spacing={2} alignItems="center">
+     
       <Button
         size={"small"}
         endIcon={<AddIcon />}
         disabled={error}
-        sx={{ border: "none", color: "black", marginTop:1 }}
+        sx={{ border: "none", color: "black", marginTop: 1 }}
         onClick={() => {
           addRowsCb(addMoreInputValue);
         }}

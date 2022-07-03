@@ -693,6 +693,7 @@ const dataToJson = (data) => {
 
   return specData;
 };
+
 /*ENV HELPERS*/
 const isDev = () =>
   !process.env.NODE_ENV || process.env.NODE_ENV === "development";
@@ -709,6 +710,58 @@ const formatDate = (dateNumber) => {
   };
   const dateObj = new Date(dateNumber);
   return dateObj.toLocaleDateString("en-US", options);
+};
+/* CSV HELPERS */
+const exportRowsCSV = (rows) => {
+  //TODO: we probably want formula result and not formula itself here
+  const parsedRows = dataToJson(rows);
+
+  const csv = parsedRows
+    .map(
+      (row) =>
+        row
+          .map(String) // convert every value to String
+          .map((v) => v.replaceAll('"', '""')) // escape double colons
+          .map((v) => `"${v}"`) // quote it
+          .join(",") // comma-separated
+    )
+    .join("\r\n"); // rows starting on new lines
+  downloadBlob(csv, "export.csv", "text/csv;charset=utf-8;");
+  return true;
+};
+function downloadBlob(content, filename, contentType) {
+  // Create a blob
+  var blob = new Blob([content], { type: contentType });
+  var url = URL.createObjectURL(blob);
+
+  // Create a link to download it
+  var pom = document.createElement("a");
+  pom.href = url;
+  pom.setAttribute("download", filename);
+  pom.click();
+}
+const importCSV = (csv) => {
+  function extractAllText(str) {
+    //get everything between double quots 
+    const re = /"(.*?)"/g;
+    const result = [];
+    let current;
+    while ((current = re.exec(str))) {
+      result.push(current.pop());
+    }
+    return result.length > 0 ? result : [str];
+  }
+  const data = csv.split("\n").map((v) => {
+    //add a comma to the start and end
+    //get everything between ," and ", even if empty string
+    const something = "," + v + ",";
+    const matches = extractAllText(something);
+    console.log("matches", matches);
+    return matches;
+  });
+
+  console.log("data", data);
+  return data;
 };
 export {
   getColumns,
@@ -729,4 +782,6 @@ export {
   deleteColumn,
   deleteRow,
   verifyCellCount,
+  exportRowsCSV,
+  importCSV,
 };

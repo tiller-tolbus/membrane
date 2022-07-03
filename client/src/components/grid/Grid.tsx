@@ -20,12 +20,20 @@ import {
   deleteColumn,
   deleteRow,
   verifyCellCount,
+  exportRowsCSV,
+  importCSV,
 } from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
 import { ExtendedTextCell } from "./ExtendedTextCell";
 import CellCapDialog from "./CellCapDialog";
+import Button from "@mui/material/Button";
+import { styled } from "@mui/material/styles";
+
+const Input = styled("input")({
+  display: "none",
+});
 
 function Grid() {
   const rows = useStore((store) => store.rows);
@@ -189,6 +197,34 @@ function Grid() {
    */
   return (
     <div>
+      <Button
+        size={"small"}
+        sx={{ border: "none", color: "black", marginTop: 1 }}
+        onClick={() => {
+          exportRowsCSV(rows);
+        }}
+      >
+        export this here sheet as csv boy!!!
+      </Button>
+      <label htmlFor="contained-button-file">
+        <Input
+          accept="csv/*"
+          id="contained-button-file"
+          multiple
+          type="file"
+          onChange={async (data) => {
+            const file = data.target.files[0];
+            const textValues = await file.text();
+            console.log(textValues);
+            importCSV(textValues);
+            return;
+          }}
+        />
+        <Button variant="contained" component="span">
+          import csv into dis sheet here
+        </Button>
+      </label>
+
       <CellCapDialog />
       <div className={"grid-container"}>
         <ReactGrid
