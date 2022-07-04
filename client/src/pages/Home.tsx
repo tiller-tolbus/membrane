@@ -20,100 +20,45 @@ import SheetItem from "../components/sheet"; //todo: change to import from /comp
 import { SearchBar } from "../components";
 import Divider from "@mui/material/Divider";
 
-const data = [
-  {
-    title: "sheet 1",
-    lastEdited: "10:58 PM",
-    tags: [{ label: "tag 1" }, { label: "tag 4" }],
-    id: 1,
-  },
-  {
-    title: "sheet 2",
-    lastEdited: "Apr 10, 2022",
-    tags: [
-      { label: "tag 1" },
-      { label: "tag 2" },
-      { label: "tag 3" },
-      { label: "tag 4" },
-      { label: "tag 5" },
-    ],
-    id: 2,
-  },
-  {
-    title: "sheet 3",
-    lastEdited: "Apr 10, 2022",
-    tags: [{ label: "tag 1" }],
-    id: 3,
-  },
-  {
-    title: "sheet 4",
-    lastEdited: "Apr 10, 2022",
-    tags: [],
-    id: 4,
-  },
-  {
-    title: "sheet 5",
-    lastEdited: "Apr 10, 2022",
-    tags: [],
-    id: 5,
-  },
-  {
-    title: "sheet 6",
-    lastEdited: "Apr 10, 2022",
-    tags: [{ label: "tag 1" }, { label: "tag 2" }],
-    id: 6,
-  },
-  {
-    title: "sheet 7",
-    lastEdited: "Apr 10, 2022",
-    tags: [{ label: "tag 1" }, { label: "tag 2" }],
-    id: 7,
-  },
-  {
-    title: "sheet 8",
-    lastEdited: "Apr 10, 2022",
-    tags: [{ label: "tag 1" }, { label: "tag 2" }],
-    id: 8,
-  },
-  {
-    title: "sheet 9",
-    lastEdited: "Apr 10, 2022",
-    tags: [{ label: "tag 1" }, { label: "tag 2" }],
-    id: 9,
-  },
-  {
-    title: "sheet 10",
-    lastEdited: "Apr 10, 2022",
-    tags: [{ label: "tag 1" }],
-    id: 10,
-  },
-  {
-    title: "sheet 11",
-    lastEdited: "Apr 10, 2022",
-    tags: [],
-    id: 11,
-  },
-  {
-    title: "sheet 12",
-    lastEdited: "Apr 10, 2022",
-    tags: [],
-    id: 12,
-  },
-  {
-    title: "sheet 13",
-    lastEdited: "Apr 10, 2022",
-    tags: [
-      { label: "tag 1" },
-      { label: "tag 2" },
-      { label: "tag 3" },
-      { label: "tag 4" },
-    ],
-    id: 13,
-  },
-];
+const sample = require("../sample.json");
+function structureJson(data) {
+  /**
+   * converts json recieved into sommething that works for the front-end
+   **/
+  let newData = data.map((item, index) => {
+    let meta = item.meta;
+    let data = item.data;
+    let newItem = {
+      id: meta.id,
+      title: meta.title,
+      lastEdited: meta["last-modified"],
+      owner: meta.owner,
+      tags: meta.tags.map((item, index) => {
+        return { label: item, key: index };
+      }),
+      sheetMeta: {
+        columnCount: meta["column-count"],
+        rowCount: meta["row-count"],
+        rowMeta: meta["row-meta"],
+        columnMeta: meta["column-meta"],
+      },
+      sheetData: data,
+    };
+    return newItem;
+  });
+
+  return newData;
+}
+const data = structureJson([sample]);
+
 export default function Home() {
   let navigate = useNavigate();
-  const goToSheet = () => navigate("/apps/cell/sheet");
+  const goToSheet = (data) =>
+    navigate("/apps/cell/sheet", {
+      state: {
+        data,
+      },
+    });
   const onRename = (value: string, id: number) => {
     return;
   };

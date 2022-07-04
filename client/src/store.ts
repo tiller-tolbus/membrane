@@ -6,6 +6,9 @@ interface Store extends State {
 
   columns: Array<any>;
   setColumns: (columns) => void;
+
+  selectedCell: any;//todo: make a structure
+  setSelectedCell: (selectedCell) => void;
 }
 
 const useStore = create<Store>((set, get) => ({
@@ -14,6 +17,9 @@ const useStore = create<Store>((set, get) => ({
 
   columns: [],
   setColumns: (columns) => set(() => ({ columns })),
+
+  selectedCell: {},
+  setSelectedCell: (selectedCell) => set(() => ({ selectedCell })),
 }));
 
 export default useStore;

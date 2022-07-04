@@ -9,7 +9,7 @@ import { blue } from "@mui/material/colors";
 import Grid from "@mui/material/Grid";
 import Chips from "./Chips";
 import SheetMenu from "./SheetMenu";
-
+import { formatDate} from "../../helpers"
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
     duration: theme.transitions.duration.short,
@@ -31,9 +31,12 @@ export default function SheetItem({
   onShare,
   onAdd,
 }) {
-  const { title, lastEdited, id, tags } = item;
+  const { title, id, tags, lastEdited, sheetMeta, sheetData } = item;
   return (
-    <Item variant="outlined" onClick={() => goToSheet()}>
+    <Item
+      variant="outlined"
+      onClick={() => goToSheet({ sheetMeta, sheetData, title })}
+    >
       <Grid container alignItems="center">
         <Grid sx={{ alignItems: "center" }} item xs={3}>
           <Typography variant="subtitle1" gutterBottom component="div">
@@ -45,7 +48,7 @@ export default function SheetItem({
         </Grid>
         <Grid item xs={2}>
           <Typography variant="subtitle1" gutterBottom component="div">
-            {lastEdited}
+            {formatDate(lastEdited)}
           </Typography>
         </Grid>
         <Grid item xs={2}>

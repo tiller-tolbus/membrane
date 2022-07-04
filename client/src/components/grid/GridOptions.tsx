@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import verbiage from "../../verbiage";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function GridOptions({ addRowsCb }) {
   const [addMoreInputValue, setAddMoreInputValue] = useState<string>("1");
@@ -30,21 +31,12 @@ export default function GridOptions({ addRowsCb }) {
     setAddMoreInputValue(val.toString());
   };
   return (
-    <Stack
-      sx={{
-        marginTop: "1em",
-        marginBottom: "1em",
-        position: "absolute",
-        bottom: 0,
-        backgroundColor: "#fff",
-      }}
-      direction="row"
-      spacing={2}
-      alignItems="center"
-    >
+    <Stack direction="row" spacing={2} alignItems="center">
       <Button
+        size={"small"}
+        endIcon={<AddIcon />}
         disabled={error}
-        variant="contained"
+        sx={{ border: "none", color: "black", marginTop:1 }}
         onClick={() => {
           addRowsCb(addMoreInputValue);
         }}
