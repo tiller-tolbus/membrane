@@ -5,7 +5,7 @@
         "title": "DemoSheet",
         "owner": "~zod",
         "tags": ["demo"],
-        "row-meta": [[1, [{"bold": true} ,{"italic": true }]]],
+        "row-meta": [[1, [{"bold": true}, {"italic": true }]]],
         "column-meta": [],
         "row-count": 1000,
         "column-count": 50,
