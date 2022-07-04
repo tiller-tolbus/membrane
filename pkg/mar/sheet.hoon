@@ -1,6 +1,6 @@
-/-  *membrane-dejs
-/-  *membrane-enjs
-/+  *membrane
+/-  *membrane
+/+  *membrane-dejs
+/+  *membrane-enjs
 |_  shet=sheet
 ::  grow: methods for converting from our mark to another mark
 ::
