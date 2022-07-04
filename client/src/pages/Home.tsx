@@ -54,7 +54,7 @@ const data = structureJson([sample]);
 export default function Home() {
   let navigate = useNavigate();
   const goToSheet = (data) =>
-    navigate("/apps/cell/sheet", {
+    navigate("/apps/membrane/sheet", {
       state: {
         data,
       },

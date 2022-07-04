@@ -35,10 +35,10 @@ function App() {
       {/* A <Routes > looks through its children <Route>s and
         renders the first one that matches the current URL. */}
       <Routes>
-        <Route path="/apps/cell" element={<Home />} />
-        <Route path="/apps/cell/sheet" element={<Sheet />} />
+        <Route path="/apps/membrane" element={<Home />} />
+        <Route path="/apps/membrane/sheet" element={<Sheet />} />
 
-        <Route path="/apps/cell/not-home" element={<NotHome />} />
+        <Route path="/apps/membrane/not-home" element={<NotHome />} />
       </Routes>
     </Router>
   );
