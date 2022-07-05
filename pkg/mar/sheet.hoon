@@ -1,5 +1,6 @@
-/-  *cell
-/+  *cell
+/-  *membrane
+/+  *membrane-dejs
+/+  *membrane-enjs
 |_  shet=sheet
 ::  grow: methods for converting from our mark to another mark
 ::

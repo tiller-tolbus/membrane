@@ -1,10 +1,10 @@
 :~
-  title+'%cell'
+  title+'%Membrane'
   info+'Spreadsheets and Databases'
   color+0xf2.f2f2
   version+[0 0 1]
-  website+'https://github.com/tiller-tolbus/cell'
+  website+'https://github.com/tiller-tolbus/membrane'
   license+'MIT'
-  base+'cell'
+  base+'membrane'
   glob-ames+[~zod 0v0]
 ==
