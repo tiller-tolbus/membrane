@@ -5,7 +5,7 @@
 ::  Type core
 ::
 |%
-+$  state-0  sheet
++$  state-0  (map path sheet)
 +$  card  card:agent:gall
 --
 ::  Gall agent boilerplate
@@ -45,16 +45,13 @@
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
-  ::  assert request came from our ship
   ?>  =(our.bowl src.bowl)
-  ::  we use %sheet mark for demo
-  ::  crash if other mark is used
-  ::  later we will specify marks for different actions
   ?+  mark  (on-poke:def mark vase)
-    %sheet
-  ::  vase should contain an entire spreadsheet
-  =/  new-sheet  !<(sheet vase)
-  `this(state new-sheet)
+    %membrane-action
+  =/  act  !<(action vase)
+  ?-  -.act
+    %push
+      `~((~put by state) +<.act +>.t)
   ==
 ::  We are not accepting subscriptions at this time.
 ::
