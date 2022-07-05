@@ -1,4 +1,4 @@
-/-  *membrane
+/-  *membrane-sheet
 =,  dejs:format
 !:
 |%

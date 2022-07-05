@@ -1,4 +1,4 @@
-/-  *membrane
+/-  *membrane-sheet
 /+  *membrane-dejs
 /+  *membrane-enjs
 |_  shet=sheet
