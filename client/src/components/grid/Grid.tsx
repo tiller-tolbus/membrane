@@ -22,6 +22,9 @@ import {
   verifyCellCount,
   exportRowsCSV,
   importCSV,
+  getColumns,
+  formulateFormula,
+  jsonToData,
 } from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
@@ -214,10 +217,21 @@ function Grid() {
           type="file"
           onChange={async (data) => {
             const file = data.target.files[0];
+            //get the text value from the file
             const textValues = await file.text();
-            console.log(textValues);
-            importCSV(textValues);
-            return;
+            //parse the text into arrays of arrays
+            const arrayData = importCSV(textValues);
+            //parse the array of arrays intro
+            //TODO: this is repeated in Sheet.tsx
+            const columnLength = arrayData[0].length + 1; // +1 because the first column is the row count one
+
+            /* do formula stuff before setting rows  */
+            //TODO: add formulas here?
+            const parsedData = jsonToData(arrayData);
+
+            setColumns(getColumns(columnLength));
+            setRows(parsedData);
+            return true;
           }}
         />
         <Button variant="contained" component="span">
