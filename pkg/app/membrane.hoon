@@ -51,7 +51,8 @@
   =/  act  !<(action vase)
   ?-  -.act
     %push
-      `~((~put by state) +<.act +>.t)
+      `(~(put by state) +<.act +>.t)
+    ==
   ==
 ::  We are not accepting subscriptions at this time.
 ::
