@@ -21,7 +21,6 @@ import SheetItem from "../components/sheet"; //todo: change to import from /comp
 import { SearchBar } from "../components";
 import Divider from "@mui/material/Divider";
 import { structureJson } from "../helpers";
-const sample = require("../sample.json");
 
 export default function Home() {
   const [data, setData] = React.useState([]);
