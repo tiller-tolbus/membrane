@@ -1,6 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
+import api from "../api";
 
 import AddIcon from "@mui/icons-material/Add";
 
@@ -19,39 +20,29 @@ import { useNavigate } from "react-router-dom";
 import SheetItem from "../components/sheet"; //todo: change to import from /componnents
 import { SearchBar } from "../components";
 import Divider from "@mui/material/Divider";
-
+import { structureJson } from "../helpers";
 const sample = require("../sample.json");
-function structureJson(data) {
-  /**
-   * converts json recieved into sommething that works for the front-end
-   **/
-  let newData = data.map((item, index) => {
-    let meta = item.meta;
-    let data = item.data;
-    let newItem = {
-      id: meta.id,
-      title: meta.title,
-      lastEdited: meta["last-modified"],
-      owner: meta.owner,
-      tags: meta.tags.map((item, index) => {
-        return { label: item, key: index };
-      }),
-      sheetMeta: {
-        columnCount: meta["column-count"],
-        rowCount: meta["row-count"],
-        rowMeta: meta["row-meta"],
-        columnMeta: meta["column-meta"],
-      },
-      sheetData: data,
-    };
-    return newItem;
-  });
-
-  return newData;
-}
-const data = structureJson([sample]);
 
 export default function Home() {
+  const [data, setData] = React.useState([]);
+  //TODO: fetch data
+  const getSheets = async () => {
+    try {
+      const serverData = await api.getSpreadsheetData();
+      console.log("serverData => ", serverData);
+      //turn into something we can use for now
+      const data = structureJson([serverData]);
+      console.log("get data success", data);
+
+      setData(data);
+    } catch (e) {
+      console.log("Home => getSheets() error", e);
+    }
+  };
+  React.useEffect(() => {
+    //fetch our sheets (just one for now)
+    getSheets();
+  }, []);
   let navigate = useNavigate();
   const goToSheet = (data) =>
     navigate("/apps/membrane/sheet", {
