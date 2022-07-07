@@ -1,6 +1,7 @@
 ::  Imports
 ::
 /-  *membrane-sheet
+/-  *membrane-action
 /+  default-agent, dbug
 ::  Type core
 ::
@@ -46,14 +47,13 @@
   |=  [=mark =vase]
   ^-  (quip card _this)
   ?>  =(our.bowl src.bowl)
-  ?+  mark  (on-poke:def mark vase)
-    %membrane-action
+  ?.  ?=(%membrane-action mark)
+    (on-poke:def mark vase)
   =/  act  !<(action vase)
   ?-  -.act
-    %push
-      `(~(put by state) +<.act +>.t)
+    %replace
+      `this(state (~(put by state) path.meta.act +.act))
     ==
-  ==
 ::  We are not accepting subscriptions at this time.
 ::
 ++  on-watch  on-watch:def
@@ -62,11 +62,11 @@
 ::  We accept one kind of scry, [%x %pull ~]
 ::
 ++  on-peek
-  |=  =path
+  |=  pax=path
   ^-  (unit (unit cage))
-  ?+  path  (on-peek:def path)
-    [%x %pull ~]
-  ``sheet+!>(state)
+  ?+  pax  (on-peek:def path)
+    [%x path ~]
+  ``sheet+!>(~(get by state) +<.pax)
   ==
 ::  We will not be accepting calls from Arvo at this time
 ::
