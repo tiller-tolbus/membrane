@@ -64,9 +64,9 @@
 ++  on-peek
   |=  pax=path
   ^-  (unit (unit cage))
-  ?+  pax  (on-peek:def path)
-    [%x path ~]
-  ``sheet+!>(~(get by state) +<.pax)
+  ?+  +>.pax  (on-peek:def path)
+    %retrieve
+      ``sheet+!>(~(get by state) +<.pax)
   ==
 ::  We will not be accepting calls from Arvo at this time
 ::
