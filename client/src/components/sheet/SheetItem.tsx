@@ -30,6 +30,7 @@ export default function SheetItem({
   onDelete,
   onShare,
   onAdd,
+  onMove
 }) {
   const {
     title,
@@ -72,6 +73,7 @@ export default function SheetItem({
               onDelete={onDelete}
               onShare={onShare}
               onAdd={onAdd}
+              onMove={onMove}
               sheetId={id}
             />
           </Stack>

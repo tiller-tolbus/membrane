@@ -21,7 +21,7 @@ import SheetItem from "../components/sheet"; //todo: change to import from /comp
 import { SearchBar } from "../components";
 import Divider from "@mui/material/Divider";
 import { structureJson } from "../helpers";
-
+//TODO: remember this needs a scrollbar body {overflow:hidden} ;)
 export default function Home() {
   const [data, setData] = React.useState([]);
   //TODO: fetch data
@@ -64,6 +64,10 @@ export default function Home() {
   const onShare = (id: number, user: string) => {
     console.log("id", id);
     console.log("sharing is caring => ", user);
+    return;
+  };
+  const onMove = (path: string) => {
+    console.log("path", path);
     return;
   };
   const [addDialogOpen, setAddDialogOpen] = React.useState<boolean>(false);
@@ -125,6 +129,7 @@ export default function Home() {
                   onDelete={onDelete}
                   onShare={onShare}
                   goToSheet={goToSheet}
+                  onMove={onMove}
                 />
               );
             })}

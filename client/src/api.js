@@ -2,7 +2,7 @@ import memoize from "lodash/memoize";
 import Urbit from "@urbit/http-api";
 import useStore from "./store";
 import { dataToJson2, isDev } from "./helpers";
-console.log("isDev", isDev());
+
 const api = {
   createApi: memoize(() => {
     /*
