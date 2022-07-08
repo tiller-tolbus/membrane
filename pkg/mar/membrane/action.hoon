@@ -2,15 +2,17 @@
 /-  *membrane-action
 /+  *membrane-dejs
 /+  *membrane-enjs
+!:
 |_  act=action
 ++  grow
   |%
   ++  noun  act
-  ++  json  (of ~[%replace dejs-sheet])
+  ++  json  (frond:enjs:format %replace (enjs-sheet +.act))
   --
 ++  grab
   |%
-  ++  noun  ^-(action act)
-  ++  json  (frond:enjs:format %replace (enjs-sheet +.action))
+  ++  noun  action
+  ++  json  (of:dejs:format ~[replace+dejs-sheet])
   --
-++  grad  %noun  --
+++  grad  %noun  
+  --
