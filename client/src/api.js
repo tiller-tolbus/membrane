@@ -31,10 +31,11 @@ const api = {
     //transform the data into something the back end expects
     const json = dataToJson2(rows, uneditedSheetMeta);
 
+    console.log("json", JSON.stringify(json));
     return api.createApi().poke({
       app: "membrane",
-      mark: "sheet",
-      json: json,
+      mark: "membrane-action",
+      json: { replace: json },
     });
   },
 };

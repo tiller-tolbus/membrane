@@ -21,13 +21,15 @@ import SheetItem from "../components/sheet"; //todo: change to import from /comp
 import { SearchBar } from "../components";
 import Divider from "@mui/material/Divider";
 import { structureJson } from "../helpers";
+const sample = require("../sample.json");
+
 //TODO: remember this needs a scrollbar body {overflow:hidden} ;)
 export default function Home() {
   const [data, setData] = React.useState([]);
   //TODO: fetch data
   const getSheets = async () => {
     try {
-      const serverData = await api.getSpreadsheetData();
+      const serverData = sample;
       console.log("serverData => ", serverData);
       //turn into something we can use for now
       const data = structureJson([serverData]);
