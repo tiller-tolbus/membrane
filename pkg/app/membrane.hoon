@@ -1,11 +1,12 @@
 ::  Imports
 ::
-/-  *membrane
+/-  *membrane-sheet
+/-  *membrane-action
 /+  default-agent, dbug
 ::  Type core
 ::
 |%
-+$  state-0  sheet
++$  state-0  (map path sheet)
 +$  card  card:agent:gall
 --
 ::  Gall agent boilerplate
@@ -45,17 +46,14 @@
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
-  ::  assert request came from our ship
   ?>  =(our.bowl src.bowl)
-  ::  we use %sheet mark for demo
-  ::  crash if other mark is used
-  ::  later we will specify marks for different actions
-  ?+  mark  (on-poke:def mark vase)
-    %sheet
-  ::  vase should contain an entire spreadsheet
-  =/  new-sheet  !<(sheet vase)
-  `this(state new-sheet)
-  ==
+  ?.  ?=(%membrane-action mark)
+    (on-poke:def mark vase)
+  =/  act  !<(action vase)
+  ?-  -.act
+    %replace
+      `this(state (~(put by state) path.meta.act +.act))
+    ==
 ::  We are not accepting subscriptions at this time.
 ::
 ++  on-watch  on-watch:def
@@ -64,11 +62,21 @@
 ::  We accept one kind of scry, [%x %pull ~]
 ::
 ++  on-peek
-  |=  =path
+  |=  pax=path
   ^-  (unit (unit cage))
-  ?+  path  (on-peek:def path)
-    [%x %pull ~]
-  ``sheet+!>(state)
+  ?.  ?=([%x @ *] pax)
+    ~
+  ?+  i.t.pax  (on-peek:def pax)
+    %retrieve
+      =/  rsv=(unit sheet)  (~(get by state) t.t.pax)
+      ?~  rsv
+        [~ ~]
+      :^  ~  ~  %sheet
+        !>(u.rsv)
+    %tree
+      =/  rsv=(set path)  ~(key by state)
+      :^  ~  ~  %membrane-tree
+        !>(rsv)
   ==
 ::  We will not be accepting calls from Arvo at this time
 ::
