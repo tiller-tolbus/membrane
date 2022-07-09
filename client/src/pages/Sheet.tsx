@@ -94,6 +94,7 @@ function Sheet() {
 
   const getData = async () => {
     /* calls api to get spreadsheet data and sets it  */
+
     try {
       setConnected({ success: false, trying: true, error: false });
 
@@ -148,14 +149,10 @@ function Sheet() {
       PUT the new sheets to urbit
       manage the synced object depending on request result and the snackbar (show/hide) 
     */
-    const state: any = location.state;
-
-    const uneditedSheetMeta = state.data.uneditedSheetMeta;
-
     try {
       setSynced({ trying: true, success: false, error: false });
 
-      const response = await api.putSpreadSheetData(uneditedSheetMeta);
+      const response = await api.putSpreadSheetData();
 
       setSynced({ trying: false, success: true, error: false });
       setSnackieOpen(true);
@@ -170,8 +167,6 @@ function Sheet() {
   const doSampleData = async () => {
     /* use the sample json spec to generate something that works for us here */
     //the data passed when navigating here
-
-    //todo:send original version unedited in state here
     const state: any = location.state;
 
     const data = state.data;
@@ -207,7 +202,6 @@ function Sheet() {
     //have to do this, since you need to tell the grid u got a response and so on
     setConnected({ success: true, trying: false, error: false });
   };
-
   useEffect(() => {
     doSampleData();
   }, []);

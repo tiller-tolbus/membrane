@@ -18,15 +18,13 @@ export default function MultiSelect({
   };
 
   return (
-    <FormControl sx={{ m: 1 }} size="small">
+    <FormControl sx={{ m: 1, minWidth: "65px" }} size="small">
       <Select
         id="font-size-select"
         //if no selected value use default one
         value={selectedValue ? selectedValue : defaultValue}
         onChange={handleChange}
         disabled={disabled}
-        size="small"
-        sx={{ fontSize: 12 }}
       >
         {options.map((item, index) => {
           return (

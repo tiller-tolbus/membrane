@@ -4,7 +4,7 @@ This dir hierarchy will work with the commands in the cheet sheet - feel free to
 
 *  bin
     *  (urbit binaries)
-*  membrane
+*  cell
     *  (git repo)
     *  client
         * (frontend code)
@@ -22,7 +22,7 @@ This dir hierarchy will work with the commands in the cheet sheet - feel free to
     * (clone of github repo)
 *  zod
     * (fake ship for testing)
-    * membrane
+    * cell
         * (pkg files go here)
 
 # Clone urbit-git
@@ -57,8 +57,8 @@ mv zod dead-zods/{name}
 cp -r fresh/zod .
 ```
 
-# Build `%membrane` with fresh zod
-These instructions will need to be updated later in the production process when the `pkg/` directory is more complete, so that we remove unnecessary files from the `%membrane` desk and use only what is required to build the app.
+# Build `%cell` with fresh zod
+These instructions will need to be updated later in the production process when the `pkg/` directory is more complete, so that we remove unnecessary files from the `%cell` desk and use only what is required to build the app.
 
 Earth:
 ```
@@ -66,18 +66,18 @@ Earth:
 ```
 Mars:
 ```
-|merge %membrane our %base
-|mount %membrane
+|merge %cell our %base
+|mount %cell
 ```
 Earth:
 ```
-cp -r pkg/* zod/membrane
+cp -r pkg/* zod/cell
 ```
 Mars:
 ```
-|commit %membrane
-|install our %membrane
-|rein %membrane [& %membrane]
-:membrane +dbug
+|commit %cell
+|install our %cell
+|rein %cell [& %cell]
+:cell +dbug
 ```
 The last command is to ensure that the app agent is receiving pokes. The demo agent should return `~`.

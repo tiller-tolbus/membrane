@@ -2,8 +2,6 @@ import { ROW_COUNT, CELL_CAP } from "./constants";
 import availableFormulas from "./components/grid/formulajs";
 import cloneDeep from "lodash/cloneDeep";
 import Papa from "papaparse";
-import useStore from "./store";
-
 const arrayInsertItemAtIndex = (index, item, array) => {
   array.splice(index, 0, item);
 };
@@ -410,25 +408,20 @@ const inCell = (cellArray, rows) => {
    */
   let newRows = cloneDeep(rows);
   cellArray.forEach((item) => {
-    //offset by one to
-    let rowId = item[0][0] + 1;
-    let columnId = item[0][1] + 1;
+    let rowId = item[0][0];
+    let columnId = item[0][1];
     let cellData = item[1];
-
     const cellToUpdate = newRows[rowId].cells[columnId];
     cellToUpdate.text = cellData.data.input;
 
     //make our customStyles obj from this data
-    //array of objs to a shallow obj thatwe can use
-    const metaObj = cellData.meta.reduce((a, b) => Object.assign(a, b), {});
-    //generic meta obj used in the frontend
     let customStyles = {
-      bold: metaObj.bold,
-      italic: metaObj.italic,
-      color: metaObj.foreground,
-      backgroundColor: metaObj.background,
-      strikeThrough: metaObj.strikethrough,
-      fontSize: metaObj.size,
+      bold: cellData.meta.bold,
+      italic: cellData.meta.italics,
+      color: cellData.meta.foreground,
+      backgroundColor: cellData.meta.background,
+      strikeThrough: cellData.meta.strikethrough,
+      fontSize: cellData.meta.size,
     };
     //remove all the fields that evaled to undefined (don't exist)
     Object.keys(customStyles).forEach(
@@ -675,100 +668,30 @@ const jsonToData = (json) => {
   //combine first row(meta data) with the rest of the rows (data from backend)
   return [...firstRow, ...rows];
 };
-const rowsToArrays = (rows) => {
-  /*
-    giving rows returns and array of arrays of just text data(includes empty rows) (csv like) 
-  */
-  //exclude first row (a,b,c...) (coulmns)
-  let newData = cloneDeep(rows);
-  newData.shift();
-
-  const parsedRows = newData.map((item) => {
-    let newCells = [...item.cells];
-    //exclude the first cell (1,2,3...) (row count cell)
-    newCells.shift();
-    return newCells.map((item) => {
-      return item.text;
-    });
-  });
-
-  return parsedRows;
-};
-const dataToJson2 = (data, meta) => {
-  //TODO:comment better
+const dataToJson = (data) => {
   /*
     takes grid data(rows) and transform it into what the back-end expects
     excluding first cell of each row and the first entierly(meta data)
     returns back end ready data
   */
   //exclude first row (a,b,c...) (coulmns)
-  let newData = cloneDeep(data);
+  let newData = [...data];
   newData.shift();
 
-  //update row/column count and last-modified for now
-  const rowCount = data.length - 1;
-  const columnCount = data[0].cells.length - 1;
-  const timeNow = new Date().getTime();
-  const sheetMeta = {
-    ...meta,
-    "column-count": columnCount,
-    "row-count": rowCount,
-    "last-modified": timeNow,
-  };
-
-  const jsonData = [];
-
-  newData.forEach((item, rowIndex) => {
+  const specData = newData.map((item) => {
     let newCells = [...item.cells];
     //exclude the first cell (1,2,3...) (row count cell)
     newCells.shift();
-    return newCells.forEach((item, columnIndex) => {
-      //does cell have a value?
-      if (item.text.length > 0) {
-        //we have a value, this gets included into the data we send
-
-        //does cell have customStyles
-        let textData;
-        if (item.formulaData) {
-          //if we have a formula text data should reflect that (input carries the formula name )
-          textData = {
-            input: item.formulaData.nonEvaledText,
-            output: item.text,
-          };
-        } else {
-          //otherwise input and output match
-          textData = { input: item.text, output: item.text };
-        }
-        let metaArray = [];
-        if (item.customStyles) {
-          //make our customStyles obj from this data
-          let metaObj = {
-            bold: item.customStyles.bold,
-            italic: item.customStyles.italic,
-            foreground: item.customStyles.color,
-            background: item.customStyles.backgroundColor,
-            strikethrough: item.customStyles.strikeThrough,
-            size: item.customStyles.fontSize,
-          };
-          Object.keys(metaObj).forEach((key) => {
-            //if field is defined add it to our list
-            if (metaObj[key] !== undefined) {
-              metaArray.push({ [key]: metaObj[key] });
-            }
-          });
-        }
-        //rowId =>  rowIndex
-        //columnId => cellIndex
-        let jsonDataItem = [
-          [rowIndex, columnIndex],
-          { meta: metaArray, data: textData },
-        ];
-        //add this item to our main jsonData
-        jsonData.push(jsonDataItem);
+    return newCells.map((item) => {
+      //handle formula cell values (don't send formula results, send formula)
+      if (item.formulaData && item.formulaData.nonEvaledText) {
+        return item.formulaData.nonEvaledText;
       }
+      return item.text;
     });
   });
-  return { meta: sheetMeta, data: jsonData };
+
+  return specData;
 };
 
 /*ENV HELPERS*/
@@ -799,59 +722,25 @@ function downloadBlob(content, filename, contentType) {
   pom.setAttribute("download", filename);
   pom.click();
 }
-const exportRowsCSV = () => {
-  /**
-   * Given rows turns them into CSV data and promptly downloads the data as a file
-   */
-  const rows = useStore.getState().rows;
-  const parsedRows = rowsToArrays(rows);
+const exportRowsCSV = (rows) => {
+  //TODO: we probably want formula result and not formula itself here
+  const parsedRows = dataToJson(rows);
   const results = Papa.unparse(parsedRows);
-  console.log("results", results);
-  downloadBlob(results, "export.csv", "text/csv;charset=utf-8;");
+  downloadBlob(results.data, "export.csv", "text/csv;charset=utf-8;");
   return true;
 };
 
 const importCSV = (csv) => {
-  /**
-   * Given a CSV text returns a javascript array of arrays
-   */
   const result = Papa.parse(csv);
   return result.data;
 };
-function structureJson(data) {
-  /**
-   * converts json recieved into sommething that works for the front-end
-   **/
-  let newData = data.map((item, index) => {
-    let meta = item.meta;
-    let data = item.data;
-    let newItem = {
-      id: meta.id,
-      title: meta.title,
-      lastEdited: meta["last-modified"],
-      owner: meta.owner,
-      tags: meta.tags.map((item, index) => {
-        return { label: item, key: index };
-      }),
-      sheetMeta: {
-        columnCount: meta["column-count"],
-        rowCount: meta["row-count"],
-        rowMeta: meta["row-meta"],
-        columnMeta: meta["column-meta"],
-      },
-      sheetData: data,
-      uneditedSheetMeta: meta,
-    };
-    return newItem;
-  });
 
-  return newData;
-}
 export {
   getColumns,
   getRows,
   updateCell,
   generateRows,
+  dataToJson,
   jsonToData,
   reiszeColumns,
   isDev,
@@ -867,6 +756,4 @@ export {
   verifyCellCount,
   exportRowsCSV,
   importCSV,
-  dataToJson2,
-  structureJson,
 };

@@ -10,14 +10,12 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
-import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import RenameDialog from "./dialog/RenameDialog";
 import DeleteDialog from "./dialog/DeleteDialog";
 import ShareDialog from "./dialog/ShareDialog";
 import EditTagsDialog from "./dialog/EditTagsDialog";
-import MoveDialog from "./dialog/MoveDialog";
 
 export default function SheetMenu({
   onRename,
@@ -25,9 +23,7 @@ export default function SheetMenu({
   onAdd,
   onShare,
   sheetId,
-  onMove,
 }) {
-  //TODO: there should be one instance of the dialogs,in the parent component, not for every sheet item
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [renameDialogOpen, setRenameDialogOpen] =
     React.useState<boolean>(false);
@@ -89,17 +85,6 @@ export default function SheetMenu({
   const onEditTagsDialogUpdate = (tags: []) => {
     onEditTagsDialogClose();
   };
-  const [moveDialogOpen, setMoveDialogOpen] = React.useState<boolean>(false);
-  const onMoveDialogClose = () => {
-    setMoveDialogOpen(false);
-  };
-  const onMoveDialogOpen = () => {
-    setMoveDialogOpen(true);
-  };
-  const onMoveDialogUpdate = (path: string) => {
-    onMove(path);
-    onMoveDialogClose();
-  };
 
   return (
     <React.Fragment>
@@ -148,35 +133,29 @@ export default function SheetMenu({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={() => onShareDialogOpen()}>
-          <ListItemIcon>
-            <PeopleAltOutlinedIcon fontSize="medium" />
-          </ListItemIcon>
-          Share
-        </MenuItem>
         <MenuItem onClick={() => onRenameDialogOpen()}>
           <ListItemIcon>
             <DriveFileRenameOutlineIcon fontSize="medium" />
           </ListItemIcon>
           Rename
         </MenuItem>
-        <MenuItem onClick={() => onEditTagsDialogOpen()}>
-          <ListItemIcon>
-            <LocalOfferOutlinedIcon fontSize="medium" />
-          </ListItemIcon>
-          Edit Tags
-        </MenuItem>
-        <MenuItem onClick={() => onMoveDialogOpen()}>
-          <ListItemIcon>
-            <DriveFileMoveOutlinedIcon fontSize="medium" />
-          </ListItemIcon>
-          Move sheet
-        </MenuItem>
         <MenuItem onClick={() => onDeleteDialogOpen()}>
           <ListItemIcon>
             <DeleteOutlineOutlinedIcon fontSize="medium" />
           </ListItemIcon>
           Delete
+        </MenuItem>
+        <MenuItem onClick={() => onEditTagsDialogOpen()}>
+          <ListItemIcon>
+            <LocalOfferIcon fontSize="medium" />
+          </ListItemIcon>
+          Edit Tags
+        </MenuItem>
+        <MenuItem onClick={() => onShareDialogOpen()}>
+          <ListItemIcon>
+            <PeopleAltOutlinedIcon fontSize="medium" />
+          </ListItemIcon>
+          Share with ur @pals
         </MenuItem>
       </Menu>
       <RenameDialog
@@ -198,11 +177,6 @@ export default function SheetMenu({
         open={editTagsDialogOpen}
         onConfirm={onEditTagsDialogUpdate}
         onClose={onEditTagsDialogClose}
-      />
-      <MoveDialog
-        open={moveDialogOpen}
-        onConfirm={onMoveDialogUpdate}
-        onClose={onMoveDialogClose}
       />
     </React.Fragment>
   );
