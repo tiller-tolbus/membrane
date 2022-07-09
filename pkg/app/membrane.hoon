@@ -59,7 +59,6 @@
 ++  on-watch  on-watch:def
 ++  on-agent  on-agent:def
 ++  on-leave  on-leave:def
-::  We accept one kind of scry, [%x %pull ~]
 ::
 ++  on-peek
   |=  pax=path
