@@ -1,6 +1,7 @@
 {
     "meta": {
         "id": "0w3ns.NLSMC.E4W3l.UEXXy.Cg~SM.iDFy-.aXAlv.nrBhc.RVfB2",
+        "path": "/demosheet",
         "title": "DemoSheet",
         "owner": "~zod",
         "tags": [
@@ -9,10 +10,14 @@
         "row-meta": [
             [
                 1,
-                {
-                    "bold": true,
-                    "italics": true
-                }
+                [
+                    {
+                        "bold": true
+                    },
+                    {
+                        "italic": true
+                    }
+                ]
             ]
         ],
         "column-meta": [],
@@ -37,7 +42,7 @@
                 1
             ],
             {
-                "meta": {},
+                "meta": [],
                 "data": {
                     "input": "ID",
                     "output": "ID"
@@ -50,13 +55,7 @@
                 2
             ],
             {
-                "meta": {
-                    "bold": true,
-                    "italics": true,
-                    "foreground": "#000",
-                    "background": "#b98d8d",
-                    "strikethrough": true
-                },
+                "meta": [],
                 "data": {
                     "input": "Name",
                     "output": "Name"
@@ -69,27 +68,14 @@
                 3
             ],
             {
-                "meta": {
-                    "strikethrough": true
-                },
+                "meta": [
+                    {
+                        "strikethrough": true
+                    }
+                ],
                 "data": {
                     "input": "Birthday",
                     "output": "Birthday"
-                }
-            }
-        ],
-        [
-            [
-                1,
-                4
-            ],
-            {
-                "meta": {
-                    "strikethrough": true
-                },
-                "data": {
-                    "input": "Formula",
-                    "output": "Formula"
                 }
             }
         ],
@@ -99,7 +85,7 @@
                 1
             ],
             {
-                "meta": {},
+                "meta": [],
                 "data": {
                     "input": "1",
                     "output": "1"
@@ -112,9 +98,11 @@
                 2
             ],
             {
-                "meta": {
-                    "foreground": "#da4c2d"
-                },
+                "meta": [
+                    {
+                        "foreground": "0xda4c2d"
+                    }
+                ],
                 "data": {
                     "input": "Isaac Newton",
                     "output": "Isaac Newton"
@@ -127,27 +115,14 @@
                 3
             ],
             {
-                "meta": {
-                    "monospace": true
-                },
+                "meta": [
+                    {
+                        "monospace": true
+                    }
+                ],
                 "data": {
                     "input": "December 25, 1642",
                     "output": "December 25, 1642"
-                }
-            }
-        ],
-        [
-            [
-                2,
-                4
-            ],
-            {
-                "meta": {
-                    "monospace": true
-                },
-                "data": {
-                    "input": "=SUM(A7,B7)",
-                    "output": "=SUM(A7,B7)"
                 }
             }
         ],
@@ -157,9 +132,11 @@
                 1
             ],
             {
-                "meta": {
-                    "underline": true
-                },
+                "meta": [
+                    {
+                        "underline": true
+                    }
+                ],
                 "data": {
                     "input": "2",
                     "output": "2"
@@ -172,9 +149,11 @@
                 2
             ],
             {
-                "meta": {
-                    "background": "#6c2dda"
-                },
+                "meta": [
+                    {
+                        "background": "0x6c2dda"
+                    }
+                ],
                 "data": {
                     "input": "James Clerk Maxwell",
                     "output": "James Clerk Maxwell"
@@ -187,9 +166,11 @@
                 3
             ],
             {
-                "meta": {
-                    "size": 16
-                },
+                "meta": [
+                    {
+                        "size": 16
+                    }
+                ],
                 "data": {
                     "input": "June 13, 1831",
                     "output": "June 13, 1831"
@@ -202,7 +183,7 @@
                 1
             ],
             {
-                "meta": {},
+                "meta": [],
                 "data": {
                     "input": "3",
                     "output": "3"
@@ -215,7 +196,7 @@
                 2
             ],
             {
-                "meta": {},
+                "meta": [],
                 "data": {
                     "input": "Albert Einstein",
                     "output": "Albert Einstein"
@@ -228,7 +209,7 @@
                 3
             ],
             {
-                "meta": {},
+                "meta": [],
                 "data": {
                     "input": "March 14, 1879",
                     "output": "March 14, 1879"

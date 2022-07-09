@@ -1,8 +1,8 @@
 import memoize from "lodash/memoize";
 import Urbit from "@urbit/http-api";
 import useStore from "./store";
-import { dataToJson, isDev } from "./helpers";
-console.log("isDev", isDev());
+import { dataToJson2, isDev } from "./helpers";
+
 const api = {
   createApi: memoize(() => {
     /*
@@ -23,15 +23,16 @@ const api = {
     return urb;
   }),
   getSpreadsheetData: async () => {
-    return api.createApi().scry({ app: "cell", path: "/pull" });
+    return api.createApi().scry({ app: "membrane", path: "/pull" });
   },
-  putSpreadSheetData: async () => {
+  putSpreadSheetData: async (uneditedSheetMeta) => {
     //get data from our zustand store
     const rows = useStore.getState().rows;
     //transform the data into something the back end expects
-    const json = dataToJson(rows);
+    const json = dataToJson2(rows, uneditedSheetMeta);
+
     return api.createApi().poke({
-      app: "cell",
+      app: "membrane",
       mark: "sheet",
       json: json,
     });

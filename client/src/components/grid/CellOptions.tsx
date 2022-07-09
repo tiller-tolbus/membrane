@@ -20,6 +20,18 @@ import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
 import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
 
 import { MultiSelect } from "../index";
+import { styled } from "@mui/material/styles";
+
+import ButtonBase from "@mui/material/ButtonBase";
+
+const TextButton = styled(ButtonBase)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontSize: 14,
+  padding: 0,
+  marginLeft: 10,
+  textTransform: "lowercase",
+  fontWeight: 600,
+}));
 interface CellMetaData {
   cellName: string;
   cellText: string;
@@ -315,50 +327,48 @@ export default function CellOptions() {
             onClick={() => makeCellBold()}
             color={isBold ? "primary" : "default"}
             disabled={!selectedCell?.cellData}
+            size="small"
           >
-            <FormatBoldIcon />
+            <FormatBoldIcon fontSize="small" />
           </IconButton>
           <IconButton
             aria-label="make cell italic"
             onClick={() => makeCellItalic()}
             color={isItalic ? "primary" : "default"}
             disabled={!selectedCell?.cellData}
+            size="small"
           >
-            <FormatItalicIcon />
+            <FormatItalicIcon fontSize="small" />
           </IconButton>
           <IconButton
             aria-label="make cell strikethrough"
             onClick={() => makeCellStrikethrough()}
             color={isStrikethrough ? "primary" : "default"}
             disabled={!selectedCell?.cellData}
+            size="small"
           >
-            <StrikethroughSIcon />
+            <StrikethroughSIcon fontSize="small" />
           </IconButton>
         </Box>
         <Stack flexDirection="row" alignItems="center">
           <ColorPopover
             updateCell={setCellTextColor}
-            icon={<FormatColorTextIcon />}
+            icon={<FormatColorTextIcon fontSize="small" />}
             passedId={"text-color-popover"}
             disabled={!selectedCell?.cellData}
             selectedColorIcon={textColor}
           />
           <ColorPopover
             updateCell={setCellBackgroundColor}
-            icon={<FormatColorFillIcon />}
+            icon={<FormatColorFillIcon fontSize="small" />}
             passedId={"background-color-popover"}
             disabled={!selectedCell?.cellData}
             selectedColorIcon={backgroundColor}
           />
         </Stack>
-        <Button
-          disabled={!selectedCell?.cellData}
-          variant="text"
-          size="small"
-          onClick={clearStyles}
-        >
+        <TextButton disabled={!selectedCell?.cellData} onClick={clearStyles}>
           clear style
-        </Button>
+        </TextButton>
       </Stack>
       <Paper variant="outlined">
         <Stack

@@ -60,6 +60,7 @@ export default function ColorPopover({
         color={"default"}
         disabled={disabled}
         sx={{ color: selectedColorIcon }}
+        size="small"
       >
         {icon}
       </IconButton>
