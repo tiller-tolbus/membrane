@@ -64,7 +64,7 @@
 ++  on-peek
   |=  pax=path
   ^-  (unit (unit cage))
-  ?.  ?=([%x @ @ *] pax)
+  ?.  ?=([%x @ *] pax)
     ~
   ?+  i.t.pax  (on-peek:def pax)
     %retrieve
@@ -73,6 +73,10 @@
         [~ ~]
       :^  ~  ~  %sheet
         !>(u.rsv)
+    %tree
+      =/  rsv=(set path)  ~(key by state)
+      :^  ~  ~  %membrane-tree
+        !>(rsv)
   ==
 ::  We will not be accepting calls from Arvo at this time
 ::
