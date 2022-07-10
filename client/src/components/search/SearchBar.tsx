@@ -4,6 +4,7 @@ import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import api from "../../api";
 
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
@@ -31,6 +32,11 @@ const StyledRoundButton = styled(IconButton)(({ theme }) => ({
 }));
 
 export default function SearchBar() {
+  const [inputValue, setInputValue] = React.useState("search term");
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let val: string = event.target.value;
+    setInputValue(val);
+  };
   return (
     <Stack
       flexDirection="row"
@@ -47,9 +53,23 @@ export default function SearchBar() {
           sx={{ ml: 1, flex: 1 }}
           placeholder="Search By Title"
           inputProps={{ "aria-label": "search the sheet list" }}
+          value={inputValue}
+          onChange={handleChange}
         />
       </Item>
-      <StyledRoundButton type="submit" sx={{ p: "10px" }} aria-label="search">
+      <StyledRoundButton
+        onClick={async () => {
+          try {
+            const result = await api.getSheetByPath(inputValue);
+            console.log("scry result", result);
+          } catch (e) {
+            console.log("scry error", e);
+          }
+        }}
+        type="submit"
+        sx={{ p: "10px" }}
+        aria-label="search"
+      >
         <SearchIcon />
       </StyledRoundButton>
       <StyledRoundButton type="submit" sx={{ p: "10px" }} aria-label="search">

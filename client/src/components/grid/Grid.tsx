@@ -20,23 +20,15 @@ import {
   deleteColumn,
   deleteRow,
   verifyCellCount,
-  exportRowsCSV,
-  importCSV,
-  getColumns,
-  formulateFormula,
-  jsonToData,
+ 
 } from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
 import { ExtendedTextCell } from "./ExtendedTextCell";
 import CellCapDialog from "./CellCapDialog";
-import Button from "@mui/material/Button";
-import { styled } from "@mui/material/styles";
 
-const Input = styled("input")({
-  display: "none",
-});
+
 
 function Grid() {
   const rows = useStore((store) => store.rows);
@@ -192,52 +184,12 @@ function Grid() {
 
     return menuOptions;
   };
-
   /**
    * display error state in formulas
    * todo: update selected cell value to display correctly
-   * todo: add a proper model for handling cell cap
    */
   return (
     <div>
-      <Button
-        size={"small"}
-        sx={{ border: "none", color: "black", marginTop: 1 }}
-        onClick={() => {
-          exportRowsCSV(rows);
-        }}
-      >
-        export this here sheet as csv boy!!!
-      </Button>
-      <label htmlFor="contained-button-file">
-        <Input
-          accept="csv/*"
-          id="contained-button-file"
-          multiple
-          type="file"
-          onChange={async (data) => {
-            const file = data.target.files[0];
-            //get the text value from the file
-            const textValues = await file.text();
-            //parse the text into arrays of arrays
-            const arrayData = importCSV(textValues);
-            //parse the array of arrays intro
-            //TODO: this is repeated in Sheet.tsx
-            const columnLength = arrayData[0].length + 1; // +1 because the first column is the row count one
-
-            /* do formula stuff before setting rows  */
-            //TODO: add formulas here?
-            const parsedData = jsonToData(arrayData);
-
-            setColumns(getColumns(columnLength));
-            setRows(parsedData);
-            return true;
-          }}
-        />
-        <Button variant="contained" component="span">
-          import csv into dis sheet here
-        </Button>
-      </label>
 
       <CellCapDialog />
       <div className={"grid-container"}>

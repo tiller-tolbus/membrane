@@ -6,7 +6,7 @@ export default {
   syncFail: "Failed to sync, please try again",
   syncSuccess: "Synced successfully",
   appName: "%cell",
-  sync: "Sync",
+  sync: "save",
   addRowMaxLimit(num) {
     return "at most " + num;
   },
