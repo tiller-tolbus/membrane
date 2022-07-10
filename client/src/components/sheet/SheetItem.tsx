@@ -30,24 +30,11 @@ export default function SheetItem({
   onDelete,
   onShare,
   onAdd,
-  onMove
+  onMove,
 }) {
-  const {
-    title,
-    id,
-    tags,
-    lastEdited,
-    sheetMeta,
-    sheetData,
-    uneditedSheetMeta,
-  } = item;
+  const { title, id, tags, path, lastEditedFromatedDate, wtf } = item;
   return (
-    <Item
-      variant="outlined"
-      onClick={() =>
-        goToSheet({ sheetMeta, sheetData, title, uneditedSheetMeta })
-      }
-    >
+    <Item variant="outlined" onClick={() => goToSheet(path)}>
       <Grid container alignItems="center">
         <Grid sx={{ alignItems: "center" }} item xs={3}>
           <Typography variant="subtitle1" gutterBottom component="div">
@@ -59,7 +46,7 @@ export default function SheetItem({
         </Grid>
         <Grid item xs={2}>
           <Typography variant="subtitle1" gutterBottom component="div">
-            {formatDate(lastEdited)}
+            {lastEditedFromatedDate}
           </Typography>
         </Grid>
         <Grid item xs={2}>

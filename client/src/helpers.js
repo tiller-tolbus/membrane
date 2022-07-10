@@ -779,6 +779,7 @@ const isDev = () =>
 const formatDate = (dateNumber) => {
   if (!dateNumber) return "no date given";
   //converts a given date object into something we can show the user
+  //TODO: display hours and mins?
   var options = {
     weekday: "short",
     year: "numeric",
@@ -819,12 +820,40 @@ const importCSV = (csv) => {
   return result.data;
 };
 function structureJson(data) {
+  //TODO: this one should be a single sheet item
+  /**
+   * converts json recieved into sommething that works for the front-end
+   **/
+
+  let meta = data.meta;
+  let rowsData = data.data;
+  let newItem = {
+    id: meta.id,
+    title: meta.title,
+    lastEdited: meta["last-modified"],
+    lastEditedFromatedDate: formatDate(meta["last-modified"]), //improving performence by adding this
+    owner: meta.owner,
+    tags: meta.tags.map((item, index) => {
+      return { label: item, key: index };
+    }),
+    path: meta.path,
+    sheetMeta: {
+      columnCount: meta["column-count"],
+      rowCount: meta["row-count"],
+      rowMeta: meta["row-meta"],
+      columnMeta: meta["column-meta"],
+    },
+    sheetData: rowsData,
+    uneditedSheetMeta: meta,
+  };
+  return newItem;
+}
+function structureJson1(data) {
   /**
    * converts json recieved into sommething that works for the front-end
    **/
   let newData = data.map((item, index) => {
-    let meta = item.meta;
-    let data = item.data;
+    let meta = item[1];
     let newItem = {
       id: meta.id,
       title: meta.title,
@@ -833,14 +862,14 @@ function structureJson(data) {
       tags: meta.tags.map((item, index) => {
         return { label: item, key: index };
       }),
+      path: meta.path,
+      lastEditedFromatedDate: formatDate(meta["last-modified"]), //improving performence by adding this
       sheetMeta: {
         columnCount: meta["column-count"],
         rowCount: meta["row-count"],
         rowMeta: meta["row-meta"],
         columnMeta: meta["column-meta"],
       },
-      sheetData: data,
-      uneditedSheetMeta: meta,
     };
     return newItem;
   });
@@ -869,4 +898,5 @@ export {
   importCSV,
   dataToJson2,
   structureJson,
+  structureJson1,
 };

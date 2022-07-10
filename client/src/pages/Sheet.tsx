@@ -17,9 +17,10 @@ import {
   jsonToData,
   formulateFormula,
   inCell,
+  structureJson,
 } from "../helpers";
 import verbiage from "../verbiage";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 function CircularIndeterminate() {
   return (
@@ -30,13 +31,13 @@ function CircularIndeterminate() {
       justifyContent="center"
     >
       <CircularProgress />
-      <Typography variant="h6">{verbiage.connecting}</Typography>
+      <Typography variant="h6">Loading sheet...</Typography>
     </Stack>
   );
 }
-function FailedToConnect(getData) {
+function FailedToFetchData(getData) {
   return (
-    <Stack direction="column" spacing={3} alignItems="center">
+    <Stack direction="column" spacing={3} alignItems="center" height={200}>
       <Alert
         sx={{ width: 500 }}
         severity="error"
@@ -52,7 +53,7 @@ function FailedToConnect(getData) {
         }
       >
         <AlertTitle>{verbiage.error}</AlertTitle>
-        {verbiage.serverConnectError}
+        Failed to load this sheet
       </Alert>
     </Stack>
   );
@@ -72,9 +73,9 @@ function Sheet() {
     error: false,
   });
   const [title, setTitle] = useState<string>("");
+  const [fetchedSheetData, setFetchedSheetData] = useState(null); //sheet data as we recieve it from the server, unedited
   //the data passed when navigating here by click an item in the home list
-  let location: any = useLocation();
-
+  let { path } = useParams();
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
 
@@ -92,69 +93,16 @@ function Sheet() {
     setSnackieOpen(false);
   };
 
-  const getData = async () => {
-    /* calls api to get spreadsheet data and sets it  */
-    try {
-      setConnected({ success: false, trying: true, error: false });
-
-      const data = await api.getSpreadsheetData();
-
-      console.log("get data success");
-
-      //if we have data saved use it, otherwise generate an empty grid
-
-      if (data && data.length > 0) {
-        /**
-         *columns are independt of row results (need column length to generate names)
-         *but has to be rendered around the same time as rows
-         **/
-        const columnLength = data[0].length + 1; // +1 because the first column is the row count one
-
-        /* do formula stuff before setting rows  */
-        const parsedData = jsonToData(data);
-        let newRows;
-        //go through each cell to eval formula if any
-        parsedData.forEach((row, rowIndex) => {
-          row.cells.forEach((cell, cellIndex) => {
-            let potentiallyNewerRows = formulateFormula(
-              cell.text,
-              cellIndex,
-              rowIndex,
-              parsedData
-            );
-            if (potentiallyNewerRows) newRows = potentiallyNewerRows;
-          });
-        });
-        //we didn't eval a single formula default to the parsed data
-        if (!newRows || newRows.length === 0) newRows = parsedData;
-
-        setColumns(getColumns(columnLength));
-        setRows(newRows);
-      } else {
-        //no data could be fetched, intitalise grid with generated data
-        setColumns(getColumns());
-        setRows(getRows());
-      }
-
-      setConnected({ success: true, trying: false, error: false });
-    } catch (e) {
-      console.log("error getData: ", e);
-      setConnected({ success: false, trying: false, error: true });
-    }
-  };
-
   const syncSheet = async () => {
     /*
+      TODO: update comments here
       PUT the new sheets to urbit
       manage the synced object depending on request result and the snackbar (show/hide) 
     */
-    const state: any = location.state;
-
-    const uneditedSheetMeta = state.data.uneditedSheetMeta;
 
     try {
       setSynced({ trying: true, success: false, error: false });
-
+      const uneditedSheetMeta = fetchedSheetData.meta;
       const response = await api.putSpreadSheetData(uneditedSheetMeta);
 
       setSynced({ trying: false, success: true, error: false });
@@ -167,49 +115,60 @@ function Sheet() {
       setSnackieOpen(true);
     }
   };
-  const doSampleData = async () => {
+  const getData = async () => {
     /* use the sample json spec to generate something that works for us here */
     //the data passed when navigating here
 
-    //todo:send original version unedited in state here
-    const state: any = location.state;
+    //path
+    //get sheetdata based on the passed path
+    setConnected({ success: false, trying: true, error: false });
 
-    const data = state.data;
-    const { columnCount, rowCount } = data.sheetMeta;
-    //generate grid of x size
-    const rows = getRows(columnCount, rowCount);
-    //go ahead and insert the values into this row
-    let newRows = inCell(data.sheetData, rows);
-    //make our columns based on the length
-    let newColumns = getColumns(columnCount);
-    //go through each cell to eval formula if any
-    let newRowsFormulas;
+    try {
+      const sheetData = await api.getSheetByPath("/" + path);
 
-    newRows.forEach((row, rowIndex) => {
-      row.cells.forEach((cell, cellIndex) => {
-        let potentiallyNewerRows = formulateFormula(
-          cell.text,
-          cellIndex,
-          rowIndex,
-          newRows
-        );
-        if (potentiallyNewerRows) newRowsFormulas = potentiallyNewerRows;
+      setFetchedSheetData(sheetData);
+
+      const data = structureJson(sheetData);
+      console.log("daa", data);
+
+      const { columnCount, rowCount } = data.sheetMeta;
+      //generate grid of x size
+      const rows = getRows(columnCount, rowCount);
+      //go ahead and insert the values into this row
+      let newRows = inCell(data.sheetData, rows);
+      //make our columns based on the length
+      let newColumns = getColumns(columnCount);
+      //go through each cell to eval formula if any
+      let newRowsFormulas;
+
+      newRows.forEach((row, rowIndex) => {
+        row.cells.forEach((cell, cellIndex) => {
+          let potentiallyNewerRows = formulateFormula(
+            cell.text,
+            cellIndex,
+            rowIndex,
+            newRows
+          );
+          if (potentiallyNewerRows) newRowsFormulas = potentiallyNewerRows;
+        });
       });
-    });
-    //we didn't eval a single formula default to the regular data
-    if (!newRowsFormulas || newRowsFormulas.length === 0)
-      newRowsFormulas = newRows;
-    //update rows and columns state
-    setColumns(newColumns);
-    setRows(newRowsFormulas);
-    //set the sheet title here
-    setTitle(data.title);
-    //have to do this, since you need to tell the grid u got a response and so on
-    setConnected({ success: true, trying: false, error: false });
+      //we didn't eval a single formula default to the regular data
+      if (!newRowsFormulas || newRowsFormulas.length === 0)
+        newRowsFormulas = newRows;
+      //update rows and columns state
+      setColumns(newColumns);
+      setRows(newRowsFormulas);
+      //set the sheet title here
+      setTitle(data.title);
+      //have to do this, since you need to tell the grid u got a response and so on
+      setConnected({ success: true, trying: false, error: false });
+    } catch (e) {
+      setConnected({ success: false, trying: false, error: true });
+    }
   };
 
   useEffect(() => {
-    doSampleData();
+    getData();
   }, []);
 
   return (
@@ -225,12 +184,15 @@ function Sheet() {
         synced={synced}
         connected={connected}
         syncSheet={syncSheet}
+        displayChildren={connected.success}
       >
         <CellOptions />
       </Header>
-      {connected.trying && CircularIndeterminate()}
+
       {connected.success && <Grid />}
-      {connected.error && FailedToConnect(getData)}
+
+      {connected.trying && CircularIndeterminate()}
+      {connected.error && FailedToFetchData(getData)}
     </main>
   );
 }

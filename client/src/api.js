@@ -43,5 +43,8 @@ const api = {
   getAllPaths: async () => {
     return api.createApi().scry({ app: "membrane", path: "/tree" });
   },
+  getAllSheetMeta: async () => {
+    return api.createApi().scry({ app: "membrane", path: "/metatree" });
+  },
 };
 export default api;

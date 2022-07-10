@@ -36,7 +36,7 @@ function App() {
         renders the first one that matches the current URL. */}
       <Routes>
         <Route path="/apps/membrane" element={<Home />} />
-        <Route path="/apps/membrane/sheet" element={<Sheet />} />
+        <Route path="/apps/membrane/sheet/:path" element={<Sheet />} />
 
         <Route path="/apps/membrane/not-home" element={<NotHome />} />
       </Routes>

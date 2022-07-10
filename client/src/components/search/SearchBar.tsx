@@ -31,11 +31,19 @@ const StyledRoundButton = styled(IconButton)(({ theme }) => ({
   marginLeft: theme.spacing(1),
 }));
 
-export default function SearchBar() {
-  const [inputValue, setInputValue] = React.useState("search term");
+export default function SearchBar({ onSearch = null, sheetList = [] }) {
+  const [inputValue, setInputValue] = React.useState("");
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let val: string = event.target.value;
     setInputValue(val);
+    //TODO: debounce?
+    //depending on inputvalue
+    //filter our data to the ones that match
+    const results = sheetList.filter((item) => {
+      //does this sheet's title contain the search query? return boolean accordingly
+      return item.title.toLowerCase().includes(val);
+    });
+    onSearch(results);
   };
   return (
     <Stack
@@ -58,14 +66,7 @@ export default function SearchBar() {
         />
       </Item>
       <StyledRoundButton
-        onClick={async () => {
-          try {
-            const result = await api.getSheetByPath(inputValue);
-            console.log("scry result", result);
-          } catch (e) {
-            console.log("scry error", e);
-          }
-        }}
+        onClick={() => {}}
         type="submit"
         sx={{ p: "10px" }}
         aria-label="search"

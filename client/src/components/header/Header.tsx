@@ -39,13 +39,37 @@ export default function Header({
   synced,
   syncSheet,
   sheetName,
+  displayChildren,
 }) {
   const fileInputRef = useRef(null);
   let navigate = useNavigate();
 
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
-
+  if (!displayChildren) {
+    return (
+      <Stack
+        sx={{
+          position: "sticky",
+          top: 0,
+          paddingTop: 1,
+          paddingBottom: 1,
+          paddingRight: 2,
+        }}
+      >
+        <Button
+          size={"small"}
+          startIcon={<ArrowBackIcon />}
+          sx={{ border: "none", color: "black", width: 100 }}
+          onClick={() => {
+            navigate("/apps/membrane");
+          }}
+        >
+          go back
+        </Button>
+      </Stack>
+    );
+  }
   return (
     <Stack
       sx={{
@@ -61,7 +85,7 @@ export default function Header({
         startIcon={<ArrowBackIcon />}
         sx={{ border: "none", color: "black", width: 100 }}
         onClick={() => {
-          navigate(-1);
+          navigate("/apps/membrane");
         }}
       >
         go back

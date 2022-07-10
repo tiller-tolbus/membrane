@@ -14,7 +14,7 @@ export default function Snackie({ open, synced, handleClose, errorRetry }) {
         open={open}
         autoHideDuration={2000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <Alert onClose={handleClose} severity={"success"} sx={{ width: 300 }}>
           {verbiage.syncSuccess}
