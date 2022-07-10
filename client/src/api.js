@@ -38,10 +38,10 @@ const api = {
     });
   },
   getSheetByPath: async (path) => {
-    return api.createApi().scry({ app: "membrane", path: "/retrieve/" + path });
+    return api.createApi().scry({ app: "membrane", path: "/retrieve" + path });
   },
   getAllPaths: async () => {
-    return api.createApi().scry({ app: "membrane", path: "/retrieve/tree" });
+    return api.createApi().scry({ app: "membrane", path: "/tree" });
   },
 };
 export default api;

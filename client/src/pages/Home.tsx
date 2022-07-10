@@ -28,8 +28,10 @@ export default function Home() {
   //TODO: fetch data
   const getSheets = async () => {
     try {
+      const allPaths = await api.getAllPaths();
       const serverData = sammpleData;
       console.log("serverData => ", serverData);
+      console.log("allPaths => ", allPaths);
       //turn into something we can use for now
       const data = structureJson([serverData]);
       console.log("get data success", data);
