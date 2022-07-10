@@ -76,6 +76,22 @@
       =/  rsv=(set path)  ~(key by state)
       :^  ~  ~  %membrane-tree
         !>(rsv)
+    %metatree
+      =|  rsv=(map path sheet-meta)
+      =/  keys=(list path)  ~(tap in ~(key by state))
+      |-
+      ?~  keys
+        :^  ~  ~  %membrane-metatree
+          !>(rsv)
+      =/  pax=path  i.keys
+      %=  $
+        rsv
+          %-  ~(put by rsv)
+          :-  pax
+          =<  meta 
+          (~(got by state) pax)
+        keys  t.keys
+      ==
   ==
 ::  We will not be accepting calls from Arvo at this time
 ::
