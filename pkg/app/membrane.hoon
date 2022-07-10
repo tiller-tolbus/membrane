@@ -2,6 +2,7 @@
 ::
 /-  *membrane-sheet
 /-  *membrane-action
+/+  *membrane-utils
 /+  default-agent, dbug
 ::  Type core
 ::
@@ -53,6 +54,10 @@
   ?-  -.act
     %replace
       `this(state (~(put by state) path.meta.act +.act))
+    %create
+      =/  tit=@t  +<.act
+      =/  pax=path  +>.act
+      `this(state (~(put by state) pax (create-sheet tit pax bowl)))
     ==
 ::  We are not accepting subscriptions at this time.
 ::

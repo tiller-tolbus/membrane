@@ -3,5 +3,6 @@
 +$  action
   $%
     [%replace sheet]
+    [%create @t path]
   ==
 --

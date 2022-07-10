@@ -7,12 +7,17 @@
 ++  grow
   |%
   ++  noun  act
-  ++  json  (frond:enjs:format %replace (enjs-sheet +.act))
   --
 ++  grab
   |%
   ++  noun  action
-  ++  json  (of:dejs:format ~[replace+dejs-sheet])
+  ++  json
+    =,  dejs:format
+    %-  of
+    :~  
+      [%replace dejs-sheet]
+      [%create (at ~[so pa])]
+    ==
   --
 ++  grad  %noun  
-  --
+--
