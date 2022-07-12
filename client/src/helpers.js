@@ -858,12 +858,13 @@ function structureJson1(data) {
       id: meta.id,
       title: meta.title,
       lastEdited: meta["last-modified"],
+      lastEditedFromatedDate: formatDate(meta["last-modified"]), //improving performence by adding this
+
       owner: meta.owner,
       tags: meta.tags.map((item, index) => {
         return { label: item, key: index };
       }),
       path: meta.path,
-      lastEditedFromatedDate: formatDate(meta["last-modified"]), //improving performence by adding this
       sheetMeta: {
         columnCount: meta["column-count"],
         rowCount: meta["row-count"],

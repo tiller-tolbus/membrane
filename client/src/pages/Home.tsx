@@ -8,11 +8,11 @@ import AddIcon from "@mui/icons-material/Add";
 import Container from "@mui/material/Container";
 
 import Button from "@mui/material/Button";
+import LoadingButton from "@mui/lab/LoadingButton";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import SheetItem from "../components/sheet"; //todo: change to import from /componnents
 import { SearchBar, Alert } from "../components";
 import Divider from "@mui/material/Divider";
-import {  structureJson1 } from "../helpers";
+import { structureJson1, structureJson } from "../helpers";
 //TODO: remember this needs a scrollbar body {overflow:hidden} ;)
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -69,6 +69,7 @@ function FailedToConnect(getData) {
 export default function Home() {
   const [sheetList, setSheetList] = React.useState([]); //list of sheets
   const [filteredData, setFilteredData] = React.useState([]);
+  const [pathList, setPathList] = React.useState([]);
   const [fetchData, setFetchData] = React.useState({
     trying: false,
     success: false,
@@ -77,12 +78,18 @@ export default function Home() {
   const [sortDirection, setSortaDirection] = React.useState<"asc" | "dsc">(
     "dsc"
   );
+  const [creatingSheet, setCreatingSheet] = React.useState({
+    trying: false,
+    success: false,
+    error: false,
+  });
   //TODO: fetch data
   const getSheets = async () => {
     //we start loading (trying) as soon as the user opens the page
     setFetchData({ trying: true, success: false, error: false });
     try {
       const allPaths = await api.getAllPaths();
+
       const metaObj = await api.getAllSheetMeta();
       const metaArray = Object.entries(metaObj);
       //if we have data set it and set loading to success
@@ -101,6 +108,8 @@ export default function Home() {
       //we need this to include our initial data
       setFilteredData(orderedSheetList);
       setFetchData({ trying: false, success: true, error: false });
+      //update existing paths list
+      setPathList(allPaths);
     } catch (e) {
       //something went wrong (error), this is an error state, no data
       console.log("Home => getSheets() error", e);
@@ -120,10 +129,32 @@ export default function Home() {
     console.log("onDelete", id);
     return;
   };
-  const onAdd = (name: string) => {
-    console.log("onAdd name", name);
+  const onAdd = async (title: string, path: string) => {
+    //call api
+    try {
+      setCreatingSheet({ trying: true, success: false, error: false });
+      const response = await api.createSheet(path, title);
+      //if succesfull go ahead and fetch this new sheet using the path and append to our sheet list
+      if (response) {
+        const newSheet = await api.getSheetByPath(path);
+        const newSheetList = cloneDeep(sheetList);
+        newSheetList.unshift(structureJson(newSheet));
 
-    return;
+        let updatedPathList = [...pathList];
+        updatedPathList.push(path);
+        setSheetList(newSheetList);
+        setFilteredData(newSheetList);
+        setPathList(updatedPathList);
+        //todo: update path list, include feedback
+        setCreatingSheet({ trying: false, success: true, error: false });
+        onAddDialogClose();
+      } else {
+        setCreatingSheet({ trying: false, success: false, error: true });
+      }
+      console.log("response", response);
+    } catch (e) {
+      setCreatingSheet({ trying: false, success: false, error: true });
+    }
   };
   const onShare = (id: number, user: string) => {
     console.log("id", id);
@@ -141,9 +172,8 @@ export default function Home() {
   const onAddDialogOpen = () => {
     setAddDialogOpen(true);
   };
-  const onAddDialogUpdate = (name: string) => {
-    onAddDialogClose();
-    onAdd(name);
+  const onAddDialogUpdate = (title: string, path: string) => {
+    onAdd(title, path);
   };
   const orderByDate = () => {
     //The sort() meth...returns the reference to the same array, now sorted
@@ -193,7 +223,7 @@ export default function Home() {
             {filteredData.map((item, index) => {
               return (
                 <SheetItem
-                  key={item.key}
+                  key={index}
                   item={item}
                   onAdd={onAdd}
                   onRename={onRename}
@@ -232,32 +262,68 @@ export default function Home() {
         {fetchData.trying && CircularIndeterminate()}
         {fetchData.success && renderGrid()}
         {fetchData.error && FailedToConnect(getSheets)}
-        <AddDialog
-          open={addDialogOpen}
-          onConfirm={onAddDialogUpdate}
-          onClose={onAddDialogClose}
-        />
       </Container>
+
+      <AddDialog
+        open={addDialogOpen}
+        onConfirm={onAddDialogUpdate}
+        onClose={onAddDialogClose}
+        pathList={pathList}
+        loading={creatingSheet.trying}
+      />
     </>
   );
 }
 
-function AddDialog({ open, onConfirm, onClose }) {
-  const [inputValue, setInputValue] = React.useState<string>("");
+function AddDialog({ open, onConfirm, onClose, pathList, loading }) {
+  const [titleInputValue, setTitleInputValue] = React.useState<string>("");
+  const [pathInputValue, setPathInputValue] = React.useState<string>("");
+
+  const [pathError, setPathError] = React.useState<boolean>(false);
+  const [pathErrorMessage, setPathErrorMessage] = React.useState<string>("");
   const handleClose = () => {
     onClose();
   };
   const handleAdd = (event) => {
-    onConfirm(inputValue);
+    //is the path url-safe?
+    let urlSafePattern = /^((\/)[a-zA-Z0-9._1~-]{1,})*$/g;
+    const matches = pathInputValue.match(urlSafePattern);
+    //set error state if need be
+    if (!matches) {
+      setPathErrorMessage("Make sure the path is correctly formulated");
+      setPathError(true);
+      return;
+    }
+    //does the path already exist?
+    if (pathList.includes(pathInputValue)) {
+      setPathErrorMessage("This path already exists, try another one");
+      setPathError(true);
+      return;
+    }
+    setPathErrorMessage("");
+    setPathError(false);
+    //TODO: work around, eventually unmount this
+    setTitleInputValue("");
+    setPathInputValue("");
+
+    onConfirm(titleInputValue, pathInputValue);
   };
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+  const handleTitleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTitleInputValue(event.target.value);
+  };
+  const handlePathInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPathInputValue(event.target.value);
+    //make sure this string conforms to what we need
   };
   return (
     <Dialog fullWidth maxWidth={"sm"} open={open} onClose={handleClose}>
       <DialogTitle>Add a new sheet</DialogTitle>
       <DialogContent>
-        <DialogContentText>sheet title</DialogContentText>
+        {/*<DialogContentText>sheet title</DialogContentText>*/}
         <TextField
           autoFocus
           margin="dense"
@@ -265,14 +331,34 @@ function AddDialog({ open, onConfirm, onClose }) {
           label="title"
           type="text"
           variant="standard"
-          value={inputValue}
-          onChange={handleChange}
+          value={titleInputValue}
+          onChange={handleTitleInputChange}
+          fullWidth
+        />
+
+        <TextField
+          error={pathError}
+          helperText={pathErrorMessage}
+          autoFocus
+          margin="dense"
+          id="name"
+          label="path"
+          type="text"
+          variant="standard"
+          value={pathInputValue}
+          onChange={handlePathInputChange}
           fullWidth
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleAdd}>Add</Button>
+        <LoadingButton
+          disabled={!(titleInputValue && pathInputValue)}
+          onClick={handleAdd}
+          loading={loading}
+        >
+          Add
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

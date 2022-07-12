@@ -75,7 +75,7 @@ function Sheet() {
   const [title, setTitle] = useState<string>("");
   const [fetchedSheetData, setFetchedSheetData] = useState(null); //sheet data as we recieve it from the server, unedited
   //the data passed when navigating here by click an item in the home list
-  let { path } = useParams();
+  let location = useLocation();
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
 
@@ -122,9 +122,10 @@ function Sheet() {
     //path
     //get sheetdata based on the passed path
     setConnected({ success: false, trying: true, error: false });
-
+    //TODO: can we do better? probably, just use the whole url up to membrane/sheet to split by
+    const path = location.pathname.split("/apps/membrane/sheet")[1];
     try {
-      const sheetData = await api.getSheetByPath("/" + path);
+      const sheetData = await api.getSheetByPath(path);
 
       setFetchedSheetData(sheetData);
 
@@ -169,6 +170,11 @@ function Sheet() {
 
   useEffect(() => {
     getData();
+    //hide body scrollbar for the sheet
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "scroll";
+    };
   }, []);
 
   return (

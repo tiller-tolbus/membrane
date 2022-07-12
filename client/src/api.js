@@ -46,5 +46,12 @@ const api = {
   getAllSheetMeta: async () => {
     return api.createApi().scry({ app: "membrane", path: "/metatree" });
   },
+  createSheet: async (path, title) => {
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { create: [title, path] },
+    });
+  },
 };
 export default api;

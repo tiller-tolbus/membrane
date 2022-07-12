@@ -41,7 +41,7 @@ export default function SearchBar({ onSearch = null, sheetList = [] }) {
     //filter our data to the ones that match
     const results = sheetList.filter((item) => {
       //does this sheet's title contain the search query? return boolean accordingly
-      return item.title.toLowerCase().includes(val);
+      return item.title.toLowerCase().includes(val.toLowerCase());
     });
     onSearch(results);
   };
