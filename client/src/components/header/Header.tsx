@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 //mui
 import Stack from "@mui/material/Stack";
@@ -18,7 +18,18 @@ import {
   getColumns,
 } from "../../helpers";
 import useStore from "../../store";
+import OutlinedInput from "@mui/material/OutlinedInput";
 
+const TitleInput = styled(OutlinedInput)(({ theme }) => ({
+  ...theme.typography.h6,
+
+  minWidth: 40,
+  "& .MuiOutlinedInput-input": {
+    padding: 0,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+}));
 const TextButton = styled(ButtonBase)(({ theme }) => ({
   color: theme.palette.text.secondary,
   fontSize: 14,
@@ -42,10 +53,29 @@ export default function Header({
   displayChildren,
 }) {
   const fileInputRef = useRef(null);
+  const newTitleSpanRef = useRef(null);
   let navigate = useNavigate();
 
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState(""); //todo: actual sheetname to begin with
+  const [newTitleInputWidth, setNewTitleInputWidth] = useState(0);
+
+  const handleEditTitleChange = (e) => {
+    setNewTitle(e.target.value);
+  };
+  useEffect(() => {
+    if (newTitleSpanRef.current) {
+      const width = newTitleSpanRef.current.getBoundingClientRect().width;
+      setNewTitleInputWidth(width + 20);
+    }
+  }, [newTitle]);
+
+  useEffect(() => {
+    setNewTitle(sheetName);
+  }, [sheetName]);
   if (!displayChildren) {
     return (
       <Stack
@@ -70,6 +100,7 @@ export default function Header({
       </Stack>
     );
   }
+
   return (
     <Stack
       sx={{
@@ -91,8 +122,34 @@ export default function Header({
         go back
       </Button>
       <Stack direction="row" justifyContent={"space-between"}>
+        <Typography
+          variant="h6"
+          ref={newTitleSpanRef}
+          sx={{ visibility: "hidden", position: "absolute", left: -9999 }}
+        >
+          {newTitle}
+        </Typography>
         <Stack direction="row" alignItems="center">
-          <Typography variant="h6">{sheetName}</Typography>
+          {editingTitle ? (
+            <TitleInput
+              sx={{
+                width: newTitleInputWidth,
+                display: "inline-block",
+              }}
+              inputProps={{ "aria-label": "search the sheet list" }}
+              value={newTitle}
+              onChange={handleEditTitleChange}
+            />
+          ) : (
+            <Typography
+              onDoubleClick={() => {
+                setEditingTitle(true);
+              }}
+              variant="h6"
+            >
+              {sheetName}
+            </Typography>
+          )}
           <Stack direction="row" marginLeft={1}>
             <label htmlFor="contained-button-file">
               <Input
