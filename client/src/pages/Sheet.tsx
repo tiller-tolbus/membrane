@@ -140,7 +140,7 @@ function Sheet() {
       //make our columns based on the length
       let newColumns = getColumns(columnCount);
       //go through each cell to eval formula if any
-      let newRowsFormulas;
+      let newRowsFormulas = newRows;
 
       newRows.forEach((row, rowIndex) => {
         row.cells.forEach((cell, cellIndex) => {
@@ -148,7 +148,7 @@ function Sheet() {
             cell.text,
             cellIndex,
             rowIndex,
-            newRows
+            newRowsFormulas
           );
           if (potentiallyNewerRows) newRowsFormulas = potentiallyNewerRows;
         });

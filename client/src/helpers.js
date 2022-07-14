@@ -117,7 +117,7 @@ const fetchCellValue = (cellName, rows) => {
 
   //split string into alphabet / numeral
   let splitName = cellName.match(/[a-zA-Z]+|[0-9]+/g);
-
+  //TODO:check if these are out of bounds
   let columnName = splitName[0];
   let row = splitName[1];
   //either value doesn't exist, return false
@@ -141,10 +141,12 @@ const fetchCellValue = (cellName, rows) => {
   return { value: cellValue.text, columnId: column, rowId: row };
 };
 const fetchFormulaData = (cellValue, rows) => {
-  if (!cellValue) return false;
+  //no feedback here this is just not a formula
+  if (!cellValue) return { error: true };
   //if our cellValue starts with "=" than we have a formula on our hands
   if (cellValue[0] !== "=") {
-    return false;
+    //no feedback here this is just not a formula
+    return { error: true };
   }
   //try to get at the formula
   const foundFormula = cellValue.slice(
@@ -152,14 +154,19 @@ const fetchFormulaData = (cellValue, rows) => {
     cellValue.indexOf("(")
   );
   //no formula bye bye
-  if (!foundFormula) return false;
-
+  //FEEDBACK: no formula function passed?
+  if (!foundFormula) {
+    return { error: true, feedback: "Please provide a function name" };
+  }
   //todo: add feedback in above case
   const currentFormula = availableFormulas.filter(
     (formula) => formula.name === foundFormula
   );
   //formula function not found in our availableFormulas list, nothing to evaluate, return false
-  if (currentFormula && currentFormula.length === 0) return false;
+  if (currentFormula && currentFormula.length === 0) {
+    //FEEDBACK: this function doesn't exist
+    return { error: true, feedback: "The function you provided doesn't exist" };
+  }
   //get all our params here
   //our params are in between "(" ")", seprated by ","
   const betweenBrackets = cellValue.slice(
@@ -177,8 +184,12 @@ const fetchFormulaData = (cellValue, rows) => {
     }
   });
   //some of the cells did not evulate, can't proceed, return false
-  //todo: feedback
-  if (!allValuesExist) return false;
+
+  if (!allValuesExist) {
+    //FEEDBACK: Could not eval some of the cells you passed?
+    //CONSIDERATION: throw error if one of the values is useless(different error, since on passing an actual value it should eval right away, so it's really just an execution error)
+    return { error: true, feedback: "One or more of the cells do not exist" };
+  }
   //before we can actually excute we need to transform the list into [1,2,3,4,5]
   const executableList = valueList.map((item) => item.value);
   //add onChange
@@ -195,7 +206,10 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
    */
   const formulaData = fetchFormulaData(cellValue, rows);
 
-  if (formulaData === false) return false;
+  if (formulaData.error) {
+    return false;
+  }
+  console.log("formulaData", formulaData);
   //update formula cell withe formula data using row and column id
   let newRows = cloneDeep(rows);
   //update formula cell with the needed values
@@ -207,6 +221,7 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
       .execute(formulaData.valueList.map((item) => item.value))
       .toString(),
   };
+  console.log("newRows[rowId].cells[columnId]", newRows[rowId].cells[columnId]);
   //update each param cell to have formulaLocation and update function too trigger on change
   formulaData.valueList.forEach((item) => {
     //add current formula to the list of deps in this param cell
@@ -238,7 +253,23 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
       };
     }
   });
-  //return the new udpate rows
+  const newStuff = newRows[rowId].cells[columnId];
+  if (newStuff.dependantFormulas && newStuff.dependantFormulas.length > 0) {
+    //since this cell has other cells depndant on it and it's a formula we have to update their valueLists because this one just changed
+    newStuff.dependantFormulas.forEach((item) => {
+      const formulaLocation = item;
+      newRows = updateFormulaFoo(
+        newStuff.text,
+        formulaLocation,
+        { columnId, rowId },
+        newRows
+      );
+    });
+  }
+  console.log(
+    "newRows[rowId].cells[columnId];",
+    newRows[rowId].cells[columnId]
+  );
   return newRows;
 };
 const unHookFormula = (formulaData, columnId, rowId, rows) => {
@@ -301,6 +332,7 @@ const updateCell = (changes, prevRows) => {
       );
     });
   }
+  //QUIRK: if nested formula, since updateFormula goes first, it's value won't be detected on firts run
   //check if user entered a formula
   //CONSIDERATION: does the below and above conflict (rows updates)????
   let potentiallyNewerRows = formulateFormula(
@@ -315,7 +347,7 @@ const updateCell = (changes, prevRows) => {
 const updateFormulaFoo = (
   updatedValue,
   formulaLocation,
-  currentCellLocation,
+  currentCellLocation, // gets me the value I will inject into value list
   rows
 ) => {
   /**
@@ -337,24 +369,55 @@ const updateFormulaFoo = (
   //TODO: optmise if no changes cancel the rest of this
   //TODO: sometimes, for some reason, no newFormulaData, just return the unchanged rows
   if (!newFormulaData) return newRows;
+  console.log("newFormulaData", newFormulaData);
+
   let newValueList = newFormulaData.valueList.map((item) => {
     //todo: make all the values (ids) numbers not stringed numbers
+    console.log("value item", item);
+    //do a real look up of all the other cells
+    //the "new value" passed to us right now
     if (columnId == item.columnId && rowId == item.rowId) {
       //found the value to update
       return { ...item, value: updatedValue };
+    } else {
+      //otherwise we have to look for these ones value in real time
+      //CONSIDERATION: out of bound
+      const value = newRows[item.rowId].cells[item.columnId].text;
+      return { ...item, value };
     }
-    return item;
   });
   newFormulaData.valueList = newValueList;
   //we have change in our param cells, that means update formula cell
   const executableList = newFormulaData.valueList.map((item) => item.value);
-
+  console.log("executableList", executableList);
   //update the value
   newFormulaCell.formulaData = newFormulaData;
   newFormulaCell.text = newFormulaData.execute(executableList).toString();
+
   //update the formula cell with our values
   newRows[formulaRowId].cells[formulaColId] = newFormulaCell;
+  //TODO: on changing the formula cell, that cell can also have depandant cells
+  //does the formula cell have dependant cells?
+  const dependantFormulas = newFormulaCell.dependantFormulas;
+  console.log("newFormulaCell", newFormulaCell);
+  if (dependantFormulas && dependantFormulas.length > 0) {
+    dependantFormulas.forEach((item) => {
+      const formulaLocation = item;
+      console.log("newFormulaCell.text", newFormulaCell.text);
+      console.log(" { formulaColId, formulaRowId },", {
+        formulaColId,
+        formulaRowId,
+      });
 
+      newRows = updateFormulaFoo(
+        newFormulaCell.text,
+        formulaLocation,
+        { formulaColId, formulaRowId }, //curent cell passed to updateFormulaFoo should be the formula cell not the param one (current)
+        newRows
+      );
+      console.log("newRows", newRows);
+    });
+  }
   return newRows;
 };
 const generateRows = (rowCount, oldRows) => {
