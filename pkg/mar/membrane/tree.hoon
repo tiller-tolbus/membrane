@@ -1,5 +1,5 @@
 =,  enjs:format
-|_  tree=(set ^path)
+|_  tree=(list ^path)
 ++  grow
   |%
   ++  noun  tree
@@ -8,12 +8,11 @@
     :-  %a
     ^-  (list ^json)
     %-  turn
-    :_  path
-    ~(tap in tree)
+    :-  tree  path
   --
 ++  grab
   |%
-  ++  noun  ^-((set ^path) tree)
+  ++  noun  ^-((list ^path) tree)
   --
 ++  grad  %noun
   --

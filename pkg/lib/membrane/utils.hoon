@@ -31,4 +31,25 @@
   ==
   ::  data
   ^-  (map address scell)  ~
---
+++  filter-tree
+  ::  get a tree of valid paths under a dir path
+  |=  [dir=path tree=(list path)]
+  ^-  (list path)
+  ::  if dir is null, return whole tree (treat null as root)
+  ?~  dir  tree
+  ::  otherwise loop over the tree and filter paths
+  =|  filt=(list path)
+  |-
+  ?~  tree
+    filt
+  %=  $
+    tree  t.tree
+    filt  (filter-path i.tree dir filt)
+  ==
+++  filter-path
+  ::  add pax to filt if in dir
+  |=  [pax=path dir=path filt=(list path)]
+  ?.  =((find dir pax) [~ 0])
+    filt
+  :-  pax  filt
+  --

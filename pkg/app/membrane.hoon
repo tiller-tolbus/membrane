@@ -78,39 +78,27 @@
         !>(rsv)
     %tree
       =/  pat=path  t.t.pax
-      =/  keys=(list path)  ~(tap in ~(key by state))
-      =/  collect=(set path)  ~
-      =/  rsv=(set path)
-      |-
-      ?~  keys
-        collect
-      %=  $
-        keys  t.keys
-        collect  
-        ?.  =((find pat i.keys) [~ 0])
-          collect
-        (~(put in collect) i.keys)
-      ==
+      =/  keys=(list path)
+        (filter-tree pat ~(tap in ~(key by state)))
       :^  ~  ~  %membrane-tree
-        !>(rsv)
+        !>(keys)
     %metatree
-      =|  rsv=(map path sheet-meta)
       =/  pat=path  t.t.pax
-      =/  keys=(list path)  ~(tap in ~(key by state))
-      |-
-      ?~  keys
-        :^  ~  ~  %membrane-metatree
-          !>(rsv)
-      =/  pax=path  i.keys
-      %=  $
-        rsv
-          %-  ~(put by rsv)
-          :-  pax
-          =<  meta 
-          (~(got by state) pax)
-        keys  t.keys
+      =/  keys=(list path)
+        (filter-tree pat ~(tap in ~(key by state)))
+      =/  rsv=(map path sheet-meta)
+      %-  molt
+      %-  turn
+      :-  keys
+        |=  pal=path
+        ^-  [path sheet-meta]
+        :-  pal
+        =<  meta
+        ^-  sheet
+        (~(got by state) pal)
+      :^  ~  ~  %membrane-metatree
+        !>(rsv)
       ==
-  ==
 ::  We will not be accepting calls from Arvo at this time
 ::
 ++  on-arvo  on-arvo:def
