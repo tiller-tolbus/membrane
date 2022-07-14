@@ -16,7 +16,7 @@
     %-  of
     :~  
       [%replace dejs-sheet]
-      [%create (at ~[so pa])]
+      [%create (at ~[pa so])]
     ==
   --
 ++  grad  %noun  

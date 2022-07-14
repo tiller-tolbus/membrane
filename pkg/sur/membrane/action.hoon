@@ -2,7 +2,7 @@
 |%
 +$  action
   $%
-    [%replace sheet]
-    [%create @t path]
+    [%replace path sheet]
+    [%create path @t]
   ==
 --

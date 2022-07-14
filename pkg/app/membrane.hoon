@@ -53,11 +53,12 @@
   =/  act  !<(action vase)
   ?-  -.act
     %replace
-      `this(state (~(put by state) path.meta.act +.act))
+      =/  pax=path  +<.act
+      `this(state (~(put by state) pax +>.act))
     %create
-      =/  tit=@t  +<.act
-      =/  pax=path  +>.act
-      `this(state (~(put by state) pax (create-sheet tit pax bowl)))
+      =/  pax=path  +<.act
+      =/  tit=@t  +>.act
+      `this(state (~(put by state) pax (create-sheet pax tit bowl)))
     ==
 ::  We are not accepting subscriptions at this time.
 ::
@@ -72,17 +73,29 @@
     ~
   ?+  i.t.pax  (on-peek:def pax)
     %retrieve
-      =/  rsv=(unit sheet)  (~(get by state) t.t.pax)
-      ?~  rsv
-        [~ ~]
+      =/  rsv=sheet  (~(got by state) t.t.pax)
       :^  ~  ~  %sheet
-        !>(u.rsv)
+        !>(rsv)
     %tree
-      =/  rsv=(set path)  ~(key by state)
+      =/  pat=path  t.t.pax
+      =/  keys=(list path)  ~(tap in ~(key by state))
+      =/  collect=(set path)  ~
+      =/  rsv=(set path)
+      |-
+      ?~  keys
+        collect
+      %=  $
+        keys  t.keys
+        collect  
+        ?.  =((find pat i.keys) [~ 0])
+          collect
+        (~(put in collect) i.keys)
+      ==
       :^  ~  ~  %membrane-tree
         !>(rsv)
     %metatree
       =|  rsv=(map path sheet-meta)
+      =/  pat=path  t.t.pax
       =/  keys=(list path)  ~(tap in ~(key by state))
       |-
       ?~  keys

@@ -1,7 +1,7 @@
 /-  *membrane-sheet
 |%
 ++  create-sheet
-  |=  [tit=@t pax=path =bowl:gall]
+  |=  [pax=path tit=@t =bowl:gall]
   ^-  sheet
   ::  meta
   :-  ^-  sheet-meta
