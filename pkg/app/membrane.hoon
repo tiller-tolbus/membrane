@@ -64,6 +64,13 @@
       =/  pax=path  +<.act
       =/  tags=(set tag)  +>.act
       `this(state (~(jab by state) pax (retag-gate tags)))
+    %delete
+      =/  pax=path  +.act
+      `this(state (~(del by state) pax))
+    %move
+      =/  opax=path  +<.act
+      =/  npax=path  +>.act
+      `this(state (move-sheet state opax npax))
     ==
 ::  We are not accepting subscriptions at this time.
 ::

@@ -69,5 +69,13 @@
   |=  trgt=sheet
   ^-  sheet
   trgt(tags.meta tags)
+++  move-sheet
+  |=  [max=(map path sheet) opax=path npax=path]
+  ^-  (map path sheet)
+  =/  sht=sheet  (~(got by max) opax)
+  =/  rm=(map path sheet)  (~(del by max) opax)
+  %-  ~(put by rm)
+  :-  npax
+  sht(path.meta npax)
 --
 

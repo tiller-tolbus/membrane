@@ -19,6 +19,8 @@
       [%create (at ~[pa so])]
       [%rename (at ~[pa so])]
       [%retag (at ~[pa (ar so)])]
+      [%delete pa]
+      [%move (at ~[pa pa])]
     ==
   --
 ++  grad  %noun  
