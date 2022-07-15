@@ -4,5 +4,7 @@
   $%
     [%replace path sheet]
     [%create path @t]
+    [%rename path @t]
+    [%retag path (set tag)]
   ==
 --

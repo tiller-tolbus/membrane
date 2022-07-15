@@ -52,4 +52,22 @@
   ?.  =((find dir pax) [~ 0])
     filt
   :-  pax  filt
-  --
+++  rename-sheet
+  ::  change the title of sheet 
+  |=  [trgt=sheet tit=@t]
+  ^-  sheet
+  trgt(title.meta tit)
+++  rename-gate
+  |=  tit=@t
+  ^-  $-(sheet sheet)
+  |=  trgt=sheet
+  ^-  sheet
+  trgt(title.meta tit)
+++  retag-gate
+  |=  tags=(set tag)
+  ^-  $-(sheet sheet)
+  |=  trgt=sheet
+  ^-  sheet
+  trgt(tags.meta tags)
+--
+

@@ -39,15 +39,12 @@
   |=  old-vase=vase
   ^-  (quip card _this)
   `this(state !<(state-0 old-vase))
-::  on-poke handles pokes
-::  we will handle one poke which sends the entire state
-::  which we accept and use as our new state
-::  (if it comes from our ship)
-::
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
+  ::  only accept pokes from our own ship
   ?>  =(our.bowl src.bowl)
+  ::  only accept %membrane-action mark
   ?.  ?=(%membrane-action mark)
     (on-poke:def mark vase)
   =/  act  !<(action vase)
@@ -59,6 +56,14 @@
       =/  pax=path  +<.act
       =/  tit=@t  +>.act
       `this(state (~(put by state) pax (create-sheet pax tit bowl)))
+    %rename
+      =/  pax=path  +<.act
+      =/  tit=@t  +>.act
+      `this(state (~(jab by state) pax (rename-gate tit)))
+    %retag
+      =/  pax=path  +<.act
+      =/  tags=(set tag)  +>.act
+      `this(state (~(jab by state) pax (retag-gate tags)))
     ==
 ::  We are not accepting subscriptions at this time.
 ::
@@ -98,7 +103,7 @@
         (~(got by state) pal)
       :^  ~  ~  %membrane-metatree
         !>(rsv)
-      ==
+    ==
 ::  We will not be accepting calls from Arvo at this time
 ::
 ++  on-arvo  on-arvo:def
