@@ -3,7 +3,28 @@ import availableFormulas from "./components/grid/formulajs";
 import cloneDeep from "lodash/cloneDeep";
 import Papa from "papaparse";
 import useStore from "./store";
+import Graph from "./Graph";
+//CONSIDERATION: should this be part of our store?
+let formulatedList = new Map();
 
+const checkFormulaGraph = () => {
+  /**
+   * Generate a graph based on  formulatedList
+   * and check it for cycles (deadlock)
+   * and return "there is a cycle" or "no cycle!" appropriately
+   */
+  let graphy = new Graph();
+  for (const [key, value] of formulatedList.entries()) {
+    graphy.addVertex(key);
+    if (value.dependantFormulas && value.dependantFormulas.length > 0) {
+      value.dependantFormulas.forEach((dep) => {
+        graphy.addEdge(key, `${dep.columnId},${dep.rowId}`);
+      });
+    }
+  }
+  graphy.printGraphe();
+  return graphy.detectCycle();
+};
 const arrayInsertItemAtIndex = (index, item, array) => {
   array.splice(index, 0, item);
 };
@@ -202,14 +223,15 @@ const fetchFormulaData = (cellValue, rows) => {
 };
 const formulateFormula = (cellValue, columnId, rowId, rows) => {
   /**
-   * todo: comment better
+   * checks if value is a formula
+   * if so, builds all the connections needed
+   *  and adds formulaData and output value to this formula
    */
   const formulaData = fetchFormulaData(cellValue, rows);
 
   if (formulaData.error) {
     return false;
   }
-  console.log("formulaData", formulaData);
   //update formula cell withe formula data using row and column id
   let newRows = cloneDeep(rows);
   //update formula cell with the needed values
@@ -221,7 +243,6 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
       .execute(formulaData.valueList.map((item) => item.value))
       .toString(),
   };
-  console.log("newRows[rowId].cells[columnId]", newRows[rowId].cells[columnId]);
   //update each param cell to have formulaLocation and update function too trigger on change
   formulaData.valueList.forEach((item) => {
     //add current formula to the list of deps in this param cell
@@ -252,24 +273,38 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
         dependantFormulas: [{ columnId, rowId }],
       };
     }
+    //if this cell is a formula and we just updated it's dependant formulas, we keep track of that
+    if (newRows[cellRowId].cells[cellColumnId].formulaData) {
+      formulatedList.set(
+        `${cellColumnId},${cellRowId}`,
+        newRows[cellRowId].cells[cellColumnId]
+      );
+    }
   });
-  const newStuff = newRows[rowId].cells[columnId];
-  if (newStuff.dependantFormulas && newStuff.dependantFormulas.length > 0) {
+  const updatedFormula = newRows[rowId].cells[columnId];
+
+  formulatedList.set(`${columnId},${rowId}`, updatedFormula);
+  if (checkFormulaGraph() === "there is a cycle") {
+    //Remove the formula and add an error msg
+    newRows[rowId].cells[columnId].text = "#ERR infinite loop";
+    return unHookFormula(updatedFormula.formulaData, columnId, rowId, newRows);
+  }
+  if (
+    updatedFormula.dependantFormulas &&
+    updatedFormula.dependantFormulas.length > 0
+  ) {
     //since this cell has other cells depndant on it and it's a formula we have to update their valueLists because this one just changed
-    newStuff.dependantFormulas.forEach((item) => {
+    updatedFormula.dependantFormulas.forEach((item) => {
       const formulaLocation = item;
       newRows = updateFormulaFoo(
-        newStuff.text,
+        updatedFormula.text,
         formulaLocation,
         { columnId, rowId },
         newRows
       );
     });
   }
-  console.log(
-    "newRows[rowId].cells[columnId];",
-    newRows[rowId].cells[columnId]
-  );
+
   return newRows;
 };
 const unHookFormula = (formulaData, columnId, rowId, rows) => {
@@ -332,9 +367,7 @@ const updateCell = (changes, prevRows) => {
       );
     });
   }
-  //QUIRK: if nested formula, since updateFormula goes first, it's value won't be detected on firts run
   //check if user entered a formula
-  //CONSIDERATION: does the below and above conflict (rows updates)????
   let potentiallyNewerRows = formulateFormula(
     newCell.text,
     columnId,
@@ -369,11 +402,9 @@ const updateFormulaFoo = (
   //TODO: optmise if no changes cancel the rest of this
   //TODO: sometimes, for some reason, no newFormulaData, just return the unchanged rows
   if (!newFormulaData) return newRows;
-  console.log("newFormulaData", newFormulaData);
 
   let newValueList = newFormulaData.valueList.map((item) => {
     //todo: make all the values (ids) numbers not stringed numbers
-    console.log("value item", item);
     //do a real look up of all the other cells
     //the "new value" passed to us right now
     if (columnId == item.columnId && rowId == item.rowId) {
@@ -389,7 +420,6 @@ const updateFormulaFoo = (
   newFormulaData.valueList = newValueList;
   //we have change in our param cells, that means update formula cell
   const executableList = newFormulaData.valueList.map((item) => item.value);
-  console.log("executableList", executableList);
   //update the value
   newFormulaCell.formulaData = newFormulaData;
   newFormulaCell.text = newFormulaData.execute(executableList).toString();
@@ -399,15 +429,17 @@ const updateFormulaFoo = (
   //TODO: on changing the formula cell, that cell can also have depandant cells
   //does the formula cell have dependant cells?
   const dependantFormulas = newFormulaCell.dependantFormulas;
-  console.log("newFormulaCell", newFormulaCell);
+  // console.log("newFormulaCell", newFormulaCell);
+  //add the updated formula to our formula(ted) list
+  formulatedList.set(`${formulaColId},${formulaRowId}`, newFormulaCell);
+  if (checkFormulaGraph() === "there is a cycle") {
+    //Remove the formula and add an error msg
+    newRows[rowId].cells[columnId].text = "#ERR infinite loop";
+    return unHookFormula(newFormulaCell.formulaData, columnId, rowId, newRows);
+  }
   if (dependantFormulas && dependantFormulas.length > 0) {
     dependantFormulas.forEach((item) => {
       const formulaLocation = item;
-      console.log("newFormulaCell.text", newFormulaCell.text);
-      console.log(" { formulaColId, formulaRowId },", {
-        formulaColId,
-        formulaRowId,
-      });
 
       newRows = updateFormulaFoo(
         newFormulaCell.text,
@@ -415,9 +447,9 @@ const updateFormulaFoo = (
         { formulaColId, formulaRowId }, //curent cell passed to updateFormulaFoo should be the formula cell not the param one (current)
         newRows
       );
-      console.log("newRows", newRows);
     });
   }
+
   return newRows;
 };
 const generateRows = (rowCount, oldRows) => {
@@ -566,7 +598,6 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
       //use the generated columns above here
       //update the title of the first row (columns)
       let newCells = finalColumns.map((item) => {
-        console.log("item", item);
         return { type: "header", text: item.columnName };
       });
       newRows[0].cells = newCells;
@@ -644,7 +675,7 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
   let newColumnsBefore = newColumns.slice(0, selectedColumnId);
   let newColumnsAfter = newColumns.slice(selectedColumnId);
   //the column to remove is here in the front of the after array, shift it
-  console.log(newColumnsAfter.shift());
+  // console.log(newColumnsAfter.shift());
   //adjust the after array's indecies and names
   let startIndex = selectedColumnId;
   newColumnsAfter = newColumnsAfter.map((item, index) => {
