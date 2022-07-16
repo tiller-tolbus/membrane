@@ -58,18 +58,21 @@
   ^-  sheet
   trgt(title.meta tit)
 ++  rename-gate
+  ::  rename sheet, as a gate (for jab)
   |=  tit=@t
   ^-  $-(sheet sheet)
   |=  trgt=sheet
   ^-  sheet
   trgt(title.meta tit)
 ++  retag-gate
+  ::  retag sheet, as a gate
   |=  tags=(set tag)
   ^-  $-(sheet sheet)
   |=  trgt=sheet
   ^-  sheet
   trgt(tags.meta tags)
 ++  move-sheet
+  ::  remove a sheet and add with a different path
   |=  [max=(map path sheet) opax=path npax=path]
   ^-  (map path sheet)
   =/  sht=sheet  (~(got by max) opax)
@@ -78,6 +81,7 @@
   :-  npax
   sht(path.meta npax)
 ++  tree-to-metatree
+  ::  get just metadata for every path in tree
   |=  [max=(map path sheet) tree=(list path)]
   ^-  (map path sheet-meta)
   %-  molt
