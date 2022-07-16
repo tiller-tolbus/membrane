@@ -99,15 +99,7 @@
       =/  keys=(list path)
         (filter-tree pat ~(tap in ~(key by state)))
       =/  rsv=(map path sheet-meta)
-      %-  molt
-      %-  turn
-      :-  keys
-        |=  pal=path
-        ^-  [path sheet-meta]
-        :-  pal
-        =<  meta
-        ^-  sheet
-        (~(got by state) pal)
+        (tree-to-metatree state keys)
       :^  ~  ~  %membrane-metatree
         !>(rsv)
     ==

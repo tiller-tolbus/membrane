@@ -77,5 +77,18 @@
   %-  ~(put by rm)
   :-  npax
   sht(path.meta npax)
+++  tree-to-metatree
+  |=  [max=(map path sheet) tree=(list path)]
+  ^-  (map path sheet-meta)
+  %-  molt
+  %-  turn
+  :-  tree
+    |=  pax=path
+    ^-  [path sheet-meta]
+    :-  pax
+    =<  meta
+    ^-  sheet
+    (~(got by max) pax)
+
 --
 
