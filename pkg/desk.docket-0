@@ -1,5 +1,5 @@
 :~
-  title+'%Membrane'
+  title+'Membrane'
   info+'Spreadsheets and Databases'
   color+0xf2.f2f2
   version+[0 0 1]
@@ -7,4 +7,5 @@
   license+'MIT'
   base+'membrane'
   glob-ames+[~zod 0v0]
+  image+'https://tiller-tolbus.nyc3.digitaloceanspaces.com/membrane.png'
 ==
