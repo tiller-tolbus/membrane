@@ -26,6 +26,8 @@ export default function SheetMenu({
   onShare,
   sheetId,
   onMove,
+  path,
+  title,
 }) {
   //TODO: there should be one instance of the dialogs,in the parent component, not for every sheet item
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -56,15 +58,12 @@ export default function SheetMenu({
   const onDeleteDialogClose = () => {
     setDeleteDialogOpen(false);
   };
-  const onRenameDialogUpdate = (value: string) => {
-    console.log("value", value);
-    console.log("sheetId", sheetId);
-    onRename(value, sheetId);
+  const onRenameDialogUpdate = (newTitle: string) => {
+    onRename(newTitle, path);
     onRenameDialogClose();
   };
   const onDeleteDialogUpdate = () => {
-    console.log("delete this one =>", sheetId);
-    onDelete();
+    onDelete(path);
     onDeleteDialogClose();
   };
   const [shareDialogOpen, setShareDialogOpen] = React.useState<boolean>(false);
@@ -183,11 +182,14 @@ export default function SheetMenu({
         open={renameDialogOpen}
         onConfirm={onRenameDialogUpdate}
         onClose={onRenameDialogClose}
+        title={title}
       />
       <DeleteDialog
         open={deletDialogOpen}
         onConfirm={onDeleteDialogUpdate}
         onClose={onDeleteDialogClose}
+        path={path}
+        title={title}
       />
       <ShareDialog
         open={shareDialogOpen}

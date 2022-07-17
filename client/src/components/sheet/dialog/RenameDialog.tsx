@@ -7,8 +7,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-export default function RenameDialog({ open, onConfirm, onClose }) {
-  const [inputValue, setInputValue] = React.useState<string>("");
+export default function RenameDialog({ open, onConfirm, onClose, title }) {
+  const [inputValue, setInputValue] = React.useState<string>(title);
   const handleClose = () => {
     onClose();
   };
@@ -39,7 +39,6 @@ export default function RenameDialog({ open, onConfirm, onClose }) {
           value={inputValue}
           onChange={handleChange}
           fullWidth
-
         />
       </DialogContent>
       <DialogActions>

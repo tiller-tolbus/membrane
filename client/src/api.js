@@ -53,5 +53,22 @@ const api = {
       json: { create: [title, path] },
     });
   },
+  deleteSheet: async (path) => {
+    console.log("path", path);
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { delete: [path] },
+    });
+  },
+  renameSheet: async (path, title) => {
+    console.log("path", path);
+    console.log("title", title);
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { rename: [title, path] },
+    });
+  },
 };
 export default api;

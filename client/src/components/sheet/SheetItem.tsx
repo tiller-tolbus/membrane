@@ -32,7 +32,7 @@ export default function SheetItem({
   onAdd,
   onMove,
 }) {
-  const { title, id, tags, path, lastEditedFromatedDate, wtf } = item;
+  const { title, id, tags, path, lastEditedFromatedDate } = item;
   return (
     <Item variant="outlined" onClick={() => goToSheet(path)}>
       <Grid container alignItems="center">
@@ -62,6 +62,8 @@ export default function SheetItem({
               onAdd={onAdd}
               onMove={onMove}
               sheetId={id}
+              path={path}
+              title={title}
             />
           </Stack>
         </Grid>

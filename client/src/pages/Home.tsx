@@ -122,12 +122,22 @@ export default function Home() {
   }, []);
   let navigate = useNavigate();
   const goToSheet = (path) => navigate("/apps/membrane/sheet" + path, {});
-  const onRename = (value: string, id: number) => {
-    return;
+  const onRename = async (title: string, path: number) => {
+    try {
+      const result = await api.renameSheet(path, title);
+      console.log("result", result);
+    } catch (e) {
+      console.log("onRename error => ", e);
+    }
   };
-  const onDelete = (id: number) => {
-    console.log("onDelete", id);
-    return;
+  const onDelete = async (path: string) => {
+    console.log("onDelete", path);
+    try {
+      const result = await api.deleteSheet(path);
+      console.log("result", result);
+    } catch (e) {
+      console.log("onDelete error => ", e);
+    }
   };
   const onAdd = async (title: string, path: string) => {
     //call api
