@@ -34,7 +34,7 @@ const api = {
     return api.createApi().poke({
       app: "membrane",
       mark: "membrane-action",
-      json: { replace: json },
+      json: { replace: [uneditedSheetMeta.path, json] },
     });
   },
   getSheetByPath: async (path) => {
@@ -50,7 +50,7 @@ const api = {
     return api.createApi().poke({
       app: "membrane",
       mark: "membrane-action",
-      json: { create: [title, path] },
+      json: { create: [path, title] },
     });
   },
   deleteSheet: async (path) => {
@@ -58,7 +58,7 @@ const api = {
     return api.createApi().poke({
       app: "membrane",
       mark: "membrane-action",
-      json: { delete: [path] },
+      json: { delete: path },
     });
   },
   renameSheet: async (path, title) => {
@@ -67,7 +67,7 @@ const api = {
     return api.createApi().poke({
       app: "membrane",
       mark: "membrane-action",
-      json: { rename: [title, path] },
+      json: { rename: [path, title] },
     });
   },
 };
