@@ -29,6 +29,7 @@ export interface TextCell extends Cell {
     italic?: boolean;
     strikethrough?: boolean;
     fontSize?: number;
+    underline?: number;
   };
 }
 
@@ -97,6 +98,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
     isInEditMode: boolean,
     onCellChanged: (cell: Compatible<TextCell>, commit: boolean) => void
   ): React.ReactNode {
+    //TODO: improve customStyles so we just pass the obj, no if/else
     const customStyles = cell.customStyles;
     //todo: manage these styles better
     //todo: add user input for these
@@ -119,9 +121,10 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
             alignItems: "center",
             fontWeight: customStyles?.bold ? "bold" : "normal",
             fontStyle: customStyles?.italic ? "italic" : "normal",
-            textDecoration: customStyles?.strikethrough
-              ? "line-through"
-              : "auto",
+            textDecoration:
+              "" +
+              (customStyles?.strikethrough ? "line-through" : "") +
+              (customStyles?.underline ? " underline" : ""),
           }}
         >
           <p style={{ margin: 0, padding: 0, paddingLeft: 2 }}>

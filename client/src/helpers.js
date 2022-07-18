@@ -523,6 +523,7 @@ const inCell = (cellArray, rows) => {
       color: metaObj.foreground,
       backgroundColor: metaObj.background,
       strikeThrough: metaObj.strikethrough,
+      underline: metaObj.underline,
       fontSize: metaObj.size,
     };
     //remove all the fields that evaled to undefined (don't exist)
@@ -842,6 +843,7 @@ const dataToJson2 = (data, meta) => {
             foreground: item.customStyles.color,
             background: item.customStyles.backgroundColor,
             strikethrough: item.customStyles.strikeThrough,
+            underline: item.customStyles.underline,
             size: item.customStyles.fontSize,
           };
           Object.keys(metaObj).forEach((key) => {

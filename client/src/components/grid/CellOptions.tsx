@@ -18,11 +18,14 @@ import { ColorPopover } from "../index";
 import FormatColorTextIcon from "@mui/icons-material/FormatColorText";
 import StrikethroughSIcon from "@mui/icons-material/StrikethroughS";
 import FormatColorFillIcon from "@mui/icons-material/FormatColorFill";
+import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 
 import { MultiSelect } from "../index";
 import { styled } from "@mui/material/styles";
 
 import ButtonBase from "@mui/material/ButtonBase";
+
+import cloneDeep from "lodash/cloneDeep";
 
 const TextButton = styled(ButtonBase)(({ theme }) => ({
   color: theme.palette.text.secondary,
@@ -39,6 +42,7 @@ interface CellMetaData {
   isItalic: boolean;
   isFormula: boolean;
   isStrikethrough: boolean;
+  isUnderline: boolean;
   textColor: string;
   backgroundColor: string;
   fontSize: number;
@@ -54,6 +58,7 @@ export default function CellOptions() {
       isItalic: false,
       isFormula: false,
       isStrikethrough: false,
+      isUnderline: false,
       textColor: "",
       backgroundColor: "",
       fontSize: 14,
@@ -74,6 +79,7 @@ export default function CellOptions() {
       let cellName = "";
       let isFormula = false;
       let isStrikethrough = false;
+      let isUnderline = false;
       let textColor = "";
       let backgroundColor = "";
       let fontSize;
@@ -82,6 +88,7 @@ export default function CellOptions() {
       isBold = !!cellData.customStyles?.bold;
       isItalic = !!cellData.customStyles?.italic;
       isStrikethrough = !!cellData.customStyles?.strikethrough;
+      isUnderline = !!cellData.customStyles?.underline;
       textColor = cellData.customStyles?.color;
       backgroundColor = cellData.customStyles?.backgroundColor;
       fontSize = cellData.customStyles?.fontSize
@@ -105,6 +112,7 @@ export default function CellOptions() {
         textColor,
         backgroundColor,
         fontSize,
+        isUnderline,
       };
       setSelectedCellMetaData(newCellMetaData);
       //default value for our input
@@ -116,7 +124,7 @@ export default function CellOptions() {
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = { ...currentCell.customStyles };
@@ -138,7 +146,7 @@ export default function CellOptions() {
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = { ...currentCell.customStyles };
@@ -161,7 +169,7 @@ export default function CellOptions() {
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = { ...currentCell.customStyles, color: color };
@@ -177,7 +185,7 @@ export default function CellOptions() {
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = {
@@ -223,7 +231,7 @@ export default function CellOptions() {
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = { ...currentCell.customStyles };
@@ -241,11 +249,33 @@ export default function CellOptions() {
     //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
   };
+  const makeCellUnderline = () => {
+    if (!selectedCell) return false;
+    const { columnId, rowId } = selectedCell.location;
+    //make a copy of rows
+    let newRows = cloneDeep(rows);
+    //update the select cell with the new styles
+    let currentCell = newRows[rowId].cells[columnId];
+    let newCustomStyle = { ...currentCell.customStyles };
+    if (isUnderline) {
+      //if this evaluates to true, it's already underline, so remove the underline value from customStyles
+      delete newCustomStyle.underline;
+    } else {
+      //is not already underline, set underline to true
+      newCustomStyle = { ...newCustomStyle, underline: true };
+    }
+    //commit changes
+    currentCell.customStyles = newCustomStyle;
+    //update rows to affect changes
+    setRows(newRows);
+    //we also need to change the selectedCell, sincec we just changed it
+    setSelectedCell({ ...selectedCell, cellData: currentCell });
+  };
   const clearStyles = () => {
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     //if we have wdon't have a customStyles object, nothing to do return false
@@ -270,7 +300,7 @@ export default function CellOptions() {
 
     const { columnId, rowId } = selectedCell.location;
     //make a copy of rows
-    let newRows = [...rows];
+    let newRows = cloneDeep(rows);
     //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = {
@@ -296,6 +326,7 @@ export default function CellOptions() {
     backgroundColor,
     textColor,
     fontSize,
+    isUnderline,
   } = selectedCellMetaData;
   return (
     <div>
@@ -348,6 +379,15 @@ export default function CellOptions() {
             size="small"
           >
             <StrikethroughSIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            aria-label="make cell underline"
+            onClick={() => makeCellUnderline()}
+            color={isUnderline ? "primary" : "default"}
+            disabled={!selectedCell?.cellData}
+            size="small"
+          >
+            <FormatUnderlinedIcon fontSize="small" />
           </IconButton>
         </Box>
         <Stack flexDirection="row" alignItems="center">
