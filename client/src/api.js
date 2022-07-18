@@ -70,5 +70,23 @@ const api = {
       json: { rename: [path, title] },
     });
   },
+  moveSheet: async (path, destinationPath) => {
+    console.log("path", path);
+    console.log("destinationPath", destinationPath);
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { move: [path, destinationPath] },
+    });
+  },
+  updateTags: async (path, tags) => {
+    console.log("path", path);
+    console.log("tags", tags);
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { retag: [path, tags] },
+    });
+  },
 };
 export default api;

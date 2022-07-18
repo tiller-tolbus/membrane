@@ -877,6 +877,13 @@ function structureJson1(data) {
 
   return newData;
 }
+function matchURLSafe(string) {
+  //returns matches in a string to a urlsafe pattern
+  let urlSafePattern = /^((\/)[a-z0-9._1~-]{1,})*$/g;
+  const matches = string.match(urlSafePattern);
+
+  return matches;
+}
 export {
   getColumns,
   getRows,
@@ -900,4 +907,5 @@ export {
   dataToJson2,
   structureJson,
   structureJson1,
+  matchURLSafe,
 };

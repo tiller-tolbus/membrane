@@ -7,13 +7,46 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { matchURLSafe } from "../../../helpers";
+import LoadingButton from "@mui/lab/LoadingButton";
 
-export default function MoveDialog({ open, onConfirm, onClose }) {
-  const [inputValue, setInputValue] = React.useState<string>("dir/sheet");
+export default function MoveDialog({
+  open,
+  onConfirm,
+  onClose,
+  path,
+  pathList,
+  loading,
+}) {
+  const [inputValue, setInputValue] = React.useState<string>(path);
+
+  const [pathError, setPathError] = React.useState<boolean>(false);
+  const [pathErrorMessage, setPathErrorMessage] = React.useState<string>("");
+
   const handleClose = () => {
     onClose();
   };
-  const handleRename = () => {
+  const handleMove = () => {
+    //is the path url-safe?
+    const matches = matchURLSafe(inputValue);
+    //set error state if need be
+    if (!matches) {
+      setPathErrorMessage("Make sure the path is correctly formulated");
+      setPathError(true);
+      return;
+    }
+    //does the path already exist?
+    if (pathList.includes(inputValue)) {
+      setPathErrorMessage("This path already exists, try another one");
+      setPathError(true);
+      return;
+    }
+    setPathErrorMessage("");
+    setPathError(false);
+    //TODO: work around, eventually unmount this
+    setInputValue("");
+
+    // onConfirm(titleInputValue, pathInputValue);
     onConfirm(inputValue);
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,10 +62,10 @@ export default function MoveDialog({ open, onConfirm, onClose }) {
     >
       <DialogTitle>Move</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Enter the path you wish the sheet to be move to
-        </DialogContentText>
+        <DialogContentText>Current path is {path}</DialogContentText>
         <TextField
+          error={pathError}
+          helperText={pathErrorMessage}
           autoFocus
           margin="dense"
           id="path"
@@ -46,7 +79,9 @@ export default function MoveDialog({ open, onConfirm, onClose }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleRename}>Update</Button>
+        <LoadingButton onClick={handleMove} loading={loading}>
+          Update
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

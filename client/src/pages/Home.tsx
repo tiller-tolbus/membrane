@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import SheetItem from "../components/sheet"; //todo: change to import from /componnents
 import { SearchBar, Alert } from "../components";
 import Divider from "@mui/material/Divider";
-import { structureJson1, structureJson } from "../helpers";
+import { structureJson1, structureJson, matchURLSafe } from "../helpers";
 //TODO: remember this needs a scrollbar body {overflow:hidden} ;)
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -68,6 +68,7 @@ function FailedToConnect(getData) {
 }
 export default function Home() {
   const [sheetList, setSheetList] = React.useState([]); //list of sheets
+  //TODO:update the way we do this???
   const [filteredData, setFilteredData] = React.useState([]);
   const [pathList, setPathList] = React.useState([]);
   const [fetchData, setFetchData] = React.useState({
@@ -83,6 +84,7 @@ export default function Home() {
     success: false,
     error: false,
   });
+
   //TODO: fetch data
   const getSheets = async () => {
     //we start loading (trying) as soon as the user opens the page
@@ -122,23 +124,7 @@ export default function Home() {
   }, []);
   let navigate = useNavigate();
   const goToSheet = (path) => navigate("/apps/membrane/sheet" + path, {});
-  const onRename = async (title: string, path: number) => {
-    try {
-      const result = await api.renameSheet(path, title);
-      console.log("result", result);
-    } catch (e) {
-      console.log("onRename error => ", e);
-    }
-  };
-  const onDelete = async (path: string) => {
-    console.log("onDelete", path);
-    try {
-      const result = await api.deleteSheet(path);
-      console.log("result", result);
-    } catch (e) {
-      console.log("onDelete error => ", e);
-    }
-  };
+
   const onAdd = async (title: string, path: string) => {
     //call api
     try {
@@ -166,15 +152,7 @@ export default function Home() {
       setCreatingSheet({ trying: false, success: false, error: true });
     }
   };
-  const onShare = (id: number, user: string) => {
-    console.log("id", id);
-    console.log("sharing is caring => ", user);
-    return;
-  };
-  const onMove = (path: string) => {
-    console.log("path", path);
-    return;
-  };
+
   const [addDialogOpen, setAddDialogOpen] = React.useState<boolean>(false);
   const onAddDialogClose = () => {
     setAddDialogOpen(false);
@@ -235,12 +213,14 @@ export default function Home() {
                 <SheetItem
                   key={index}
                   item={item}
-                  onAdd={onAdd}
-                  onRename={onRename}
-                  onDelete={onDelete}
-                  onShare={onShare}
+                  sheetList={sheetList}
                   goToSheet={goToSheet}
-                  onMove={onMove}
+                  pathList={pathList}
+                  updateSheetList={(newSheetList) => {
+                    setSheetList(newSheetList);
+                    setFilteredData(newSheetList);
+                  }}
+                  updatePathList={setPathList}
                 />
               );
             })}
@@ -296,8 +276,7 @@ function AddDialog({ open, onConfirm, onClose, pathList, loading }) {
   };
   const handleAdd = (event) => {
     //is the path url-safe?
-    let urlSafePattern = /^((\/)[a-zA-Z0-9._1~-]{1,})*$/g;
-    const matches = pathInputValue.match(urlSafePattern);
+    const matches = matchURLSafe(pathInputValue);
     //set error state if need be
     if (!matches) {
       setPathErrorMessage("Make sure the path is correctly formulated");

@@ -3,6 +3,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
+import api from "../../api";
 
 import { blue } from "@mui/material/colors";
 
@@ -26,22 +27,22 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function SheetItem({
   goToSheet,
   item,
-  onRename,
-  onDelete,
-  onShare,
-  onAdd,
-  onMove,
+  pathList,
+  sheetList,
+  updateSheetList,
+  updatePathList,
 }) {
   const { title, id, tags, path, lastEditedFromatedDate } = item;
+
   return (
     <Item variant="outlined" onClick={() => goToSheet(path)}>
       <Grid container alignItems="center">
-        <Grid sx={{ alignItems: "center" }} item xs={3}>
+        <Grid sx={{ alignItems: "center" }} item xs={2}>
           <Typography variant="subtitle1" gutterBottom component="div">
             {title}
           </Typography>
         </Grid>
-        <Grid item xs={5}>
+        <Grid item xs={6}>
           <Chips chipData={tags} canDelete={false} />
         </Grid>
         <Grid item xs={2}>
@@ -56,14 +57,14 @@ export default function SheetItem({
             alignItems={"flex-start"}
           >
             <SheetMenu
-              onRename={onRename}
-              onDelete={onDelete}
-              onShare={onShare}
-              onAdd={onAdd}
-              onMove={onMove}
               sheetId={id}
               path={path}
               title={title}
+              pathList={pathList}
+              updatePathList={updatePathList}
+              sheetList={sheetList}
+              tags={tags}
+              updateSheetList={updateSheetList}
             />
           </Stack>
         </Grid>
