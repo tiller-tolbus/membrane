@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import api from "../../api";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -20,13 +20,166 @@ import EditTagsDialog from "./dialog/EditTagsDialog";
 import MoveDialog from "./dialog/MoveDialog";
 
 export default function SheetMenu({
-  onRename,
-  onDelete,
-  onAdd,
-  onShare,
   sheetId,
-  onMove,
+  path,
+  title,
+  pathList,
+  sheetList,
+  tags,
+  updateSheetList,
+  updatePathList,
 }) {
+  const [updatingTags, setUpdatingTags] = React.useState({
+    trying: false,
+    success: false,
+    error: false,
+  });
+  const [deletingSheet, setDeletingSheets] = React.useState({
+    trying: false,
+    success: false,
+    error: false,
+  });
+  const [renamingSheet, setRenamingSheet] = React.useState({
+    trying: false,
+    success: false,
+    error: false,
+  });
+  const [movingSheet, setMovingSheet] = React.useState({
+    trying: false,
+    success: false,
+    error: false,
+  });
+  const onShare = (id: number, user: string) => {
+    console.log("id", id);
+    console.log("sharing is caring => ", user);
+    return;
+  };
+  const onDelete = async (path: string) => {
+    setDeletingSheets({ trying: true, success: false, error: false });
+    try {
+      const result = await api.deleteSheet(path);
+      console.log("onDelete result => ", result);
+      if (result) {
+        //remove sheet we just deleted from sheetList
+        const newSheetList = sheetList.filter((item) => {
+          return item.path !== path;
+        });
+        //remove path of sheet we just deleted from pathList
+        const newPathList = pathList.filter((item) => {
+          return item !== path;
+        });
+
+        updatePathList(newPathList);
+        updateSheetList(newSheetList);
+        onDeleteDialogClose();
+        setDeletingSheets({ trying: false, success: true, error: false });
+      } else {
+        setDeletingSheets({ trying: false, success: false, error: true });
+      }
+    } catch (e) {
+      console.log("onDelete error => ", e);
+      setDeletingSheets({ trying: false, success: false, error: true });
+    }
+  };
+  const onRename = async (title: string, path: number) => {
+    setRenamingSheet({ trying: true, success: false, error: false });
+    try {
+      const result = await api.renameSheet(path, title);
+      console.log("onRename result => ", result);
+      if (result) {
+        //update title in the sheet we just renamed
+        const newSheetList = sheetList.map((item) => {
+          if (item.path === path) {
+            return {
+              ...item,
+              title: title,
+            };
+          }
+          return item;
+        });
+
+        updateSheetList(newSheetList);
+        onRenameDialogClose();
+        setRenamingSheet({ trying: false, success: true, error: false });
+      } else {
+        setRenamingSheet({ trying: false, success: false, error: true });
+      }
+    } catch (e) {
+      console.log("onRename error => ", e);
+      setRenamingSheet({ trying: false, success: false, error: true });
+    }
+  };
+  const onMove = async (path: string, destinationPath: string) => {
+    console.log("path", path);
+    console.log("destinationPath", destinationPath);
+    setMovingSheet({ trying: true, success: false, error: false });
+
+    try {
+      const result = await api.moveSheet(path, destinationPath);
+      console.log("onMove result => ", result);
+
+      if (result) {
+        //update path in the sheet we just moved
+        const newSheetList = sheetList.map((item) => {
+          if (item.path === path) {
+            return {
+              ...item,
+              path: destinationPath,
+            };
+          }
+          return item;
+        });
+        //replace path we just moved with destinaiton path in pathList
+        const newPathList = pathList.map((item) => {
+          if (item === path) {
+            return destinationPath;
+          }
+          return item;
+        });
+        updatePathList(newPathList);
+        updateSheetList(newSheetList);
+        onMoveDialogClose();
+        setMovingSheet({ trying: false, success: true, error: false });
+      } else {
+        setMovingSheet({ trying: false, success: false, error: true });
+      }
+    } catch (e) {
+      console.log("onMove error => ", e);
+      setMovingSheet({ trying: false, success: false, error: true });
+    }
+  };
+
+  const onUpdateTags = async (path: string, tags: Array<string>) => {
+    setUpdatingTags({ trying: true, success: false, error: false });
+    try {
+      const result = await api.updateTags(path, tags);
+      console.log("onUpdateTags result => ", result);
+
+      if (result) {
+        const newSheetList = sheetList.map((item) => {
+          if (item.path === path) {
+            //update tags in the sheet we just updated
+            return {
+              ...item,
+              tags: tags.map((item, index) => {
+                //remake the tag list
+                return { label: item, key: index };
+              }),
+            };
+          }
+          return item;
+        });
+        updateSheetList(newSheetList);
+        onEditTagsDialogClose();
+        setUpdatingTags({ trying: false, success: true, error: false });
+      } else {
+        setUpdatingTags({ trying: false, success: false, error: true });
+      }
+    } catch (e) {
+      setUpdatingTags({ trying: false, success: false, error: true });
+      console.log("onUpdateTags error => ", e);
+    }
+  };
   //TODO: there should be one instance of the dialogs,in the parent component, not for every sheet item
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [renameDialogOpen, setRenameDialogOpen] =
@@ -56,16 +209,11 @@ export default function SheetMenu({
   const onDeleteDialogClose = () => {
     setDeleteDialogOpen(false);
   };
-  const onRenameDialogUpdate = (value: string) => {
-    console.log("value", value);
-    console.log("sheetId", sheetId);
-    onRename(value, sheetId);
-    onRenameDialogClose();
+  const onRenameDialogUpdate = (newTitle: string) => {
+    onRename(newTitle, path);
   };
   const onDeleteDialogUpdate = () => {
-    console.log("delete this one =>", sheetId);
-    onDelete();
-    onDeleteDialogClose();
+    onDelete(path);
   };
   const [shareDialogOpen, setShareDialogOpen] = React.useState<boolean>(false);
   const onShareDialogClose = () => {
@@ -87,7 +235,7 @@ export default function SheetMenu({
     setEditTagsDialogOpen(true);
   };
   const onEditTagsDialogUpdate = (tags: []) => {
-    onEditTagsDialogClose();
+    onUpdateTags(path, tags);
   };
   const [moveDialogOpen, setMoveDialogOpen] = React.useState<boolean>(false);
   const onMoveDialogClose = () => {
@@ -96,9 +244,8 @@ export default function SheetMenu({
   const onMoveDialogOpen = () => {
     setMoveDialogOpen(true);
   };
-  const onMoveDialogUpdate = (path: string) => {
-    onMove(path);
-    onMoveDialogClose();
+  const onMoveDialogUpdate = (destinationPath: string) => {
+    onMove(path, destinationPath);
   };
 
   return (
@@ -183,11 +330,16 @@ export default function SheetMenu({
         open={renameDialogOpen}
         onConfirm={onRenameDialogUpdate}
         onClose={onRenameDialogClose}
+        title={title}
+        loading={renamingSheet.trying}
       />
       <DeleteDialog
         open={deletDialogOpen}
         onConfirm={onDeleteDialogUpdate}
         onClose={onDeleteDialogClose}
+        path={path}
+        title={title}
+        loading={deletingSheet.trying}
       />
       <ShareDialog
         open={shareDialogOpen}
@@ -198,11 +350,16 @@ export default function SheetMenu({
         open={editTagsDialogOpen}
         onConfirm={onEditTagsDialogUpdate}
         onClose={onEditTagsDialogClose}
+        tags={tags}
+        loading={updatingTags.trying}
       />
       <MoveDialog
         open={moveDialogOpen}
         onConfirm={onMoveDialogUpdate}
         onClose={onMoveDialogClose}
+        path={path}
+        pathList={pathList}
+        loading={movingSheet.trying}
       />
     </React.Fragment>
   );

@@ -15,8 +15,12 @@
     =,  dejs:format
     %-  of
     :~  
-      [%replace dejs-sheet]
-      [%create (at ~[so pa])]
+      [%replace (at ~[pa dejs-sheet])]
+      [%create (at ~[pa so])]
+      [%rename (at ~[pa so])]
+      [%retag (at ~[pa (as so)])]
+      [%delete pa]
+      [%move (at ~[pa pa])]
     ==
   --
 ++  grad  %noun  

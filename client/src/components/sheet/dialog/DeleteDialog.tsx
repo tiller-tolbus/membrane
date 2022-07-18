@@ -1,14 +1,21 @@
 import * as React from "react";
 
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import LoadingButton from "@mui/lab/LoadingButton";
 
-export default function DeleteDialog({ open, onClose, onConfirm }) {
+export default function DeleteDialog({
+  open,
+  onClose,
+  onConfirm,
+  path,
+  title,
+  loading,
+}) {
   const handleClose = () => {
     onClose();
   };
@@ -22,17 +29,17 @@ export default function DeleteDialog({ open, onClose, onConfirm }) {
       fullWidth
       maxWidth={"sm"}
     >
-      <DialogTitle id="alert-dialog-title">
-        {"Confirm Deletion of this sheet"}
-      </DialogTitle>
+      <DialogTitle id="alert-dialog-title">Delete</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          this action is irreversible
+          Delete sheet {title} at path: {path} (irreversible action)
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Disagree</Button>
-        <Button onClick={onConfirm}>Agree</Button>
+        <Button onClick={handleClose}>cancel</Button>
+        <LoadingButton loading={loading} onClick={onConfirm}>
+          confirm
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

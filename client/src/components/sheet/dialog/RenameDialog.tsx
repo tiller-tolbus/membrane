@@ -7,8 +7,15 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-export default function RenameDialog({ open, onConfirm, onClose }) {
-  const [inputValue, setInputValue] = React.useState<string>("");
+import LoadingButton from "@mui/lab/LoadingButton";
+export default function RenameDialog({
+  open,
+  onConfirm,
+  onClose,
+  title,
+  loading,
+}) {
+  const [inputValue, setInputValue] = React.useState<string>(title);
   const handleClose = () => {
     onClose();
   };
@@ -26,9 +33,9 @@ export default function RenameDialog({ open, onConfirm, onClose }) {
       fullWidth
       maxWidth={"sm"}
     >
-      <DialogTitle>Subscribe</DialogTitle>
+      <DialogTitle>Rename</DialogTitle>
       <DialogContent>
-        <DialogContentText>rename this sheet</DialogContentText>
+        <DialogContentText>Enter the new title</DialogContentText>
         <TextField
           autoFocus
           margin="dense"
@@ -39,12 +46,17 @@ export default function RenameDialog({ open, onConfirm, onClose }) {
           value={inputValue}
           onChange={handleChange}
           fullWidth
-
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleRename}>Update</Button>
+        <LoadingButton
+          disabled={!inputValue}
+          onClick={handleRename}
+          loading={loading}
+        >
+          Update
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

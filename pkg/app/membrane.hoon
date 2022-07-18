@@ -39,25 +39,38 @@
   |=  old-vase=vase
   ^-  (quip card _this)
   `this(state !<(state-0 old-vase))
-::  on-poke handles pokes
-::  we will handle one poke which sends the entire state
-::  which we accept and use as our new state
-::  (if it comes from our ship)
-::
 ++  on-poke
   |=  [=mark =vase]
   ^-  (quip card _this)
+  ::  only accept pokes from our own ship
   ?>  =(our.bowl src.bowl)
+  ::  only accept %membrane-action mark
   ?.  ?=(%membrane-action mark)
     (on-poke:def mark vase)
   =/  act  !<(action vase)
   ?-  -.act
     %replace
-      `this(state (~(put by state) path.meta.act +.act))
+      =/  pax=path  +<.act
+      `this(state (~(put by state) pax +>.act))
     %create
-      =/  tit=@t  +<.act
-      =/  pax=path  +>.act
-      `this(state (~(put by state) pax (create-sheet tit pax bowl)))
+      =/  pax=path  +<.act
+      =/  tit=@t  +>.act
+      `this(state (~(put by state) pax (create-sheet pax tit bowl)))
+    %rename
+      =/  pax=path  +<.act
+      =/  tit=@t  +>.act
+      `this(state (~(jab by state) pax (rename-gate tit)))
+    %retag
+      =/  pax=path  +<.act
+      =/  tags=(set tag)  +>.act
+      `this(state (~(jab by state) pax (retag-gate tags)))
+    %delete
+      =/  pax=path  +.act
+      `this(state (~(del by state) pax))
+    %move
+      =/  opax=path  +<.act
+      =/  npax=path  +>.act
+      `this(state (move-sheet state opax npax))
     ==
 ::  We are not accepting subscriptions at this time.
 ::
@@ -72,32 +85,24 @@
     ~
   ?+  i.t.pax  (on-peek:def pax)
     %retrieve
-      =/  rsv=(unit sheet)  (~(get by state) t.t.pax)
-      ?~  rsv
-        [~ ~]
+      =/  rsv=sheet  (~(got by state) t.t.pax)
       :^  ~  ~  %sheet
-        !>(u.rsv)
-    %tree
-      =/  rsv=(set path)  ~(key by state)
-      :^  ~  ~  %membrane-tree
         !>(rsv)
+    %tree
+      =/  pat=path  t.t.pax
+      =/  keys=(list path)
+        (filter-tree pat ~(tap in ~(key by state)))
+      :^  ~  ~  %membrane-tree
+        !>(keys)
     %metatree
-      =|  rsv=(map path sheet-meta)
-      =/  keys=(list path)  ~(tap in ~(key by state))
-      |-
-      ?~  keys
-        :^  ~  ~  %membrane-metatree
-          !>(rsv)
-      =/  pax=path  i.keys
-      %=  $
-        rsv
-          %-  ~(put by rsv)
-          :-  pax
-          =<  meta 
-          (~(got by state) pax)
-        keys  t.keys
-      ==
-  ==
+      =/  pat=path  t.t.pax
+      =/  keys=(list path)
+        (filter-tree pat ~(tap in ~(key by state)))
+      =/  rsv=(map path sheet-meta)
+        (tree-to-metatree state keys)
+      :^  ~  ~  %membrane-metatree
+        !>(rsv)
+    ==
 ::  We will not be accepting calls from Arvo at this time
 ::
 ++  on-arvo  on-arvo:def
