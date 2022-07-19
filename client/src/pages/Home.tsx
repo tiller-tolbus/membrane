@@ -29,6 +29,7 @@ import verbiage from "../verbiage";
 import AlertTitle from "@mui/material/AlertTitle";
 import cloneDeep from "lodash/cloneDeep";
 import DialogContentText from "@mui/material/DialogContentText";
+import Link from "@mui/material/Link";
 
 function CircularIndeterminate() {
   return (
@@ -178,77 +179,95 @@ export default function Home() {
   };
   const renderGrid = () => {
     return (
-      <>
-        <Grid container>
-          <Grid item xs={8}>
-            <Button
-              sx={{ border: "none", color: "black" }}
-              endIcon={<AddIcon />}
-              onClick={() => onAddDialogOpen()}
-            >
-              Add a sheet
-            </Button>
-          </Grid>
-          <Grid item xs={2} marginLeft={-1.5}>
-            <Button
-              sx={{ border: "none", color: "black" }}
-              endIcon={
-                sortDirection === "asc" ? (
-                  <ArrowDropDownIcon />
-                ) : (
-                  <ArrowDropUpIcon />
-                )
-              }
-              onClick={() => orderByDate()}
-            >
-              last edited
-            </Button>
-          </Grid>
-          <Grid item xs={2}></Grid>
-        </Grid>
-        <Divider light />
-        <Box sx={{ paddingTop: 1 }}>
-          <Stack justifyContent={"center"}>
-            {filteredData.map((item, index) => {
-              return (
-                <SheetItem
-                  key={index}
-                  item={item}
-                  sheetList={sheetList}
-                  goToSheet={goToSheet}
-                  pathList={pathList}
-                  updateSheetList={(newSheetList) => {
-                    setSheetList(newSheetList);
-                    setFilteredData(newSheetList);
-                  }}
-                  updatePathList={setPathList}
-                />
-              );
-            })}
-          </Stack>
-        </Box>
-      </>
+      <Box sx={{ paddingTop: 1 }}>
+        <Stack justifyContent={"center"}>
+          {filteredData.map((item, index) => {
+            return (
+              <SheetItem
+                key={index}
+                item={item}
+                sheetList={sheetList}
+                goToSheet={goToSheet}
+                pathList={pathList}
+                updateSheetList={(newSheetList) => {
+                  setSheetList(newSheetList);
+                  setFilteredData(newSheetList);
+                }}
+                updatePathList={setPathList}
+              />
+            );
+          })}
+        </Stack>
+      </Box>
     );
   };
   return (
     <>
+      <Box
+        sx={{
+          backgroundColor: "lightgray",
+          paddingTop: 1,
+          paddingBottom: 1,
+        }}
+      >
+        <Typography sx={{ textAlign: "center" }} variant="subtitle2">
+          This is a Demo of the Membrane spreadsheet application, which is
+          specified at{" "}
+          <Link href="https://urbit.org/grants/membrane">
+            https://urbit.org/grants/membrane
+          </Link>
+          . Features are still being added and can be tracked at
+          <Link href="https://github.com/tiller-tolbus/membrane">
+            {" "}
+            https://github.com/tiller-tolbus/membrane
+          </Link>
+          . Do not store any important data here. Use for testing purposes only.
+        </Typography>
+      </Box>
       <Container sx={{ paddingBottom: 20 }} fixed>
         <Box
           sx={{
-            paddingTop: 5,
             position: "sticky",
             backgroundColor: "white",
             top: 0,
             zIndex: 100, //to be over tooltips
+            paddingTop: 4,
           }}
         >
           <SearchBar
             onSearch={(results) => {
-              console.log("search results", results);
               setFilteredData(results);
             }}
             sheetList={sheetList}
           />
+          <Grid container>
+            <Grid item xs={8}>
+              <Button
+                sx={{ border: "none", color: "black" }}
+                endIcon={<AddIcon />}
+                onClick={() => onAddDialogOpen()}
+              >
+                Add a sheet
+              </Button>
+            </Grid>
+            <Grid item xs={2} marginLeft={-1.5}>
+              <Button
+                sx={{ border: "none", color: "black" }}
+                endIcon={
+                  sortDirection === "asc" ? (
+                    <ArrowDropDownIcon />
+                  ) : (
+                    <ArrowDropUpIcon />
+                  )
+                }
+                onClick={() => orderByDate()}
+              >
+                last edited
+              </Button>
+            </Grid>
+            <Grid item xs={2}></Grid>
+          </Grid>
+          <Divider light />
         </Box>
         {fetchData.trying && CircularIndeterminate()}
         {fetchData.success && renderGrid()}
