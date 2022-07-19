@@ -75,7 +75,6 @@ export default function EditTagsDialog({
           id="name"
           label="enter new tag"
           type="text"
-          variant="standard"
           fullWidth
           value={inputValue}
           onChange={handleChange}

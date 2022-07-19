@@ -35,7 +35,6 @@ export default function ShareDialog({ open, onConfirm, onClose }) {
           id="name"
           label="@p"
           type="text"
-          variant="standard"
           value={inputValue}
           onChange={handleChange}
           fullWidth

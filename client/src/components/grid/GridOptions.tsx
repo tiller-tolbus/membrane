@@ -32,7 +32,6 @@ export default function GridOptions({ addRowsCb }) {
   };
   return (
     <Stack direction="row" spacing={2} alignItems="center">
-     
       <Button
         size={"small"}
         endIcon={<AddIcon />}

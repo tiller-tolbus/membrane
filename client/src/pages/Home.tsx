@@ -28,6 +28,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import verbiage from "../verbiage";
 import AlertTitle from "@mui/material/AlertTitle";
 import cloneDeep from "lodash/cloneDeep";
+import DialogContentText from "@mui/material/DialogContentText";
 
 function CircularIndeterminate() {
   return (
@@ -310,16 +311,15 @@ function AddDialog({ open, onConfirm, onClose, pathList, loading }) {
   };
   return (
     <Dialog fullWidth maxWidth={"sm"} open={open} onClose={handleClose}>
-      <DialogTitle>Add a new sheet</DialogTitle>
+      <DialogTitle>Add</DialogTitle>
       <DialogContent>
-        {/*<DialogContentText>sheet title</DialogContentText>*/}
+        <DialogContentText>Add a new sheet</DialogContentText>
         <TextField
           autoFocus
           margin="dense"
           id="name"
           label="title"
           type="text"
-          variant="standard"
           value={titleInputValue}
           onChange={handleTitleInputChange}
           fullWidth
@@ -331,11 +331,11 @@ function AddDialog({ open, onConfirm, onClose, pathList, loading }) {
           autoFocus
           margin="dense"
           id="name"
-          label="path"
+          label="/path"
           type="text"
-          variant="standard"
           value={pathInputValue}
           onChange={handlePathInputChange}
+          placeholder={"/path"}
           fullWidth
         />
       </DialogContent>

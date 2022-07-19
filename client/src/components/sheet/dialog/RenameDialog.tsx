@@ -42,7 +42,6 @@ export default function RenameDialog({
           id="name"
           label="Name"
           type="text"
-          variant="standard"
           value={inputValue}
           onChange={handleChange}
           fullWidth

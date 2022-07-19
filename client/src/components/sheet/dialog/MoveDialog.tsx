@@ -69,9 +69,9 @@ export default function MoveDialog({
           autoFocus
           margin="dense"
           id="path"
-          label="path"
+          label="/path"
+          placeholder={"/path"}
           type="text"
-          variant="standard"
           value={inputValue}
           onChange={handleChange}
           fullWidth
