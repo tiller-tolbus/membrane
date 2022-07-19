@@ -73,6 +73,7 @@ function Sheet() {
     error: false,
   });
   const [title, setTitle] = useState<string>("");
+  const [path, setPath] = useState<string>("");
   const [fetchedSheetData, setFetchedSheetData] = useState(null); //sheet data as we recieve it from the server, unedited
   //the data passed when navigating here by click an item in the home list
   let location = useLocation();
@@ -130,7 +131,6 @@ function Sheet() {
       setFetchedSheetData(sheetData);
 
       const data = structureJson(sheetData);
-      console.log("daa", data);
 
       const { columnCount, rowCount } = data.sheetMeta;
       //generate grid of x size
@@ -161,6 +161,7 @@ function Sheet() {
       setRows(newRowsFormulas);
       //set the sheet title here
       setTitle(data.title);
+      setPath(data.path);
       //have to do this, since you need to tell the grid u got a response and so on
       setConnected({ success: true, trying: false, error: false });
     } catch (e) {
@@ -187,6 +188,8 @@ function Sheet() {
       />
       <Header
         sheetName={title}
+        setTitle={setTitle}
+        sheetPath={path}
         synced={synced}
         connected={connected}
         syncSheet={syncSheet}

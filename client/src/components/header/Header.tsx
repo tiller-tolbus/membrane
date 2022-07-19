@@ -19,7 +19,7 @@ import {
 } from "../../helpers";
 import useStore from "../../store";
 import OutlinedInput from "@mui/material/OutlinedInput";
-
+import api from "../../api";
 const TitleInput = styled(OutlinedInput)(({ theme }) => ({
   ...theme.typography.h6,
 
@@ -45,12 +45,13 @@ const Input = styled("input")({
 
 export default function Header({
   children,
-
   connected,
   synced,
   syncSheet,
   sheetName,
   displayChildren,
+  sheetPath,
+  setTitle,
 }) {
   const fileInputRef = useRef(null);
   const newTitleSpanRef = useRef(null);
@@ -60,6 +61,7 @@ export default function Header({
   const setColumns = useStore((store) => store.setColumns);
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [inputDisabled, setInputDisabled] = useState(false);
   const [newTitle, setNewTitle] = useState(""); //todo: actual sheetname to begin with
   const [newTitleInputWidth, setNewTitleInputWidth] = useState(0);
 
@@ -76,6 +78,35 @@ export default function Header({
   useEffect(() => {
     setNewTitle(sheetName);
   }, [sheetName]);
+  const handleRename = async () => {
+    try {
+      //disable input so no more requests can be fired
+      setInputDisabled(true);
+      const result = await api.renameSheet(sheetPath, newTitle);
+      if (result) {
+        //request went through, we have a new title
+        //update the title in the Sheet component and remove input disabled and hide the input
+        setTitle(newTitle);
+        setEditingTitle(false);
+        setInputDisabled(false);
+      } else {
+        //something went wrong we want to tell the user(TODO) and keep the input on
+        setInputDisabled(false);
+      }
+    } catch (e) {
+      //something went wrong we want to tell the user(TODO) and keep the input on
+      setInputDisabled(false);
+      console.log("error handleRename => ", e);
+    }
+    return;
+  };
+  const keyHandler = (event) => {
+    if (event.keyCode === 13) {
+      //user entered, update title if any
+      if (!newTitle) return;
+      handleRename();
+    }
+  };
   if (!displayChildren) {
     return (
       <Stack
@@ -139,6 +170,9 @@ export default function Header({
               inputProps={{ "aria-label": "search the sheet list" }}
               value={newTitle}
               onChange={handleEditTitleChange}
+              onKeyUp={keyHandler}
+              disabled={inputDisabled}
+              autoFocus
             />
           ) : (
             <Typography
