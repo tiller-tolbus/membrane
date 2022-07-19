@@ -347,6 +347,41 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   //return the new udpate rows
   return newRows;
 };
+const formulateRows = (rows) => {
+  //remvoe all depandant formulas and formulaData
+  //and re-eval all of them again
+  let newRows = cloneDeep(rows).map((item, rowId) => {
+    return {
+      rowId: rowId === 0 ? "header" : rowId,
+      cells: item.cells.map((item) => {
+        let newCell = { ...item };
+        delete newCell.dependantFormulas;
+        //if we have formulaData extract the non-evaled text and make it the text here
+        if (newCell.formulaData) {
+          newCell.text = newCell.formulaData.nonEvaledText;
+          delete newCell.formulaData;
+        }
+        return newCell;
+      }),
+    };
+  });
+  //reset formulatedList
+  formulatedList = new Map();
+  //eval formulas again
+  let newRowsFormulas = newRows;
+  newRows.forEach((row, rowIndex) => {
+    row.cells.forEach((cell, cellIndex) => {
+      let potentiallyNewerRows = formulateFormula(
+        cell.text,
+        cellIndex,
+        rowIndex,
+        newRowsFormulas
+      );
+      if (potentiallyNewerRows) newRowsFormulas = potentiallyNewerRows;
+    });
+  });
+  return newRowsFormulas;
+};
 const updateCell = (changes, prevRows) => {
   //use the changes object to directly access the correct cell and update it using the new text!
   const { rowId, columnId, newCell } = changes[0];
@@ -610,7 +645,9 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
       arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
     }
   });
-  return { newColumns: finalColumns, newRows: newRows };
+
+  let updatedFormulasRows = formulateRows(newRows);
+  return { newColumns: finalColumns, newRows: updatedFormulasRows };
 };
 const addRow = (selectedRowId, direction, rows) => {
   //++cellcount
@@ -622,6 +659,7 @@ const addRow = (selectedRowId, direction, rows) => {
    **/
   //make a copy of current rows
   let newRows = cloneDeep(rows);
+  formulateRows(rows);
   //cell index is offset by direction from columnId
   let rowIndex = direction === "above" ? selectedRowId : selectedRowId + 1;
   //split into tow arrays, before rowIndex and afterRowIndex
@@ -658,7 +696,8 @@ const addRow = (selectedRowId, direction, rows) => {
   });
   //merge the two arrays
   let finalRows = [...newRowsBefore, ...newRowsAfter];
-  return { newRows: finalRows };
+  let updatedFormulasRows = formulateRows(finalRows);
+  return { newRows: updatedFormulasRows };
 };
 const deleteColumn = (selectedColumnId, columns, rows) => {
   /**
@@ -706,7 +745,9 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
       return { ...item, cells: newCells };
     }
   });
-  return { newColumns: finalColumns, newRows: finalRows };
+
+  let updatedFormulasRows = formulateRows(finalRows);
+  return { newColumns: finalColumns, newRows: updatedFormulasRows };
 };
 const deleteRow = (selectedRowId, rows) => {
   /**
@@ -738,7 +779,9 @@ const deleteRow = (selectedRowId, rows) => {
   });
   //merge the two arrays
   let finalRows = [...newRowsBefore, ...newRowsAfter];
-  return { newRows: finalRows };
+  let updatedFormulasRows = formulateRows(finalRows);
+
+  return { newRows: updatedFormulasRows };
 };
 /* JSON HELPERS */
 const jsonToData = (json) => {
