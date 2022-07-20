@@ -26,7 +26,7 @@ export default function ShareDialog({ open, onConfirm, onClose }) {
       onClick={(event) => event.stopPropagation()}
       maxWidth={"sm"}
     >
-      <DialogTitle>Share with one of ur friends</DialogTitle>
+      <DialogTitle>Share with one of your friends</DialogTitle>
       <DialogContent>
         <DialogContentText>enter their @p</DialogContentText>
         <TextField

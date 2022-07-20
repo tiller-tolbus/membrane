@@ -52,6 +52,9 @@ export default function MoveDialog({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
+  React.useEffect(() => {
+    setInputValue(path);
+  }, [path]);
   return (
     <Dialog
       open={open}
@@ -64,9 +67,9 @@ export default function MoveDialog({
       <DialogContent>
         <DialogContentText>Current path is {path}</DialogContentText>
         <TextField
+          autoFocus
           error={pathError}
           helperText={pathErrorMessage}
-          autoFocus
           margin="dense"
           id="path"
           label="/path"

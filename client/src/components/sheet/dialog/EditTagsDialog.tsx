@@ -57,7 +57,9 @@ export default function EditTagsDialog({
       handleAdd();
     }
   };
-
+  React.useEffect(() => {
+    setChipData(tags);
+  }, [tags]);
   return (
     <Dialog
       open={open}

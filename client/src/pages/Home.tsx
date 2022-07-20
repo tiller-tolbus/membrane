@@ -347,7 +347,6 @@ function AddDialog({ open, onConfirm, onClose, pathList, loading }) {
         <TextField
           error={pathError}
           helperText={pathErrorMessage}
-          autoFocus
           margin="dense"
           id="name"
           label="/path"

@@ -25,6 +25,9 @@ export default function RenameDialog({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
+  React.useEffect(() => {
+    setInputValue(title);
+  }, [title]);
   return (
     <Dialog
       open={open}
