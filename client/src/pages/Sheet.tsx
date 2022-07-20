@@ -7,20 +7,19 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
 import AlertTitle from "@mui/material/AlertTitle";
+import cloneDeep from "lodash/cloneDeep";
 
 import useStore from "../store";
 import {
   getColumns,
   getRows,
-  jsonToData,
   formulateFormula,
   inCell,
   structureJson,
 } from "../helpers";
 import verbiage from "../verbiage";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 function CircularIndeterminate() {
   return (
@@ -60,8 +59,6 @@ function FailedToFetchData(getData) {
 }
 
 function Sheet() {
-  /*URBIT STUFF HERE */
-  // By default, we aren't connected. We need to connect
   const [connected, setConnected] = useState({
     trying: false,
     success: false,
@@ -75,12 +72,11 @@ function Sheet() {
   const [title, setTitle] = useState<string>("");
   const [path, setPath] = useState<string>("");
   const [fetchedSheetData, setFetchedSheetData] = useState(null); //sheet data as we recieve it from the server, unedited
-  //the data passed when navigating here by click an item in the home list
+
   let location = useLocation();
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
 
-  //
   const [snackieOpen, setSnackieOpen] = React.useState(false);
 
   const handleSanckieClose = (
@@ -96,9 +92,7 @@ function Sheet() {
 
   const syncSheet = async () => {
     /*
-      TODO: update comments here
-      PUT the new sheets to urbit
-      manage the synced object depending on request result and the snackbar (show/hide) 
+      PUT the shee to urbit (saving changes)
     */
 
     try {
@@ -117,11 +111,9 @@ function Sheet() {
     }
   };
   const getData = async () => {
-    /* use the sample json spec to generate something that works for us here */
-    //the data passed when navigating here
-
-    //path
-    //get sheetdata based on the passed path
+    /**
+     * Fetch sheetdata based on the passed path
+     */
     setConnected({ success: false, trying: true, error: false });
     //TODO: can we do better? probably, just use the whole url up to membrane/sheet to split by
     const path = location.pathname.split("/apps/membrane/sheet")[1];
@@ -168,7 +160,6 @@ function Sheet() {
       setConnected({ success: false, trying: false, error: true });
     }
   };
-
   useEffect(() => {
     getData();
     //hide body scrollbar for the sheet
@@ -188,7 +179,14 @@ function Sheet() {
       />
       <Header
         sheetName={title}
-        setTitle={setTitle}
+        setTitle={(newTitle) => {
+          //update title in state and update it in the fetchedSheetData(we use the meta obj here to sync later)
+          const newFetchedSheetData = cloneDeep(fetchedSheetData);
+          newFetchedSheetData.meta.title = newTitle;
+
+          setFetchedSheetData(newFetchedSheetData);
+          setTitle(newTitle);
+        }}
         sheetPath={path}
         synced={synced}
         connected={connected}
