@@ -20,15 +20,12 @@ import {
   deleteColumn,
   deleteRow,
   verifyCellCount,
- 
 } from "../../helpers";
 import GridOptions from "./GridOptions";
 import useStore from "../../store";
 import { MenuOption, SelectionMode } from "@silevis/reactgrid";
 import { ExtendedTextCell } from "./ExtendedTextCell";
 import CellCapDialog from "./CellCapDialog";
-
-
 
 function Grid() {
   const rows = useStore((store) => store.rows);
@@ -47,9 +44,14 @@ function Grid() {
   };
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
+    let newRows = rows;
+    //TODO: requires more testing
+    //perform update x times
+    changes.forEach((change) => {
+      newRows = updateCell(change, newRows);
+    });
     //setting rows directly and updating the rows in store
-    //todo: little issues arise from not updating rows each time at the price of performence
-    setRows(updateCell(changes, rows));
+    if (newRows && newRows.length > 0) setRows(newRows);
   };
 
   const handleContextMenu = (
@@ -190,7 +192,6 @@ function Grid() {
    */
   return (
     <div>
-
       <CellCapDialog />
       <div className={"grid-container"}>
         <ReactGrid
@@ -202,8 +203,11 @@ function Grid() {
           onColumnResized={handleColumnResize}
           enableRowSelection
           enableColumnSelection
+          enableRangeSelection
+          enableFillHandle
           onContextMenu={handleContextMenu}
           onFocusLocationChanged={(cellLocation) => {
+            console.log("cellLocation", cellLocation);
             const { columnId, rowId } = cellLocation;
             const cellData = rows[rowId]?.cells[columnId];
             if (cellData) {

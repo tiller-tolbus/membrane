@@ -384,7 +384,7 @@ const formulateRows = (rows) => {
 };
 const updateCell = (changes, prevRows) => {
   //use the changes object to directly access the correct cell and update it using the new text!
-  const { rowId, columnId, newCell } = changes[0];
+  const { rowId, columnId, newCell } = changes;
   let newRows = cloneDeep(prevRows);
   newRows[rowId].cells[columnId].text = newCell.text;
 
