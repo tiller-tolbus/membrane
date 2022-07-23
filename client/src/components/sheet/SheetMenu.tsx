@@ -49,9 +49,14 @@ export default function SheetMenu({
     success: false,
     error: false,
   });
-  const onShare = (id: number, user: string) => {
-    console.log("id", id);
-    console.log("sharing is caring => ", user);
+  const onShare = async (ship: string) => {
+    try {
+      const result = await api.shareSheet(ship, path);
+      //TODO: add status tracking (trying/succ...)
+      console.log("onShare result => ", result);
+    } catch (e) {
+      console.log("onShare error => ", e);
+    }
     return;
   };
   const onDelete = async (path: string) => {
@@ -222,8 +227,8 @@ export default function SheetMenu({
   const onShareDialogOpen = () => {
     setShareDialogOpen(true);
   };
-  const onShareDialogUpdate = (user: string) => {
-    onShare(sheetId, user);
+  const onShareDialogUpdate = (ship: string) => {
+    onShare(ship);
     onShareDialogClose();
   };
   const [editTagsDialogOpen, setEditTagsDialogOpen] =

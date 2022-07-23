@@ -9,10 +9,12 @@ const api = {
     Connect to urbit and return the urbit instance
     returns urbit instance
   */
+    //ropnys-batwyd-nossyt-mapwet => nec
+    //lidlut-tabwed-pillex-ridrup => zod
     const urb = isDev()
       ? new Urbit("http://localhost:80", "lidlut-tabwed-pillex-ridrup")
       : new Urbit("");
-    urb.ship = isDev() ? "zod" : window.ship; //this shoud be winodw.ship in release
+    urb.ship = isDev() ? "zod" : window.ship;
     // Just log errors if we get any
     urb.onError = (message) => console.log("onError: ", message);
     urb.onOpen = () => console.log("urbit onOpen");
@@ -87,6 +89,19 @@ const api = {
       mark: "membrane-action",
       json: { retag: [path, tags] },
     });
+  },
+  shareSheet: async (ship, pathToSheet) => {
+    //send an inviate to a ship to recieve your sheet
+    console.log("ship", ship);
+    console.log("pathToSheet", pathToSheet);
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { "send-invite": [ship, pathToSheet] },
+    });
+  },
+  getInvites: async () => {
+    return api.createApi().scry({ app: "membrane", path: "/comms" });
   },
 };
 export default api;

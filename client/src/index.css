@@ -40,6 +40,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/*TODO: remove margin left from main here and add to something more Grid.tsx specific*/
 main {
   margin-left: 1em;
   overflow: hidden;

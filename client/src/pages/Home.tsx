@@ -17,6 +17,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import FilterListIcon from "@mui/icons-material/FilterList";
+
 import { useNavigate } from "react-router-dom";
 import SheetItem from "../components/sheet"; //todo: change to import from /componnents
 import { SearchBar, Alert } from "../components";
@@ -30,6 +33,7 @@ import AlertTitle from "@mui/material/AlertTitle";
 import cloneDeep from "lodash/cloneDeep";
 import DialogContentText from "@mui/material/DialogContentText";
 import Link from "@mui/material/Link";
+import { StyledRoundButton } from "../components";
 
 function CircularIndeterminate() {
   return (
@@ -224,6 +228,7 @@ export default function Home() {
           . Do not store any important data here. Use for testing purposes only.
         </Typography>
       </Box>
+
       <Container sx={{ paddingBottom: 20 }} fixed>
         <Box
           sx={{
@@ -234,12 +239,35 @@ export default function Home() {
             paddingTop: 4,
           }}
         >
-          <SearchBar
-            onSearch={(results) => {
-              setFilteredData(results);
-            }}
-            sheetList={sheetList}
-          />
+          <Stack
+            flexDirection="row"
+            justifyContent="center"
+            alignItems={"center"}
+            sx={{ marginBottom: 5 }}
+          >
+            <Box sx={{ position: "absolute", left: 0 }}>
+              <StyledRoundButton
+                type="submit"
+                sx={{ p: "10px" }}
+                aria-label="sent and recieved invites"
+                onClick={() => {
+                  navigate("/apps/membrane/invites");
+                }}
+              >
+                <MailOutlineIcon />
+              </StyledRoundButton>
+            </Box>
+            <StyledRoundButton sx={{ marginRight: 2 }} aria-label="search">
+              <FilterListIcon />
+            </StyledRoundButton>
+            <SearchBar
+              onSearch={(results) => {
+                setFilteredData(results);
+              }}
+              sheetList={sheetList}
+            />
+          </Stack>
+
           <Grid container>
             <Grid item xs={8}>
               <Button

@@ -37,7 +37,7 @@ export default function ShareDialog({ open, onConfirm, onClose }) {
       console.log("e", e);
     }
 
-    // onConfirm(inputValue);
+    onConfirm(inputValue);
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);

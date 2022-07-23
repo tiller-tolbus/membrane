@@ -1,10 +1,6 @@
 import * as React from "react";
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
-import IconButton from "@mui/material/IconButton";
-import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import api from "../../api";
 
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
@@ -22,13 +18,6 @@ const Item = styled(Paper)(({ theme }) => ({
   height: 30,
   borderRadius: 10,
   width: 360,
-}));
-const StyledRoundButton = styled(IconButton)(({ theme }) => ({
-  backgroundColor: "#E1E1E1",
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  marginLeft: theme.spacing(1),
 }));
 
 export default function SearchBar({ onSearch = null, sheetList = [] }) {
@@ -50,7 +39,6 @@ export default function SearchBar({ onSearch = null, sheetList = [] }) {
       flexDirection="row"
       alignItems="center"
       justifyContent={"center"}
-      sx={{ marginBottom: 2 }}
     >
       <Item
         variant="outlined"
@@ -65,17 +53,6 @@ export default function SearchBar({ onSearch = null, sheetList = [] }) {
           onChange={handleChange}
         />
       </Item>
-      <StyledRoundButton
-        onClick={() => {}}
-        type="submit"
-        sx={{ p: "10px" }}
-        aria-label="search"
-      >
-        <SearchIcon />
-      </StyledRoundButton>
-      <StyledRoundButton type="submit" sx={{ p: "10px" }} aria-label="search">
-        <FilterListIcon />
-      </StyledRoundButton>
     </Stack>
   );
 }

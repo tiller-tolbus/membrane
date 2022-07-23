@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { Sheet, Home, NotHome } from "./pages";
+import { Sheet, Home, Invites } from "./pages";
 import { createTheme, ThemeProvider, styled } from "@mui/material/styles";
 import { purple, green } from "@mui/material/colors";
 
@@ -37,8 +37,7 @@ function App() {
       <Routes>
         <Route path="/apps/membrane" element={<Home />} />
         <Route path="/apps/membrane/sheet/*" element={<Sheet />} />
-
-        <Route path="/apps/membrane/not-home" element={<NotHome />} />
+        <Route path="/apps/membrane/invites" element={<Invites />} />
       </Routes>
     </Router>
   );
