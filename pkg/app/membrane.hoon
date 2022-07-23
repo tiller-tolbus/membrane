@@ -25,9 +25,6 @@
 =|  state-0
 =*  state  -
 ::  temporary filesystem (pre-clay)
-=*  files  files.state
-=*  inbox  inbox.state
-=*  outbox  outbox.state
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
@@ -82,6 +79,24 @@
         =/  opax=path  +<.act
         =/  npax=path  +>.act
         `this(files (move-sheet files opax npax))
+      %send-invite
+        =/  who=@p  +<.act
+        =/  pax=path  +>.act
+        =/  what=sheet  (~(got by files) pax)
+        =/  id=@uw  (create-id eny.bowl)
+        =/  appl=appeal  [id title.meta.what pax]
+        =/  =dock  [who %membrane]
+        =/  =cage  [%membrane-message !>(`message`[%invite appl])]
+        :-  ~[(~(poke pass:io /invite/(scot %uw id)) dock cage)]
+        this(outbox (~(put by outbox) id (process-appeal-out appl who now.bowl)))
+      %send-rsvp
+        =/  id=@uw  +.act
+        =/  inv=invitation  (~(got by inbox) id)
+        =/  who=@p  who.inv 
+        =/  =dock  [who %membrane]
+        =/  =cage  [%membrane-message !>(`message`[%rsvp id])]
+        :-  ~[(~(poke pass:io /rsvp/(scot %uw id)) dock cage)]
+        this(inbox (~(put by inbox) id inv(why %accepted)))
     ==
     %membrane-message
     ::  handle sharing events across the network
@@ -110,9 +125,9 @@
           (on-poke:def mark vase)
         =/  what=sheet  u.uwhat
         =/  =dock  [who.inv %membrane]
-        =/  =cage  [%membrane-message !>([%package what])]
-        :-  ~[(~(poke pass:io /membrane/rsvp) dock cage)]
-          this(outbox (~(jab by outbox) id.inv (mark-status %sent)))
+        =/  =cage  [%membrane-message !>(`message`[%package id what])]
+        :-  ~[(~(poke pass:io /package/(scot %uw id)) dock cage)]
+          this(outbox (~(jab by outbox) id (mark-status %sent)))
       ::  handle an incoming sheet
       %package
         =/  id=@uw  +<.msg
@@ -123,7 +138,7 @@
           ::  insert proper error message here
           (on-poke:def mark vase)
         =/  inv=invitation  u.uinv
-        ?>  =(why.inv %granted)
+        ?>  =(why.inv %accepted)
         ::  save sheet and mark invitation as received
         :-  ~
         %=  this
@@ -135,7 +150,27 @@
 ::  We are not accepting subscriptions at this time.
 ::
 ++  on-watch  on-watch:def
-++  on-agent  on-agent:def
+++  on-agent
+  |=  [=wire =sign:agent:gall]
+  ^-  (quip card _this)
+  ::  wires should be two atoms, action and id
+  ?>  ?=([@ @ ~] wire)
+  ?+  -.sign  (on-agent:def wire sign)
+    %poke-ack
+      ?~  p.sign
+        =/  id=@uw  (slav %uw +<.wire)
+        ::  synchronize status across ships (read receipts basically)
+        ?+  -.wire  (on-agent:def wire sign)
+          %invite
+            `this(outbox (~(jab by outbox) id (mark-status %waiting)))
+          %rsvp
+            `this(inbox (~(jab by inbox) id (mark-status %accepted)))
+          %package
+            `this(outbox (~(jab by outbox) id (mark-status %received)))
+          ==
+      ::  better error handling may eventually be necessary here
+      (on-agent:def wire sign)
+    ==
 ++  on-leave  on-leave:def
 ::
 ++  on-peek
@@ -162,6 +197,10 @@
         (tree-to-metatree files keys)
       :^  ~  ~  %membrane-metatree
         !>(rsv)
+    %comms
+      =/  comms=[^inbox ^outbox]  [inbox outbox]
+      :^  ~  ~  %membrane-comms
+        !>(comms)
     ==
 ::  We will not be accepting calls from Arvo at this time
 ::

@@ -5,10 +5,15 @@
 +$  appeal  [id=@uw what=@t where=path]
 ::  an invitation is stored on the user's ship
 ::  in response to an appeal
-+$  invitation  [id=@uw who=@p what=@t when=@da where=path why=status]
++$  invitation  [who=@p what=@t when=@da where=path why=status]
+::  a status indicates one of five things
+::  invited: appeal has been sent but not acknowledged
+::  waiting: appeal has been sent and acknowledged
+::  accepted: appeal has been approved and rsvp sent; awaiting package
+::  sent: package has been sent but not acknowledged
+::  received: package has been sent and acknowledged
 +$  status  ?(%invited %waiting %accepted %sent %received)
-::  an inbox stores invitations and maps them to
-::  whether or not they have been accepted
+::  an inbox maps ids to invitations 
 +$  inbox  (map @uw invitation)
 ::  an outbox is the same as an inbox but for outbound invitations
 +$  outbox  inbox

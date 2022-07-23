@@ -104,7 +104,11 @@
   ::  turn an appeal into an invitation
   |=  [=appeal who=@p when=@da]
   ^-  invitation
-  [id.appeal who what.appeal when where.appeal %waiting]
+  [who what.appeal when where.appeal %waiting]
+++  process-appeal-out
+  |=  [=appeal who=@p when=@da]
+  ^-  invitation
+  [who what.appeal when where.appeal %invited]
 ++  verify-access
   ::  check to see if user has access to sheet
   |=  [who=@p what=sheet]
@@ -123,4 +127,8 @@
   |=  inv=invitation
   ^-  invitation
   inv(why stat)
+++  create-id
+  |=  eny=@uvJ
+  ^-  @uw
+  (cut 0 [0 32] eny)
 --
