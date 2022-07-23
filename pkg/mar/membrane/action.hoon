@@ -18,7 +18,7 @@
       [%replace (at ~[pa dejs-sheet])]
       [%create (at ~[pa so])]
       [%rename (at ~[pa so])]
-      [%retag (at ~[pa (ar so)])]
+      [%retag (at ~[pa (as so)])]
       [%delete pa]
       [%move (at ~[pa pa])]
       [%send-invite (at ~[(se %p) pa])]
