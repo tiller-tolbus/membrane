@@ -21,6 +21,8 @@
       [%retag (at ~[pa (as so)])]
       [%delete pa]
       [%move (at ~[pa pa])]
+      [%send-invite (at ~[(se %p) pa])]
+      [%send-rsvp (se %uw)]
     ==
   --
 ++  grad  %noun  

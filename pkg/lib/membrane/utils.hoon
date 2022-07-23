@@ -1,5 +1,10 @@
 /-  *membrane-sheet
+/-  *membrane-share
 |%
+::  editing utilities
+::  mostly for temp filesystem
+::  and therefore soon to be irrelevant
+::
 ++  create-sheet
   |=  [pax=path tit=@t =bowl:gall]
   ^-  sheet
@@ -58,18 +63,21 @@
   ^-  sheet
   trgt(title.meta tit)
 ++  rename-gate
+  ::  rename sheet, as a gate (for jab)
   |=  tit=@t
   ^-  $-(sheet sheet)
   |=  trgt=sheet
   ^-  sheet
   trgt(title.meta tit)
 ++  retag-gate
+  ::  retag sheet, as a gate
   |=  tags=(set tag)
   ^-  $-(sheet sheet)
   |=  trgt=sheet
   ^-  sheet
   trgt(tags.meta tags)
 ++  move-sheet
+  ::  remove a sheet and add with a different path
   |=  [max=(map path sheet) opax=path npax=path]
   ^-  (map path sheet)
   =/  sht=sheet  (~(got by max) opax)
@@ -78,6 +86,7 @@
   :-  npax
   sht(path.meta npax)
 ++  tree-to-metatree
+  ::  get just metadata for every path in tree
   |=  [max=(map path sheet) tree=(list path)]
   ^-  (map path sheet-meta)
   %-  molt
@@ -89,6 +98,37 @@
     =<  meta
     ^-  sheet
     (~(got by max) pax)
-
+::  sharing utilities
+::
+++  process-appeal
+  ::  turn an appeal into an invitation
+  |=  [=appeal who=@p when=@da]
+  ^-  invitation
+  [who what.appeal when where.appeal %waiting]
+++  process-appeal-out
+  |=  [=appeal who=@p when=@da]
+  ^-  invitation
+  [who what.appeal when where.appeal %invited]
+++  verify-access
+  ::  check to see if user has access to sheet
+  |=  [who=@p what=sheet]
+  ^-  ?
+  =/  acc=(unit access)  (~(get by whitelist.meta.what) who)
+  ?~  acc
+    %.n
+  ?|
+    .=  u.acc  %read
+    .=  u.acc  %write
+  ==
+++  mark-status
+  ::  mark an invitation as %waiting, %granted, %sent, or %received
+  |=  stat=status
+  ^-  $-(invitation invitation)
+  |=  inv=invitation
+  ^-  invitation
+  inv(why stat)
+++  create-id
+  |=  eny=@uvJ
+  ^-  @uw
+  (cut 0 [0 32] eny)
 --
-
