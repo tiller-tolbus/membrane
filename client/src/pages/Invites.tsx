@@ -19,6 +19,15 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Divider from "@mui/material/Divider";
+
+import { formatDate } from "../helpers";
 
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
@@ -26,11 +35,10 @@ const Item = styled(Paper)(({ theme }) => ({
   }),
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   color: theme.palette.text.primary,
-  "&:hover": { background: blue[100], cursor: "pointer" },
-  margin: theme.spacing(1),
   borderRadius: 10, //todo: start building our theme
+  marginBottom: theme.spacing(2),
 }));
 const shipName = (ship) => {
   return (
@@ -48,50 +56,156 @@ const shipName = (ship) => {
     </span>
   );
 };
+
+function InviteMenu() {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <IconButton
+        aria-label="more"
+        id="long-button"
+        aria-controls={open ? "invite-menu" : undefined}
+        aria-expanded={open ? "true" : undefined}
+        aria-haspopup="true"
+        onClick={handleClick}
+      >
+        <MoreVertIcon />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        id="invite-menu"
+        open={open}
+        onClose={handleClose}
+        onClick={handleClose}
+        PaperProps={{
+          elevation: 0,
+          sx: {
+            overflow: "visible",
+            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+            mt: 1.5,
+            "& .MuiAvatar-root": {
+              width: 32,
+              height: 32,
+              ml: -0.5,
+              mr: 1,
+            },
+            "&:before": {
+              content: '""',
+              display: "block",
+              position: "absolute",
+              top: 0,
+              right: 14,
+              width: 10,
+              height: 10,
+              bgcolor: "background.paper",
+              transform: "translateY(-50%) rotate(45deg)",
+              zIndex: 0,
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <MenuItem onClick={() => console.log("ola")}>
+          <ListItemIcon>
+            {/* <PeopleAltOutlinedIcon fontSize="medium" /> */}
+          </ListItemIcon>
+          Share
+        </MenuItem>
+        <MenuItem onClick={() => console.log("ola")}>
+          <ListItemIcon>
+            {/* <DriveFileRenameOutlineIcon fontSize="medium" />*/}
+          </ListItemIcon>
+          Rename
+        </MenuItem>
+      </Menu>
+    </div>
+  );
+}
 function InviteActionDialog({
   open,
   handleClose,
-  onInviteReject,
   onInviteAccept,
+  selectedInvite,
 }) {
+  if (!selectedInvite) return null;
   return (
     <Dialog fullWidth maxWidth={"sm"} open={open} onClose={handleClose}>
-      <DialogTitle>Invite Action</DialogTitle>
+      <DialogTitle>Path conflict</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Accept or decline "Membrane business" from{" "}
-          {shipName("~randes-losrep")}
+          path {selectedInvite.path} already exists on your ship, if you
+          accept this invite you'll override your version
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onInviteReject}>Decline</Button>
-        <Button onClick={onInviteAccept}>Accept</Button>
+        <Button onClick={handleClose}>cancel</Button>
+        <Button onClick={() => onInviteAccept(selectedInvite.id, false)}>
+          confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );
 }
-function InviteItem({ ship, title, path, direction, onClick, id }) {
+function InviteItem({
+  ship,
+  title,
+  path,
+  direction,
+  date,
+  status,
+  id,
+  onInviteAccept = null,
+  onInviteReject = null,
+  onInviteCancel = null,
+}) {
   return (
-    <Item variant="outlined" onClick={() => onClick(id)}>
-      {direction === "incoming" ? (
-        <Typography
-          variant="body1"
-          textAlign="center"
-          gutterBottom
-          component="div"
-        >
-          {shipName(ship)} has sent you sheet "{title}" at "{path}"
-        </Typography>
-      ) : (
-        <Typography
-          variant="body1"
-          textAlign="center"
-          gutterBottom
-          component="div"
-        >
-          you sent {shipName(ship)} sheet "{title}" at "{path}"
-        </Typography>
-      )}
+    <Item variant="outlined">
+      <Grid container alignItems="center">
+        <Grid item xs={2}>
+          {shipName(ship)}
+        </Grid>
+        <Grid item xs={2}>
+          {title}
+        </Grid>
+        <Grid item xs={2}>
+          {path}
+        </Grid>
+        <Grid item xs={2}>
+          {formatDate(date)}
+        </Grid>
+        <Grid item xs={2}>
+          {status}
+        </Grid>
+
+        <Grid item xs={2}>
+          {direction === "incoming" ? (
+            <>
+              <Button
+                color="success"
+                onClick={() => onInviteAccept(id, true, path)}
+              >
+                accept
+              </Button>
+              <Button color="error" onClick={() => onInviteReject(id)}>
+                refuse
+              </Button>
+            </>
+          ) : (
+            <Button color="error" onClick={() => onInviteCancel(id)}>
+              cancel
+            </Button>
+          )}
+        </Grid>
+      </Grid>
     </Item>
   );
 }
@@ -103,14 +217,29 @@ function LabTabs({ incoming, outgoing }) {
     setDialogOpen(false);
     setSelectedInvite(null);
   };
-  const onInviteAccept = async () => {
+  const onInviteAccept = async (id, validatePath: true, path) => {
     try {
-      const result = await api.acceptInvite(selectedInvite);
+      if (validatePath) {
+        //check if this user already has a sheet at the target path,
+        const pathExists = await api.getAllPaths(path);
+        if (pathExists && pathExists.length > 0) {
+          //path already exists does display a dialog for the user to make a decision
+
+          throw "path already exists";
+        }
+        console.log("pathExists", pathExists);
+      }
+      const result = await api.acceptInvite(id);
       console.log("onInviteAccept result => ", result);
+      handleDialogClose();
     } catch (e) {
       console.log("onInviteAccept error => ", e);
+      if (e === "path already exists") {
+        console.log("here");
+        setDialogOpen(true);
+        setSelectedInvite({ id, path });
+      }
     }
-    handleDialogClose();
   };
   const onInviteReject = () => {
     handleDialogClose();
@@ -121,10 +250,38 @@ function LabTabs({ incoming, outgoing }) {
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
-  console.log("selectedInvite",selectedInvite)
+
+  const invitesHeaderGrid = () => {
+    return (
+      <>
+        <Grid container alignItems="center">
+          <Grid item xs={2}>
+            ship
+          </Grid>
+          <Grid item xs={2}>
+            sheet name
+          </Grid>
+          <Grid item xs={2}>
+            path
+          </Grid>
+          <Grid item xs={2}>
+            date
+          </Grid>
+          <Grid item xs={2}>
+            status
+          </Grid>
+
+          <Grid item xs={2}>
+            actions
+          </Grid>
+        </Grid>
+        <Divider light sx={{ marginBottom: 1, marginTop: 1 }} />
+      </>
+    );
+  };
 
   return (
-    <Box sx={{ width: "100%", typography: "body1" }}>
+    <Box>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
@@ -133,39 +290,40 @@ function LabTabs({ incoming, outgoing }) {
           </TabList>
         </Box>
         <TabPanel value="1">
+          {invitesHeaderGrid()}
           {incoming.map((item, index) => {
-            const { what, who, where } = item[1];
+            const { what, who, where, when, why } = item[1];
             return (
               <InviteItem
                 key={index}
                 title={what}
                 ship={who}
                 path={where}
+                date={when}
+                status={why}
                 id={item[0]}
                 direction={"incoming"}
-                onClick={(id) => {
-                  setSelectedInvite(id);
-                  setDialogOpen(true);
-                }}
+                onInviteAccept={onInviteAccept}
+                onInviteReject={onInviteReject}
               />
             );
           })}
         </TabPanel>
         <TabPanel value="2">
+          {invitesHeaderGrid()}
           {outgoing.map((item, index) => {
-            const { what, who, where } = item[1];
+            const { what, who, where, when, why } = item[1];
             return (
               <InviteItem
                 key={index}
                 title={what}
                 ship={who}
                 path={where}
+                date={when}
+                status={why}
                 id={item[0]}
                 direction={"outgoing"}
-                onClick={(id) => {
-                  setSelectedInvite(id);
-                  setDialogOpen(true);
-                }}
+                onInviteCancel={onInviteCancel}
               />
             );
           })}
@@ -175,7 +333,7 @@ function LabTabs({ incoming, outgoing }) {
         handleClose={handleDialogClose}
         open={dialogOpen}
         onInviteAccept={onInviteAccept}
-        onInviteReject={onInviteReject}
+        selectedInvite={selectedInvite}
       />
     </Box>
   );

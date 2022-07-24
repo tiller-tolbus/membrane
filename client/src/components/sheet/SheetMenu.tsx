@@ -259,7 +259,7 @@ export default function SheetMenu({
         onClick={handleClick}
         size="medium"
         sx={{ ml: 2 }}
-        aria-controls={open ? "account-menu" : undefined}
+        aria-controls={open ? "sheet-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
       >

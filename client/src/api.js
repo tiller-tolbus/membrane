@@ -12,9 +12,9 @@ const api = {
     //ropnys-batwyd-nossyt-mapwet => nec
     //lidlut-tabwed-pillex-ridrup => zod
     const urb = isDev()
-      ? new Urbit("http://localhost:80", "lidlut-tabwed-pillex-ridrup")
+      ? new Urbit("http://localhost:80", "ropnys-batwyd-nossyt-mapwet")
       : new Urbit("");
-    urb.ship = isDev() ? "zod" : window.ship;
+    urb.ship = isDev() ? "nec" : window.ship;
     // Just log errors if we get any
     urb.onError = (message) => console.log("onError: ", message);
     urb.onOpen = () => console.log("urbit onOpen");
@@ -42,8 +42,8 @@ const api = {
   getSheetByPath: async (path) => {
     return api.createApi().scry({ app: "membrane", path: "/retrieve" + path });
   },
-  getAllPaths: async () => {
-    return api.createApi().scry({ app: "membrane", path: "/tree" });
+  getAllPaths: async (path = "") => {
+    return api.createApi().scry({ app: "membrane", path: "/tree" + path });
   },
   getAllSheetMeta: async () => {
     return api.createApi().scry({ app: "membrane", path: "/metatree" });
