@@ -103,5 +103,12 @@ const api = {
   getInvites: async () => {
     return api.createApi().scry({ app: "membrane", path: "/comms" });
   },
+  acceptInvite: async (inviteId) => {
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { "send-rsvp": inviteId },
+    });
+  },
 };
 export default api;

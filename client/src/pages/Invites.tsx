@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from "react";
 import api from "../api";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
-import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 import { Container } from "@mui/material";
 import Tab from "@mui/material/Tab";
@@ -14,6 +13,12 @@ import { GoBackButton } from "../components";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import { blue } from "@mui/material/colors";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContentText from "@mui/material/DialogContentText";
+import Button from "@mui/material/Button";
 
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
@@ -27,25 +32,47 @@ const Item = styled(Paper)(({ theme }) => ({
   margin: theme.spacing(1),
   borderRadius: 10, //todo: start building our theme
 }));
-function InviteItem({ ship, title, path, direction }) {
-  const shipName = (ship) => {
-    return (
-      <span
-        style={{
-          color: "#1976d2",
-          backgroundColor: blue[50],
-          padding: 3,
-          paddingLeft: 5,
-          paddingRight: 5,
-          borderRadius: 5,
-        }}
-      >
-        {ship}
-      </span>
-    );
-  };
+const shipName = (ship) => {
   return (
-    <Item variant="outlined">
+    <span
+      style={{
+        color: "#1976d2",
+        backgroundColor: blue[50],
+        padding: 3,
+        paddingLeft: 5,
+        paddingRight: 5,
+        borderRadius: 5,
+      }}
+    >
+      {ship}
+    </span>
+  );
+};
+function InviteActionDialog({
+  open,
+  handleClose,
+  onInviteReject,
+  onInviteAccept,
+}) {
+  return (
+    <Dialog fullWidth maxWidth={"sm"} open={open} onClose={handleClose}>
+      <DialogTitle>Invite Action</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Accept or decline "Membrane business" from{" "}
+          {shipName("~randes-losrep")}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onInviteReject}>Decline</Button>
+        <Button onClick={onInviteAccept}>Accept</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+function InviteItem({ ship, title, path, direction, onClick, id }) {
+  return (
+    <Item variant="outlined" onClick={() => onClick(id)}>
       {direction === "incoming" ? (
         <Typography
           variant="body1"
@@ -70,10 +97,31 @@ function InviteItem({ ship, title, path, direction }) {
 }
 function LabTabs({ incoming, outgoing }) {
   const [value, setValue] = React.useState("1");
-
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [selectedInvite, setSelectedInvite] = React.useState(null);
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedInvite(null);
+  };
+  const onInviteAccept = async () => {
+    try {
+      const result = await api.acceptInvite(selectedInvite);
+      console.log("onInviteAccept result => ", result);
+    } catch (e) {
+      console.log("onInviteAccept error => ", e);
+    }
+    handleDialogClose();
+  };
+  const onInviteReject = () => {
+    handleDialogClose();
+  };
+  const onInviteCancel = () => {
+    handleDialogClose();
+  };
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
+  console.log("selectedInvite",selectedInvite)
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
@@ -87,14 +135,18 @@ function LabTabs({ incoming, outgoing }) {
         <TabPanel value="1">
           {incoming.map((item, index) => {
             const { what, who, where } = item[1];
-            console.log("item[1]", item[1]);
             return (
               <InviteItem
                 key={index}
                 title={what}
                 ship={who}
                 path={where}
+                id={item[0]}
                 direction={"incoming"}
+                onClick={(id) => {
+                  setSelectedInvite(id);
+                  setDialogOpen(true);
+                }}
               />
             );
           })}
@@ -102,20 +154,29 @@ function LabTabs({ incoming, outgoing }) {
         <TabPanel value="2">
           {outgoing.map((item, index) => {
             const { what, who, where } = item[1];
-            console.log("item[1]", item[1]);
-
             return (
               <InviteItem
                 key={index}
                 title={what}
                 ship={who}
                 path={where}
+                id={item[0]}
                 direction={"outgoing"}
+                onClick={(id) => {
+                  setSelectedInvite(id);
+                  setDialogOpen(true);
+                }}
               />
             );
           })}
         </TabPanel>
       </TabContext>
+      <InviteActionDialog
+        handleClose={handleDialogClose}
+        open={dialogOpen}
+        onInviteAccept={onInviteAccept}
+        onInviteReject={onInviteReject}
+      />
     </Box>
   );
 }
