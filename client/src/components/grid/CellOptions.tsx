@@ -6,7 +6,6 @@ import Stack from "@mui/material/Stack";
 import { Divider } from "@mui/material";
 
 import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
 
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
@@ -220,10 +219,10 @@ export default function CellOptions() {
       );
       //pass the data so the changes can be made (handles the new value wether it's a new formula or just a plain text)
       //commit to state
-      setRows(updateCell([updateCellData], newRows));
+      setRows(updateCell(updateCellData, newRows));
     } else {
       //pass the data so the changes can be made, and commit to state
-      setRows(updateCell([updateCellData], rows));
+      setRows(updateCell(updateCellData, rows));
     }
     return;
   };
@@ -437,6 +436,7 @@ export default function CellOptions() {
             }}
             inputProps={{ "aria-label": "update the currently selected cell" }}
             onKeyDown={keyHandler}
+            disabled={!selectedCell?.cellData}
           />
         </Stack>
       </Paper>

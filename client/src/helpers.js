@@ -125,12 +125,11 @@ const getColumns = (length = 27) => {
 const fetchCellValue = (cellName, rows) => {
   /*
    * Given a celll name
-   * (pattern =>  alphabet char followed by a numeric string) (for now)
+   * (pattern =>  alphabet char followed by a numeric string)
    * assumes grid is in Alphanumerical order (x and y)
-   * it will output the current content of that cell along with it's coordinates in rows (columnId, rowId)
-   * todo: should also eventually do arrays
-   * and eventually cells should have identifiers for ease of use...
-   *
+   * it will either output the current content of that cell along with it's coordinates in rows (columnId, rowId)
+   * or just a value (passed cellName) if no such cell can be found (direct input)
+   * todo: eventually cells should have identifiers for ease of use... (data structure)
    */
 
   //no cellName nothing to do
@@ -141,9 +140,10 @@ const fetchCellValue = (cellName, rows) => {
   //TODO:check if these are out of bounds
   let columnName = splitName[0];
   let row = splitName[1];
-  //either value doesn't exist, return false
-  if (!columnName || !row) return false;
-
+  // either value doesn't exist, we treat this as a direct input since it doesn't conform to the cell name pattern
+  if (!columnName || !row) {
+    return { value: cellName };
+  }
   let column;
   //find column in the header list, and the index will be the position in row
   rows[0].cells.forEach((cell, index) => {
@@ -155,11 +155,17 @@ const fetchCellValue = (cellName, rows) => {
   //nothing found return false
   if (!column) return false;
   //if we have both row and column value, try to access the cell, and return it's content
-  let cellValue = rows[row].cells[column];
-  //for some reason, no cellValue can be found, return false
-  if (!cellValue) return;
-  //found the value we need, construct an object we can use elsewhere
-  return { value: cellValue.text, columnId: column, rowId: row };
+  try {
+    //we try to access said row and said column, if it's out of bounds it'll go to catch where we return false, indicting no value found
+    let cellValue = rows[row].cells[column];
+    //for some reason, no cellValue can be found, return false
+    if (!cellValue) return false;
+    //found the value we need, construct an object we can use elsewhere
+    return { value: cellValue.text, columnId: column, rowId: row };
+  } catch (e) {
+    console.log("We can't get you a value for these coordinates", e);
+    return false;
+  }
 };
 const fetchFormulaData = (cellValue, rows) => {
   //no feedback here this is just not a formula
@@ -248,6 +254,8 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     //add current formula to the list of deps in this param cell
     let cellRowId = item.rowId;
     let cellColumnId = item.columnId;
+    //if this value doesn't have row/column Id, this direct input, return right away
+    if (!cellRowId) return;
     const currentCell = { ...newRows[cellRowId].cells[cellColumnId] };
     //this cell already has a formula, concat the new one on top of these
     if (
@@ -323,7 +331,10 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   formulaData.valueList.forEach((item) => {
     let cellRowId = item.rowId;
     let cellColumnId = item.columnId;
+    //if this value doesn't have row/column Id, this is direct input, we return
+    if (!cellRowId) return;
     const currentCell = { ...newRows[cellRowId].cells[cellColumnId] };
+
     if (
       currentCell.dependantFormulas &&
       currentCell.dependantFormulas.length > 0
@@ -439,9 +450,9 @@ const updateFormulaFoo = (
   if (!newFormulaData) return newRows;
 
   let newValueList = newFormulaData.valueList.map((item) => {
-    //todo: make all the values (ids) numbers not stringed numbers
-    //do a real look up of all the other cells
-    //the "new value" passed to us right now
+    //look up values in our sheet(rows) or return right away if direct input
+    if (!item.columnId) return item;
+
     if (columnId == item.columnId && rowId == item.rowId) {
       //found the value to update
       return { ...item, value: updatedValue };
