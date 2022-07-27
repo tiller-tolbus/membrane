@@ -183,7 +183,7 @@ const fetchFormulaData = (cellValue, rows) => {
   //no formula bye bye
   //FEEDBACK: no formula function passed?
   if (!foundFormula) {
-    return { error: true, feedback: "Please provide a function name" };
+    return { error: true, feedback: "#ERR: no function name" };
   }
   //todo: add feedback in above case
   const currentFormula = availableFormulas.filter(
@@ -192,15 +192,18 @@ const fetchFormulaData = (cellValue, rows) => {
   //formula function not found in our availableFormulas list, nothing to evaluate, return false
   if (currentFormula && currentFormula.length === 0) {
     //FEEDBACK: this function doesn't exist
-    return { error: true, feedback: "The function you provided doesn't exist" };
+    return { error: true, feedback: "#ERR: function doesn't exist" };
   }
   //get all our params here
   //our params are in between "(" ")", seprated by ","
-  const betweenBrackets = cellValue.slice(
-    cellValue.indexOf("(") + 1,
-    cellValue.indexOf(")")
-  );
-  const paramList = betweenBrackets.split(",");
+  var betweenBracketsRegEx = /\(([^)]+)\)/; //pattern for "(A1,A2...)"
+  var betweenBracketsRegExMatches = betweenBracketsRegEx.exec(cellValue);
+
+  if (!betweenBracketsRegExMatches) {
+    //doesn't match our patterns, return error with feedback
+    return { error: true, feedback: "#ERR: could not eval param list" };
+  }
+  const paramList = betweenBracketsRegExMatches[1].split(",");
   //convert paramsInto values we can pass to our Formula
   //todo: remove space around characeters? help user out
   const valueList = paramList.map((item) => fetchCellValue(item, rows));
@@ -214,8 +217,10 @@ const fetchFormulaData = (cellValue, rows) => {
 
   if (!allValuesExist) {
     //FEEDBACK: Could not eval some of the cells you passed?
-    //CONSIDERATION: throw error if one of the values is useless(different error, since on passing an actual value it should eval right away, so it's really just an execution error)
-    return { error: true, feedback: "One or more of the cells do not exist" };
+    return {
+      error: true,
+      feedback: "#ERR: One or more of the cells do not exist",
+    };
   }
   //before we can actually excute we need to transform the list into [1,2,3,4,5]
   const executableList = valueList.map((item) => item.value);
@@ -236,18 +241,30 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
   const formulaData = fetchFormulaData(cellValue, rows);
 
   if (formulaData.error) {
+    //if there is feedback, alert the user and set the formula as an input to be viewed
+    if (formulaData.feedback) {
+      let newRows = cloneDeep(rows);
+
+      newRows[rowId].cells[columnId].text = formulaData.feedback;
+      newRows[rowId].cells[columnId].output = formulaData.feedback;
+      newRows[rowId].cells[columnId].input = cellValue;
+      return newRows;
+    }
     return false;
   }
   //update formula cell withe formula data using row and column id
   let newRows = cloneDeep(rows);
   //update formula cell with the needed values
+  const formulaOutput = formulaData
+    .execute(formulaData.valueList.map((item) => item.value))
+    .toString();
   newRows[rowId].cells[columnId] = {
     ...newRows[rowId].cells[columnId],
     formulaData,
     //update the formula cell value too using our value list and execute foo
-    text: formulaData
-      .execute(formulaData.valueList.map((item) => item.value))
-      .toString(),
+    text: formulaOutput,
+    output: formulaOutput,
+    input: formulaData.nonEvaledText,
     //formulas are not directly editable
     nonEditable: true,
   };
@@ -297,6 +314,8 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
   if (checkFormulaGraph() === "there is a cycle") {
     //Remove the formula and add an error msg
     newRows[rowId].cells[columnId].text = "#ERR infinite loop";
+    newRows[rowId].cells[columnId].output = "#ERR infinite loop";
+
     return unHookFormula(updatedFormula.formulaData, columnId, rowId, newRows);
   }
   if (
@@ -408,6 +427,8 @@ const updateCell = (changes, prevRows) => {
   let newRows = cloneDeep(prevRows);
 
   newRows[rowId].cells[columnId].text = newCell.text;
+  newRows[rowId].cells[columnId].output = newCell.text;
+  newRows[rowId].cells[columnId].input = newCell.text;
 
   const { dependantFormulas } = newRows[rowId].cells[columnId];
   //this cell has one or more depandant formulas,
@@ -476,9 +497,11 @@ const updateFormulaFoo = (
   newFormulaData.valueList = newValueList;
   //we have change in our param cells, that means update formula cell
   const executableList = newFormulaData.valueList.map((item) => item.value);
-  //update the value
+  //update the values
+  const formulaOutput = newFormulaData.execute(executableList).toString();
   newFormulaCell.formulaData = newFormulaData;
-  newFormulaCell.text = newFormulaData.execute(executableList).toString();
+  newFormulaCell.text = formulaOutput;
+  newFormulaCell.output = formulaOutput;
 
   //update the formula cell with our values
   newRows[formulaRowId].cells[formulaColId] = newFormulaCell;
@@ -491,6 +514,8 @@ const updateFormulaFoo = (
   if (checkFormulaGraph() === "there is a cycle") {
     //Remove the formula and add an error msg
     newRows[rowId].cells[columnId].text = "#ERR infinite loop";
+    newRows[rowId].cells[columnId].output = "#ERR infinite loop";
+
     return unHookFormula(newFormulaCell.formulaData, columnId, rowId, newRows);
   }
   if (dependantFormulas && dependantFormulas.length > 0) {
@@ -525,12 +550,16 @@ const generateRows = (rowCount, oldRows) => {
     for (let colIndex = 0; colIndex < colCount; colIndex++) {
       //if it's a first cell, insert the row count and add nonEditable => true to make it not editable
       // else just have an empty string and nonEditable => false (by default)
-      let extraParams = {};
       if (colIndex === 0) {
-        extraParams = getFirstCell(newRows.length.toString());
+        cells.push(getFirstCell(newRows.length.toString()));
+      } else {
+        cells.push({
+          type: "extendedText",
+          text: "",
+          input: "",
+          output: "",
+        });
       }
-
-      cells.push({ type: "extendedText", text: "", ...extraParams });
     }
     //insert the id of the new row and insert the row
     newRows.push({
@@ -568,7 +597,9 @@ const inCell = (cellArray, rows) => {
 
     const cellToUpdate = newRows[rowId].cells[columnId];
     cellToUpdate.text = cellData.data.input;
-
+    //for now input is the same as output
+    cellToUpdate.input = cellData.data.input;
+    cellToUpdate.output = cellData.data.output;
     //make our customStyles obj from this data
     //array of objs to a shallow obj thatwe can use
     const metaObj = cellData.meta.reduce((a, b) => Object.assign(a, b), {});
@@ -661,7 +692,7 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
     } else {
       //regular cells
       //add a new empty cell in this row at the index we have
-      newCell = { type: "extendedText", text: "" };
+      newCell = { type: "extendedText", text: "", output: "", input: "" };
       //insert newCells at the current index
       arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
     }
@@ -701,7 +732,7 @@ const addRow = (selectedRowId, direction, rows) => {
           nonEditable: true,
         };
       }
-      return { type: "extendedText", text: "" };
+      return { type: "extendedText", text: "", input: "", output: "" };
     }),
   });
   let startIndex = newRowsBefore.length;
@@ -736,7 +767,7 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
   let newColumnsBefore = newColumns.slice(0, selectedColumnId);
   let newColumnsAfter = newColumns.slice(selectedColumnId);
   //the column to remove is here in the front of the after array, shift it
-  // console.log(newColumnsAfter.shift());
+  newColumnsAfter.shift();
   //adjust the after array's indecies and names
   let startIndex = selectedColumnId;
   newColumnsAfter = newColumnsAfter.map((item, index) => {
@@ -746,6 +777,8 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
       columnName: toString26(startIndex + index).toUpperCase(),
     };
   });
+  console.log("newColumnsBefore", newColumnsBefore);
+  console.log("newColumnsAfter", newColumnsAfter);
   //merge the two parts
   const finalColumns = [...newColumnsBefore, ...newColumnsAfter];
   //update our rows, deleteing the cells that need to be
@@ -824,7 +857,7 @@ const jsonToData = (json) => {
     cells.push(getFirstCell(offsetIndex.toString()));
     //add the rest of the data from the json
     row.map((item) => {
-      cells.push({ type: "extendedText", text: item });
+      cells.push({ type: "extendedText", text: item, input: "", output: "" });
     });
     return {
       rowId: offsetIndex,
@@ -887,17 +920,8 @@ const dataToJson2 = (data, meta) => {
         //we have a value, this gets included into the data we send
 
         //does cell have customStyles
-        let textData;
-        if (item.formulaData) {
-          //if we have a formula text data should reflect that (input carries the formula name )
-          textData = {
-            input: item.formulaData.nonEvaledText,
-            output: item.text,
-          };
-        } else {
-          //otherwise input and output match
-          textData = { input: item.text, output: item.text };
-        }
+        let textData = { input: item.input, output: item.output };
+
         let metaArray = [];
         if (item.customStyles) {
           //make our customStyles obj from this data

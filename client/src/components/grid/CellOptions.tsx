@@ -94,12 +94,10 @@ export default function CellOptions() {
         ? cellData.customStyles?.fontSize
         : 14;
 
-      if (cellData.formulaData && cellData.formulaData.nonEvaledText) {
+      if (cellData.formulaData) {
         isFormula = true;
-        cellText = cellData.formulaData.nonEvaledText;
-      } else {
-        cellText = cellData.text;
       }
+      cellText = cellData.input;
 
       const newCellMetaData = {
         cellText,
@@ -313,8 +311,6 @@ export default function CellOptions() {
     //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
   };
-  //todo: user can edit this cell here
-  //todo: make sticky(style this in general)
   //todo: refractor these functions
   //todo: on keydown, remove focus from input to tell the user a change has been affected
   const {
