@@ -248,6 +248,8 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     text: formulaData
       .execute(formulaData.valueList.map((item) => item.value))
       .toString(),
+    //formulas are not directly editable
+    nonEditable: true,
   };
   //update each param cell to have formulaLocation and update function too trigger on change
   formulaData.valueList.forEach((item) => {
@@ -319,7 +321,8 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   /**
    * unlike param cells
    * i.e deleting the ref to the formula cell in dependantFormulas array in param cells
-   * and remove formulaData from given formula cell
+   * and remove formulaData from given formula cell and make it editable again
+   * also update formulatedList Map refrence to it (remove it)
    **/
   if (formulaData === false) return false;
   //update formula cell removing the formulaData obj
@@ -327,6 +330,11 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   //update formula cell, deleting formulaData
   let formulaCell = newRows[rowId].cells[columnId];
   delete formulaCell.formulaData;
+  //make cell editable again
+  delete formulaCell.nonEditable;
+  //we make sure to update formulatedList (formula refrence Map) by removing this formula
+  formulatedList.delete(`${columnId},${rowId}`);
+
   //update each param cell, removing the link between it and the formula cell
   formulaData.valueList.forEach((item) => {
     let cellRowId = item.rowId;
@@ -395,8 +403,10 @@ const formulateRows = (rows) => {
 };
 const updateCell = (changes, prevRows) => {
   //use the changes object to directly access the correct cell and update it using the new text!
+
   const { rowId, columnId, newCell } = changes;
   let newRows = cloneDeep(prevRows);
+
   newRows[rowId].cells[columnId].text = newCell.text;
 
   const { dependantFormulas } = newRows[rowId].cells[columnId];
