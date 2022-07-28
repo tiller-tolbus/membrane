@@ -44,10 +44,11 @@ export default function EditTagsDialog({
   };
 
   const handleAdd = () => {
-    const newChipData = [
-      ...chipData,
-      { key: chipData.length + 1, label: inputValue },
-    ];
+    //we remove white space around the text
+    const label = inputValue.trim();
+    //if no text, we abort
+    if (label.length === 0) return;
+    const newChipData = [...chipData, { key: chipData.length + 1, label }];
     setChipData(newChipData);
     setInputValue("");
   };

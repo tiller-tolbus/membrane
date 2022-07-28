@@ -18,8 +18,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import TuneIcon from "@mui/icons-material/Tune";
 import InboxIcon from "@mui/icons-material/Inbox";
+import { blue } from "@mui/material/colors";
 
 import { useNavigate } from "react-router-dom";
 import SheetItem from "../components/sheet"; //todo: change to import from /componnents
@@ -36,6 +37,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import Link from "@mui/material/Link";
 import { StyledRoundButton } from "../components";
 import { styled } from "@mui/material/styles";
+import Autocomplete from "@mui/material/Autocomplete";
 
 const NavigationButton = styled(Button)(({ theme }) => ({
   border: "1px solid #B3B3B3",
@@ -86,6 +88,7 @@ export default function Home() {
   const [sheetList, setSheetList] = React.useState([]); //list of sheets
   //TODO:update the way we do this???
   const [filteredData, setFilteredData] = React.useState([]);
+
   const [pathList, setPathList] = React.useState([]);
   const [fetchData, setFetchData] = React.useState({
     trying: false,
@@ -100,6 +103,42 @@ export default function Home() {
     success: false,
     error: false,
   });
+  const [allTags, setAllTags] = React.useState(new Set());
+  const [searchValue, setSearchValue] = React.useState("");
+  const [filterTags, setFilterTags] = React.useState([]);
+
+  React.useEffect(() => {
+    if (sheetList && sheetList.length > 0) {
+      //everytime one of our dependencies change, we make sure to keep the dispaly up to date(filter, search, order...)
+      let results = [];
+
+      const newSheetList = cloneDeep(sheetList);
+      //order sheets
+      //The sort() meth...returns the reference to the same array, now sorted
+      //as to why we create a copy (a new array )^^
+      results = newSheetList.sort((a, b) => {
+        if (sortDirection === "asc") return a.lastEdited - b.lastEdited;
+        if (sortDirection === "dsc") return b.lastEdited - a.lastEdited;
+      });
+      //search by string if any
+      if (searchValue) {
+        results = results.filter((item) => {
+          //does this sheet's title contain the search query? return boolean accordingly
+          return item.title.toLowerCase().includes(searchValue.toLowerCase());
+        });
+      }
+      //filter by tags if any
+      if (filterTags && filterTags.length > 0) {
+        results = results.filter((item) => {
+          const tagsArray = item.tags.map((item) => item.label);
+          return filterTags.some((item) => tagsArray.includes(item));
+        });
+      }
+      //we always at least sort, so sheets are always available
+      //update our state
+      setFilteredData(results);
+    }
+  }, [searchValue, filterTags, sortDirection, sheetList]);
 
   //TODO: fetch data
   const getSheets = async () => {
@@ -110,21 +149,20 @@ export default function Home() {
 
       const metaObj = await api.getAllSheetMeta();
       const metaArray = Object.entries(metaObj);
-      //if we have data set it and set loading to success
-
-      console.log("allPaths => ", allPaths);
-      console.log("metaArray => ", Object.entries(metaArray));
       //turn into something we can use for now
       const sheetList = structureJson1(metaArray);
-      console.log("get sheetList success", sheetList);
-      const orderedSheetList = sheetList.sort((a, b) => {
-        //desc order
-        return b.lastEdited - a.lastEdited;
-      });
+      //a set off all the tags we have in our sheets
+      const allTags = sheetList
+        .map((item) => item.tags.map((tag) => tag.label))
+        .flat();
+
+      const allTagsSet = new Set(allTags);
+
+      setAllTags(allTagsSet);
       //successfuly (success) got an answer, might or might not have data here
-      setSheetList(orderedSheetList);
+      setSheetList(sheetList);
       //we need this to include our initial data
-      setFilteredData(orderedSheetList);
+      setFilteredData(sheetList);
       setFetchData({ trying: false, success: true, error: false });
       //update existing paths list
       setPathList(allPaths);
@@ -163,10 +201,27 @@ export default function Home() {
       } else {
         setCreatingSheet({ trying: false, success: false, error: true });
       }
-      console.log("response", response);
+      console.log("create sheet response => ", response);
     } catch (e) {
       setCreatingSheet({ trying: false, success: false, error: true });
+      console.log("create sheet error => ", e);
     }
+  };
+  const onFilterTags = (tags: []) => {
+    setFilterTags(tags);
+  };
+  const [filterDialogOpen, setFilterDialogOpen] =
+    React.useState<boolean>(false);
+  const onFilterDialogClose = () => {
+    setFilterDialogOpen(false);
+  };
+  const onFilterDialogOpen = () => {
+    setFilterDialogOpen(true);
+  };
+  const onFilterDialogUpdate = (tags: []) => {
+    console.log("tags", tags);
+    onFilterTags(tags);
+    onFilterDialogClose();
   };
 
   const [addDialogOpen, setAddDialogOpen] = React.useState<boolean>(false);
@@ -179,18 +234,7 @@ export default function Home() {
   const onAddDialogUpdate = (title: string, path: string) => {
     onAdd(title, path);
   };
-  const orderByDate = () => {
-    //The sort() meth...returns the reference to the same array, now sorted
-    //as to why we create a copy (a new array )^^
-    const newSheetList = cloneDeep(filteredData);
-    const results = newSheetList.sort((a, b) => {
-      if (sortDirection === "dsc") return a.lastEdited - b.lastEdited;
-      if (sortDirection === "asc") return b.lastEdited - a.lastEdited;
-    });
-    setSortaDirection(sortDirection === "asc" ? "dsc" : "asc");
-    setFilteredData(results);
-    return;
-  };
+
   const renderGrid = () => {
     return (
       <Box sx={{ paddingTop: 1 }}>
@@ -205,7 +249,6 @@ export default function Home() {
                 pathList={pathList}
                 updateSheetList={(newSheetList) => {
                   setSheetList(newSheetList);
-                  setFilteredData(newSheetList);
                 }}
                 updatePathList={setPathList}
               />
@@ -252,7 +295,7 @@ export default function Home() {
             flexDirection={"row"}
             justifyContent="space-between"
             alignItems="center"
-            sx={{ marginBottom: 5,}}
+            sx={{ marginBottom: 5 }}
           >
             <NavigationButton
               size={"large"}
@@ -269,12 +312,32 @@ export default function Home() {
               justifyContent="center"
               alignItems="center"
             >
-              <StyledRoundButton sx={{ marginRight: 2 }} aria-label="search">
-                <FilterListIcon />
-              </StyledRoundButton>
+              {filterTags?.length > 0 ? (
+                <StyledRoundButton
+                  sx={{
+                    marginRight: 2,
+                    backgroundColor: filterTags?.length > 0 && blue[100],
+                    borderColor: filterTags?.length > 0 && blue[700],
+                  }}
+                  aria-label="search"
+                  onClick={() => onFilterDialogOpen()}
+                >
+                  <TuneIcon color={"primary"} />
+                </StyledRoundButton>
+              ) : (
+                <StyledRoundButton
+                  sx={{
+                    marginRight: 2,
+                  }}
+                  aria-label="search"
+                  onClick={() => onFilterDialogOpen()}
+                >
+                  <TuneIcon />
+                </StyledRoundButton>
+              )}
               <SearchBar
-                onSearch={(results) => {
-                  setFilteredData(results);
+                onSearch={(searchValue) => {
+                  setSearchValue(searchValue);
                 }}
                 sheetList={sheetList}
               />
@@ -308,7 +371,9 @@ export default function Home() {
                     <ArrowDropUpIcon />
                   )
                 }
-                onClick={() => orderByDate()}
+                onClick={() => {
+                  setSortaDirection(sortDirection === "asc" ? "dsc" : "asc");
+                }}
               >
                 last edited
               </Button>
@@ -331,6 +396,13 @@ export default function Home() {
         onClose={onAddDialogClose}
         pathList={pathList}
         loading={creatingSheet.trying}
+      />
+      <FilterDialog
+        open={filterDialogOpen}
+        onConfirm={onFilterDialogUpdate}
+        onClose={onFilterDialogClose}
+        tags={allTags}
+        filterTags={filterTags}
       />
     </>
   );
@@ -421,3 +493,169 @@ function AddDialog({ open, onConfirm, onClose, pathList, loading }) {
     </Dialog>
   );
 }
+function FilterDialog({ open, onConfirm, onClose, tags, filterTags }) {
+  const [selectedTags, setSelectedTags] = React.useState(filterTags);
+  React.useEffect(() => {
+    setSelectedTags(filterTags);
+  }, [filterTags]);
+  const handleClose = () => {
+    onClose();
+  };
+  const handleFilter = () => {
+    onConfirm(selectedTags);
+  };
+
+  return (
+    <Dialog fullWidth maxWidth={"sm"} open={open} onClose={handleClose}>
+      <DialogTitle>Filter</DialogTitle>
+      <DialogContent>
+        <DialogContentText>Filter sheets by tags</DialogContentText>
+        <Autocomplete
+          sx={{ marginTop: 1 }}
+          multiple
+          id="filter-tags-input"
+          options={Array.from(tags)}
+          getOptionLabel={(option: any) => option}
+          filterSelectedOptions
+          onChange={(e, value) => setSelectedTags(value)}
+          value={selectedTags}
+          renderInput={(params) => (
+            <TextField {...params} label="tags" placeholder="tag" />
+          )}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <LoadingButton onClick={handleFilter}>Save</LoadingButton>
+      </DialogActions>
+    </Dialog>
+  );
+}
+// Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
+const top100Films = [
+  { title: "The Shawshank Redemption", year: 1994 },
+  { title: "The Godfather", year: 1972 },
+  { title: "The Godfather: Part II", year: 1974 },
+  { title: "The Dark Knight", year: 2008 },
+  { title: "12 Angry Men", year: 1957 },
+  { title: "Schindler's List", year: 1993 },
+  { title: "Pulp Fiction", year: 1994 },
+  {
+    title: "The Lord of the Rings: The Return of the King",
+    year: 2003,
+  },
+  { title: "The Good, the Bad and the Ugly", year: 1966 },
+  { title: "Fight Club", year: 1999 },
+  {
+    title: "The Lord of the Rings: The Fellowship of the Ring",
+    year: 2001,
+  },
+  {
+    title: "Star Wars: Episode V - The Empire Strikes Back",
+    year: 1980,
+  },
+  { title: "Forrest Gump", year: 1994 },
+  { title: "Inception", year: 2010 },
+  {
+    title: "The Lord of the Rings: The Two Towers",
+    year: 2002,
+  },
+  { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
+  { title: "Goodfellas", year: 1990 },
+  { title: "The Matrix", year: 1999 },
+  { title: "Seven Samurai", year: 1954 },
+  {
+    title: "Star Wars: Episode IV - A New Hope",
+    year: 1977,
+  },
+  { title: "City of God", year: 2002 },
+  { title: "Se7en", year: 1995 },
+  { title: "The Silence of the Lambs", year: 1991 },
+  { title: "It's a Wonderful Life", year: 1946 },
+  { title: "Life Is Beautiful", year: 1997 },
+  { title: "The Usual Suspects", year: 1995 },
+  { title: "Léon: The Professional", year: 1994 },
+  { title: "Spirited Away", year: 2001 },
+  { title: "Saving Private Ryan", year: 1998 },
+  { title: "Once Upon a Time in the West", year: 1968 },
+  { title: "American History X", year: 1998 },
+  { title: "Interstellar", year: 2014 },
+  { title: "Casablanca", year: 1942 },
+  { title: "City Lights", year: 1931 },
+  { title: "Psycho", year: 1960 },
+  { title: "The Green Mile", year: 1999 },
+  { title: "The Intouchables", year: 2011 },
+  { title: "Modern Times", year: 1936 },
+  { title: "Raiders of the Lost Ark", year: 1981 },
+  { title: "Rear Window", year: 1954 },
+  { title: "The Pianist", year: 2002 },
+  { title: "The Departed", year: 2006 },
+  { title: "Terminator 2: Judgment Day", year: 1991 },
+  { title: "Back to the Future", year: 1985 },
+  { title: "Whiplash", year: 2014 },
+  { title: "Gladiator", year: 2000 },
+  { title: "Memento", year: 2000 },
+  { title: "The Prestige", year: 2006 },
+  { title: "The Lion King", year: 1994 },
+  { title: "Apocalypse Now", year: 1979 },
+  { title: "Alien", year: 1979 },
+  { title: "Sunset Boulevard", year: 1950 },
+  {
+    title:
+      "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
+    year: 1964,
+  },
+  { title: "The Great Dictator", year: 1940 },
+  { title: "Cinema Paradiso", year: 1988 },
+  { title: "The Lives of Others", year: 2006 },
+  { title: "Grave of the Fireflies", year: 1988 },
+  { title: "Paths of Glory", year: 1957 },
+  { title: "Django Unchained", year: 2012 },
+  { title: "The Shining", year: 1980 },
+  { title: "WALL·E", year: 2008 },
+  { title: "American Beauty", year: 1999 },
+  { title: "The Dark Knight Rises", year: 2012 },
+  { title: "Princess Mononoke", year: 1997 },
+  { title: "Aliens", year: 1986 },
+  { title: "Oldboy", year: 2003 },
+  { title: "Once Upon a Time in America", year: 1984 },
+  { title: "Witness for the Prosecution", year: 1957 },
+  { title: "Das Boot", year: 1981 },
+  { title: "Citizen Kane", year: 1941 },
+  { title: "North by Northwest", year: 1959 },
+  { title: "Vertigo", year: 1958 },
+  {
+    title: "Star Wars: Episode VI - Return of the Jedi",
+    year: 1983,
+  },
+  { title: "Reservoir Dogs", year: 1992 },
+  { title: "Braveheart", year: 1995 },
+  { title: "M", year: 1931 },
+  { title: "Requiem for a Dream", year: 2000 },
+  { title: "Amélie", year: 2001 },
+  { title: "A Clockwork Orange", year: 1971 },
+  { title: "Like Stars on Earth", year: 2007 },
+  { title: "Taxi Driver", year: 1976 },
+  { title: "Lawrence of Arabia", year: 1962 },
+  { title: "Double Indemnity", year: 1944 },
+  {
+    title: "Eternal Sunshine of the Spotless Mind",
+    year: 2004,
+  },
+  { title: "Amadeus", year: 1984 },
+  { title: "To Kill a Mockingbird", year: 1962 },
+  { title: "Toy Story 3", year: 2010 },
+  { title: "Logan", year: 2017 },
+  { title: "Full Metal Jacket", year: 1987 },
+  { title: "Dangal", year: 2016 },
+  { title: "The Sting", year: 1973 },
+  { title: "2001: A Space Odyssey", year: 1968 },
+  { title: "Singin' in the Rain", year: 1952 },
+  { title: "Toy Story", year: 1995 },
+  { title: "Bicycle Thieves", year: 1948 },
+  { title: "The Kid", year: 1921 },
+  { title: "Inglourious Basterds", year: 2009 },
+  { title: "Snatch", year: 2000 },
+  { title: "3 Idiots", year: 2009 },
+  { title: "Monty Python and the Holy Grail", year: 1975 },
+];

@@ -44,6 +44,7 @@ function Grid() {
   };
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
+    console.log("changes",changes)
     let newRows = rows;
     //TODO: requires more testing
     //perform update x times

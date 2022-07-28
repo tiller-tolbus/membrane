@@ -25,21 +25,10 @@ export default function SearchBar({ onSearch = null, sheetList = [] }) {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let val: string = event.target.value;
     setInputValue(val);
-    //TODO: debounce?
-    //depending on inputvalue
-    //filter our data to the ones that match
-    const results = sheetList.filter((item) => {
-      //does this sheet's title contain the search query? return boolean accordingly
-      return item.title.toLowerCase().includes(val.toLowerCase());
-    });
-    onSearch(results);
+    onSearch(val);
   };
   return (
-    <Stack
-      flexDirection="row"
-      alignItems="center"
-      justifyContent={"center"}
-    >
+    <Stack flexDirection="row" alignItems="center" justifyContent={"center"}>
       <Item
         variant="outlined"
         //component="form"
