@@ -174,7 +174,8 @@ export default function SheetMenu({
           }
           return item;
         });
-        updateSheetList(newSheetList);
+        
+        updateSheetList(newSheetList, true);
         onEditTagsDialogClose();
         setUpdatingTags({ trying: false, success: true, error: false });
       } else {
