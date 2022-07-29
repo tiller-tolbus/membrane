@@ -142,8 +142,8 @@ function InviteActionDialog({
       <DialogTitle>Path conflict</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          path {selectedInvite.path} already exists on your ship, if you
-          accept this invite you'll override your version
+          path {selectedInvite.path} already exists on your ship, if you accept
+          this invite you'll override your version
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -259,7 +259,7 @@ function LabTabs({ incoming, outgoing }) {
             ship
           </Grid>
           <Grid item xs={2}>
-            sheet name
+            title
           </Grid>
           <Grid item xs={2}>
             path

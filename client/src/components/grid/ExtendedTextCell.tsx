@@ -21,7 +21,9 @@ export interface TextCell extends Cell {
   validator?: (text: string) => boolean;
   renderer?: (text: string) => React.ReactNode;
   errorMessage?: string;
-
+  input?: string;
+  output?: string;
+  isFormula?: boolean;
   customStyles?: {
     backgroundColor?: string;
     color?: string;
@@ -103,10 +105,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
     //todo: manage these styles better
     //todo: add user input for these
     if (!isInEditMode) {
-      const isValid = cell.validator ? cell.validator(cell.text) : true;
-      const cellText = cell.text || cell.placeholder || "";
-      const textToDisplay =
-        !isValid && cell.errorMessage ? cell.errorMessage : cellText;
+      const cellText = cell.output || cell.text; //move to output entirely
 
       return (
         <div
@@ -127,9 +126,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
               (customStyles?.underline ? " underline" : ""),
           }}
         >
-          <p style={{ margin: 0, padding: 0, paddingLeft: 2 }}>
-            {textToDisplay}
-          </p>
+          <p style={{ margin: 0, padding: 0, paddingLeft: 2 }}>{cellText}</p>
         </div>
       );
     }
@@ -148,7 +145,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
             input.setSelectionRange(input.value.length, input.value.length);
           }
         }}
-        defaultValue={cell.text}
+        defaultValue={cell.isFormula ? cell.input : cell.text}
         onChange={(e) =>
           //todo: find out what this does??
           onCellChanged(
@@ -166,7 +163,7 @@ export class ExtendedTextCell implements CellTemplate<TextCell> {
         onCut={(e) => e.stopPropagation()}
         onPaste={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
-        placeholder={cell.placeholder}
+        //placeholder={cell.placeholder}
         onKeyDown={(e) => {
           if (isAlphaNumericKey(e.keyCode) || isNavigationKey(e.keyCode))
             e.stopPropagation();

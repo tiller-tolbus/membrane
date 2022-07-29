@@ -198,30 +198,21 @@ export default function CellOptions() {
   };
   const updateCellValue = () => {
     /**
-     * updates cell value and updates formula if need be
+     * updates cell value
      **/
     const { columnId, rowId } = selectedCell.location;
     //get the location
     //update the text here before calling updateCell
-    const newCell = { ...selectedCell.cellData, text: cellValueInput };
+    const newCell = {
+      ...selectedCell.cellData,
+      text: cellValueInput,
+    };
+
     const updateCellData = { columnId, rowId, newCell };
 
-    if (selectedCellMetaData.isFormula) {
-      //we have a new formula
-      //unhook all the deps of the previous formula
-      let newRows = unHookFormula(
-        selectedCell.cellData.formulaData,
-        columnId,
-        rowId,
-        rows
-      );
-      //pass the data so the changes can be made (handles the new value wether it's a new formula or just a plain text)
-      //commit to state
-      setRows(updateCell(updateCellData, newRows));
-    } else {
-      //pass the data so the changes can be made, and commit to state
-      setRows(updateCell(updateCellData, rows));
-    }
+    //pass the data so the changes can be made, and commit to state
+    setRows(updateCell(updateCellData, rows));
+
     return;
   };
   const makeCellStrikethrough = () => {

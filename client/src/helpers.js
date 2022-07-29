@@ -6,7 +6,6 @@ import useStore from "./store";
 import Graph from "./Graph";
 //CONSIDERATION: should this be part of our store?
 let formulatedList = new Map();
-
 const checkFormulaGraph = () => {
   /**
    * Generate a graph based on  formulatedList
@@ -244,10 +243,12 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     //if there is feedback, alert the user and set the formula as an input to be viewed
     if (formulaData.feedback) {
       let newRows = cloneDeep(rows);
-
+      //TODO:make a variable for these (like updateCell)
       newRows[rowId].cells[columnId].text = formulaData.feedback;
       newRows[rowId].cells[columnId].output = formulaData.feedback;
       newRows[rowId].cells[columnId].input = cellValue;
+      newRows[rowId].cells[columnId].placeholder = cellValue;
+      newRows[rowId].cells[columnId].isFormula = true;
       return newRows;
     }
     return false;
@@ -264,9 +265,10 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     //update the formula cell value too using our value list and execute foo
     text: formulaOutput,
     output: formulaOutput,
+    //placeholder is synced to input (we use it for copy/pasting formulas )
     input: formulaData.nonEvaledText,
-    //formulas are not directly editable
-    nonEditable: true,
+    placeholder: formulaData.nonEvaledText,
+    isFormula: true,
   };
   //update each param cell to have formulaLocation and update function too trigger on change
   formulaData.valueList.forEach((item) => {
@@ -311,12 +313,22 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
   const updatedFormula = newRows[rowId].cells[columnId];
 
   formulatedList.set(`${columnId},${rowId}`, updatedFormula);
+  //Remove the formula and add an error msg
   if (checkFormulaGraph() === "there is a cycle") {
-    //Remove the formula and add an error msg
+    newRows = unHookFormula(
+      updatedFormula.formulaData,
+      columnId,
+      rowId,
+      newRows
+    );
+    //TODO:make a variable for these (like updateCell)
     newRows[rowId].cells[columnId].text = "#ERR infinite loop";
     newRows[rowId].cells[columnId].output = "#ERR infinite loop";
+    newRows[rowId].cells[columnId].input = updatedFormula.input;
+    newRows[rowId].cells[columnId].placeholder = updatedFormula.placeholder;
+    newRows[rowId].cells[columnId].isFormula = true;
 
-    return unHookFormula(updatedFormula.formulaData, columnId, rowId, newRows);
+    return newRows;
   }
   if (
     updatedFormula.dependantFormulas &&
@@ -349,8 +361,9 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   //update formula cell, deleting formulaData
   let formulaCell = newRows[rowId].cells[columnId];
   delete formulaCell.formulaData;
-  //make cell editable again
-  delete formulaCell.nonEditable;
+  delete formulaCell.placeholder;
+  //mark cell as a none formula
+  delete formulaCell.isFormula;
   //we make sure to update formulatedList (formula refrence Map) by removing this formula
   formulatedList.delete(`${columnId},${rowId}`);
 
@@ -425,11 +438,27 @@ const updateCell = (changes, prevRows) => {
 
   const { rowId, columnId, newCell } = changes;
   let newRows = cloneDeep(prevRows);
+  //we use placeholder value for copy/pasting otherwise we use text for direct input
+  const newText =
+    newCell.placeholder && !newCell.isFormula
+      ? newCell.placeholder
+      : newCell.text;
+  //TODO: make one variable {...} instead of accessing the values one at a time
 
-  newRows[rowId].cells[columnId].text = newCell.text;
-  newRows[rowId].cells[columnId].output = newCell.text;
-  newRows[rowId].cells[columnId].input = newCell.text;
+  const updatedCell = {
+    ...newRows[rowId].cells[columnId],
+    text: newText,
+    output: newText,
+    input: newText,
+    placeholder: "",
+    isFormula: false,
+  };
 
+  newRows[rowId].cells[columnId] = updatedCell;
+  if (updatedCell.isFormula && updatedCell.formulaData) {
+    //we have a formula here, we have to treat it
+    newRows = unHookFormula(updatedCell.formulaData, columnId, rowId, newRows);
+  }
   const { dependantFormulas } = newRows[rowId].cells[columnId];
   //this cell has one or more depandant formulas,
   //we run updateFormulaFoo
@@ -437,7 +466,7 @@ const updateCell = (changes, prevRows) => {
     dependantFormulas.forEach((item) => {
       const formulaLocation = item;
       newRows = updateFormulaFoo(
-        newCell.text,
+        newText,
         formulaLocation,
         { columnId, rowId },
         newRows
@@ -446,7 +475,7 @@ const updateCell = (changes, prevRows) => {
   }
   //check if user entered a formula
   let potentiallyNewerRows = formulateFormula(
-    newCell.text,
+    newText,
     columnId,
     rowId,
     newRows
@@ -513,10 +542,20 @@ const updateFormulaFoo = (
   formulatedList.set(`${formulaColId},${formulaRowId}`, newFormulaCell);
   if (checkFormulaGraph() === "there is a cycle") {
     //Remove the formula and add an error msg
+    newRows = unHookFormula(
+      newFormulaCell.formulaData,
+      columnId,
+      rowId,
+      newRows
+    );
+    //TODO:make a variable for these (like updateCell)
     newRows[rowId].cells[columnId].text = "#ERR infinite loop";
     newRows[rowId].cells[columnId].output = "#ERR infinite loop";
+    newRows[rowId].cells[columnId].input = newFormulaCell.input;
+    newRows[rowId].cells[columnId].placeholder = newFormulaCell.placeholder;
+    newRows[rowId].cells[columnId].isFormula = true;
 
-    return unHookFormula(newFormulaCell.formulaData, columnId, rowId, newRows);
+    return newRows;
   }
   if (dependantFormulas && dependantFormulas.length > 0) {
     dependantFormulas.forEach((item) => {
@@ -556,8 +595,8 @@ const generateRows = (rowCount, oldRows) => {
         cells.push({
           type: "extendedText",
           text: "",
-          input: "",
           output: "",
+          input: "",
         });
       }
     }
@@ -588,6 +627,9 @@ const inCell = (cellArray, rows) => {
    * put them in their place!
    * and return an updated rows array
    */
+  //we make sure to reset formulatedList and I think this is a good place for doing that
+  formulatedList = new Map();
+
   let newRows = cloneDeep(rows);
   cellArray.forEach((item) => {
     //offset by one to
@@ -692,7 +734,12 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
     } else {
       //regular cells
       //add a new empty cell in this row at the index we have
-      newCell = { type: "extendedText", text: "", output: "", input: "" };
+      newCell = {
+        type: "extendedText",
+        text: "",
+        output: "",
+        input: "",
+      };
       //insert newCells at the current index
       arrayInsertItemAtIndex(cellIndex, newCell, item.cells);
     }
@@ -732,7 +779,12 @@ const addRow = (selectedRowId, direction, rows) => {
           nonEditable: true,
         };
       }
-      return { type: "extendedText", text: "", input: "", output: "" };
+      return {
+        type: "extendedText",
+        text: "",
+        output: "",
+        input: "",
+      };
     }),
   });
   let startIndex = newRowsBefore.length;
@@ -857,7 +909,12 @@ const jsonToData = (json) => {
     cells.push(getFirstCell(offsetIndex.toString()));
     //add the rest of the data from the json
     row.map((item) => {
-      cells.push({ type: "extendedText", text: item, input: "", output: "" });
+      cells.push({
+        type: "extendedText",
+        text: item,
+        output: "",
+        input: "",
+      });
     });
     return {
       rowId: offsetIndex,
@@ -915,11 +972,11 @@ const dataToJson2 = (data, meta) => {
     //exclude the first cell (1,2,3...) (row count cell)
     newCells.shift();
     return newCells.forEach((item, columnIndex) => {
-      //does cell have a value?
-      if (item.text.length > 0) {
+      //these are the values we save to urbit
+      //either cells that have a text value or customStyles value
+      if (item.text.length > 0 || item.customStyles) {
         //we have a value, this gets included into the data we send
 
-        //does cell have customStyles
         let textData = { input: item.input, output: item.output };
 
         let metaArray = [];
