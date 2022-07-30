@@ -3,12 +3,12 @@
 ::  mark for all membrane pokes from front-end client is %membrane-action
 +$  action
   $%
-    ::  {"replace": [path, sheet]}
-    [%replace path sheet]
+    ::  {"write": [path, sheet]}
+    [%write where=path what=sheet]
     ::  {"create": [path, title]}
-    [%create path @t]
+    [%create where=path what=@t]
     ::  {"rename": [path, title]}
-    [%rename path @t]
+    [%rename where=path what=@t]
     ::  {"retag": [path, [tag1, tag2, tag3 ... ]]}
     [%retag path (set tag)]
     ::  {"delete": path}

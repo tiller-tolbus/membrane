@@ -98,6 +98,10 @@
     =<  meta
     ^-  sheet
     (~(got by max) pax)
+++  update
+  |=  [what=sheet when=@da]
+  ^-  sheet
+  what(last-modified.meta when)
 ::  sharing utilities
 ::
 ++  process-appeal
@@ -131,4 +135,31 @@
   |=  eny=@uvJ
   ^-  @uw
   (cut 0 [0 32] eny)
+::  clay utils
+++  ins-card
+  |=  [=path =sheet]
+  ^-  card:agent:gall
+  :-  %c
+  ^-  task:clay
+  :-  %info  :-  %membrane
+  ^-  nori:clay
+  :-  %&
+  ^-  soba:clay
+  :~  :-  path
+  ^-  miso:clay
+  [%ins %sheet !>(sheet)]
+  ==
+++  mut-card
+  |=  [=path =sheet]
+  ^-  card:agent:gall
+  :-  %c
+  ^-  task:clay
+  :-  %info  :-  %membrane
+  ^-  nori:clay
+  :-  %&
+  ^-  soba:clay
+  :~  :-  path
+  ^-  miso:clay
+  [%mut %sheet !>(sheet)]
+  ==
 --
