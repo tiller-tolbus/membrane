@@ -15,7 +15,7 @@
     =,  dejs:format
     %-  of
     :~  
-      [%replace (at ~[pa dejs-sheet])]
+      [%write (at ~[pa dejs-sheet])]
       [%create (at ~[pa so])]
       [%rename (at ~[pa so])]
       [%retag (at ~[pa (as so)])]

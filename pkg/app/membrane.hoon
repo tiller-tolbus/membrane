@@ -12,7 +12,6 @@
 |%
 +$  state-0
   $:
-    files=(map path sheet)
     =inbox
     =outbox
     =config
@@ -57,17 +56,16 @@
     ?>  =(our.bowl src.bowl)
     =/  act  !<(action vase)
     ?-  -.act
-      %replace
-        =/  pax=path  +<.act
-        `this(files (~(put by files) pax +>.act))
+      %write
+        :_  this
+        [(mut-card where.act (update what.act now.bowl)]~
       %create
-        =/  pax=path  +<.act
-        =/  tit=@t  +>.act
-        `this(files (~(put by files) pax (create-sheet pax tit bowl)))
+        :_  this
+        [(ins-card where.act (create-sheet where.act what.act bowl)]~
       %rename
-        =/  pax=path  +<.act
-        =/  tit=@t  +>.act
-        `this(files (~(jab by files) pax (rename-gate tit)))
+        =/  sht=sheet  ^.(sheet %cx (meld /=membrane=/sheets/ where.act))
+        :_  this
+        [(mut-card where.act (update sht(title.meta what.act) now.bowl)]~
       %retag
         =/  pax=path  +<.act
         =/  tags=(set tag)  +>.act
