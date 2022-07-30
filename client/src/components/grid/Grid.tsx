@@ -208,7 +208,6 @@ function Grid() {
           enableFillHandle
           onContextMenu={handleContextMenu}
           onFocusLocationChanged={(cellLocation) => {
-            console.log("cellLocation", cellLocation);
             const { columnId, rowId } = cellLocation;
             const cellData = rows[rowId]?.cells[columnId];
             if (cellData) {

@@ -208,7 +208,12 @@ export default function CellOptions() {
       text: cellValueInput,
     };
 
-    const updateCellData = { columnId, rowId, newCell };
+    const updateCellData = {
+      columnId,
+      rowId,
+      newCell,
+      previousCell: selectedCell.cellData,
+    };
 
     //pass the data so the changes can be made, and commit to state
     setRows(updateCell(updateCellData, rows));

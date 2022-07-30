@@ -436,22 +436,39 @@ const formulateRows = (rows) => {
 const updateCell = (changes, prevRows) => {
   //use the changes object to directly access the correct cell and update it using the new text!
 
-  const { rowId, columnId, newCell } = changes;
+  const { rowId, columnId, newCell, previousCell } = changes;
   let newRows = cloneDeep(prevRows);
-  //we use placeholder value for copy/pasting otherwise we use text for direct input
-  const newText =
-    newCell.placeholder && !newCell.isFormula
-      ? newCell.placeholder
-      : newCell.text;
-  //TODO: make one variable {...} instead of accessing the values one at a time
+
+  let newText = "";
+  if (newCell.placeholder && previousCell.placeholder) {
+    //formula cell => formula cell
+    //both newCell and previous cell has placeholder
+    newText = newCell.placeholder;
+    //if both placeholders are equal this is direct input
+    if (newCell.placeholder === previousCell.placeholder) {
+      newText = newCell.text;
+    }
+  } else if (!newCell.placeholder && previousCell.placeholder) {
+    //text cell => formula cell
+    //newCell has no placeholder => previousCell has placeholder
+    newText = newCell.text;
+  } else if (newCell.placeholder && !previousCell.placeholder) {
+    //formula cell => text cell
+    //newCell has placeholder => previous text has no placerholder
+    newText = newCell.placeholder;
+  } else if (!newCell.placeholder && !previousCell.placeholder) {
+    //text cell => text cell
+    //both have no placeholder
+    newText = newCell.text;
+  }
 
   const updatedCell = {
     ...newRows[rowId].cells[columnId],
     text: newText,
     output: newText,
     input: newText,
+    //we reset this in case we're going from formula to text cell
     placeholder: "",
-    isFormula: false,
   };
 
   newRows[rowId].cells[columnId] = updatedCell;
