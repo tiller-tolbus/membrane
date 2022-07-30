@@ -97,6 +97,18 @@
         =/  =cage  [%membrane-message !>(`message`[%rsvp id])]
         :-  ~[(~(poke pass:io /rsvp/(scot %uw id)) dock cage)]
         this(inbox (~(put by inbox) id inv(why %accepted)))
+      %cancel-invite
+        =/  inv=invitation  (~(got by outbox) id.act)
+        =/  =dock  [who.inv %membrane]
+        =/  =cage  [%membrane-message !>(`message`[%cancel id.act])]
+        :-  ~[(~(poke pass:io /cancel/(scot %uw id.act)) dock cage)]
+        this(outbox (~(jab by outbox) id.act (mark-status %canceled)))
+      %decline-invite
+        =/  inv=invitation  (~(got by inbox) id.act)
+        =/  =dock  [who.inv %membrane]
+        =/  =cage  [%membrane-message !>(`message`[%decline id.act])]
+        :-  ~[(~(poke pass:io /decline/(scot %uw id.act)) dock cage)]
+        this(inbox (~(jab by inbox) id.act (mark-status %declined)))
     ==
     %membrane-message
     ::  handle sharing events across the network
@@ -117,7 +129,7 @@
           ::  insert proper error message here
           (on-poke:def mark vase)
         =/  inv=invitation  u.uinv
-        ?>  !=(why.inv %received)
+        ?>  =(why.inv %waiting)
         ?>  =(who.inv src.bowl)
         =/  uwhat=(unit sheet)  (~(get by files) where.inv)
         ?~   uwhat
@@ -145,6 +157,12 @@
           inbox  (~(jab by inbox) id (mark-status %received))
           files  (~(put by files) where.inv what)
         ==
+      ::  handle case where sender cancels an invite to our ship
+      %cancel
+        `this(inbox (~(jab by inbox) id.msg (mark-status %canceled)))
+      ::  handle case where receiver declines an invite from our ship
+      %decline
+        `this(outbox (~(jab by outbox) id.msg (mark-status %declined)))
       ==
     ==
 ::  We are not accepting subscriptions at this time.

@@ -19,5 +19,9 @@
     [%send-invite @p path]
     ::  {"send-rsvp": id}
     [%send-rsvp id=@uw]
+    ::  {"cancel-invite": id}
+    [%cancel-invite id=@uw]
+    ::  {"decline-invite": id}
+    [%decline-invite id=@uw]
   ==
 --

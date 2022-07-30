@@ -23,6 +23,8 @@
       [%move (at ~[pa pa])]
       [%send-invite (at ~[(se %p) pa])]
       [%send-rsvp (se %uw)]
+      [%cancel-invite (se %uw)]
+      [%decline-invite (se %uw)]
     ==
   --
 ++  grad  %noun  
