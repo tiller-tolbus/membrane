@@ -46,6 +46,7 @@ interface CellMetaData {
   backgroundColor: string;
   fontSize: number;
 }
+//TODO: this component is throwing a controlled component warning....
 //this component is seperate to avoid rerendirng the whole grid each time focus goes somewhere else
 export default function CellOptions() {
   const [cellValueInput, setCellValueInput] = useState<string>("");
@@ -116,85 +117,98 @@ export default function CellOptions() {
       setCellValueInput(cellText);
     }
   }, [selectedCell]);
-
-  const makeCellBold = () => {
+  const updateCellStyles = (selectedCell, styleUpdate) => {
+    //TODO: comment this function
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
+
     let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = { ...currentCell.customStyles };
-    if (isBold) {
-      //if this evaluates to true, it's already bold, so remove the italic value from customStyles
-      delete newCustomStyle.bold;
-    } else {
-      //is not already bold, set italic to true
-      newCustomStyle = { ...newCustomStyle, bold: true };
-    }
-    //commit changes to rows
-    currentCell.customStyles = newCustomStyle;
-    //update rows in state to affect changes to our app
-    setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  const makeCellItalic = () => {
-    if (!selectedCell) return false;
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = { ...currentCell.customStyles };
-    if (isItalic) {
-      //if this evaluates to true, it's already italic, so remove the italic value from customStyles
-      delete newCustomStyle.italic;
-    } else {
-      //is not already italic, set italic to true
-      newCustomStyle = { ...newCustomStyle, italic: true };
-    }
-    //commit changes
-    currentCell.customStyles = newCustomStyle;
-    //update rows to affect changes
-    setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  const setCellTextColor = (color: "") => {
-    //TODO: what's a good default value here?
-    if (!selectedCell) return false;
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = { ...currentCell.customStyles, color: color };
 
-    currentCell.customStyles = newCustomStyle;
-    //update rows to affect changes
-    setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  const setCellBackgroundColor = (color: "") => {
-    //TODO: what's a good default value here?
-    if (!selectedCell) return false;
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = {
-      ...currentCell.customStyles,
-      backgroundColor: color,
+    newCustomStyle = {
+      ...newCustomStyle,
+      [styleUpdate[0]]: styleUpdate[1],
     };
 
     currentCell.customStyles = newCustomStyle;
-    //update rows to affect changes
+
+    if (columnId === 0) {
+      newRows[rowId].cells = newRows[rowId].cells.map((item) => {
+        return {
+          ...item,
+          customStyles: {
+            ...item.customStyles,
+            [styleUpdate[0]]: styleUpdate[1],
+          },
+        };
+      });
+    } else if (rowId === 0) {
+      newRows.forEach((row) => {
+        row.cells[columnId] = {
+          ...row.cells[columnId],
+          customStyles: {
+            ...row.cells[columnId].customStyles,
+            [styleUpdate[0]]: styleUpdate[1],
+          },
+        };
+      });
+    }
     setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
     setSelectedCell({ ...selectedCell, cellData: currentCell });
+  };
+  const makeCellBold = () => {
+    updateCellStyles(selectedCell, ["bold", !isBold]);
+  };
+  const makeCellItalic = () => {
+    updateCellStyles(selectedCell, ["italic", !isItalic]);
+  };
+  const setCellTextColor = (color: "") => {
+    updateCellStyles(selectedCell, ["color", color]);
+  };
+  const setCellBackgroundColor = (color: "") => {
+    updateCellStyles(selectedCell, ["backgroundColor", color]);
+  };
+
+  const makeCellStrikethrough = () => {
+    updateCellStyles(selectedCell, ["strikethrough", !isStrikethrough]);
+  };
+  const makeCellUnderline = () => {
+    updateCellStyles(selectedCell, ["underline", !isUnderline]);
+  };
+  const setCellFontSize = (fontSize: "") => {
+    updateCellStyles(selectedCell, ["fontSize", parseInt(fontSize)]);
+  };
+
+  const clearStyles = () => {
+    //TODO: comment this function
+
+    if (!selectedCell) return false;
+    const { columnId, rowId } = selectedCell.location;
+    //make a copy of rows
+    let newRows = cloneDeep(rows);
+    let currentCell = newRows[rowId].cells[columnId];
+
+    delete currentCell.customStyles;
+    if (columnId === 0) {
+      newRows[rowId].cells = newRows[rowId].cells.map((item) => {
+        const newCell = item;
+        delete newCell.customStyles;
+        return newCell;
+      });
+    } else if (rowId === 0) {
+      newRows.forEach((row) => {
+        delete row.cells[columnId]?.customStyles;
+      });
+    }
+    setRows(newRows);
+    setSelectedCell({ ...selectedCell, cellData: currentCell });
+  };
+  const keyHandler = (event) => {
+    //if a user pressed enter in the cell value input
+    if (event.keyCode === 13) {
+      updateCellValue();
+    }
   };
   const updateCellValue = () => {
     /**
@@ -220,94 +234,6 @@ export default function CellOptions() {
 
     return;
   };
-  const makeCellStrikethrough = () => {
-    if (!selectedCell) return false;
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = { ...currentCell.customStyles };
-    if (isStrikethrough) {
-      //if this evaluates to true, it's already strikethrough, so remove the strikethrough value from customStyles
-      delete newCustomStyle.strikethrough;
-    } else {
-      //is not already strikethrough, set strikethrough to true
-      newCustomStyle = { ...newCustomStyle, strikethrough: true };
-    }
-    //commit changes
-    currentCell.customStyles = newCustomStyle;
-    //update rows to affect changes
-    setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  const makeCellUnderline = () => {
-    if (!selectedCell) return false;
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = { ...currentCell.customStyles };
-    if (isUnderline) {
-      //if this evaluates to true, it's already underline, so remove the underline value from customStyles
-      delete newCustomStyle.underline;
-    } else {
-      //is not already underline, set underline to true
-      newCustomStyle = { ...newCustomStyle, underline: true };
-    }
-    //commit changes
-    currentCell.customStyles = newCustomStyle;
-    //update rows to affect changes
-    setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  const clearStyles = () => {
-    if (!selectedCell) return false;
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    //if we have wdon't have a customStyles object, nothing to do return false
-    if (!currentCell.customStyles) return false;
-    //otherwise delete it and proceed
-    delete currentCell.customStyles;
-
-    //update rows to affect changes
-    setRows(newRows);
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  const keyHandler = (event) => {
-    //if a user pressed enter in the cell value input
-    if (event.keyCode === 13) {
-      updateCellValue();
-    }
-  };
-  const setCellFontSize = (fontSize: "") => {
-    //TODO: what's a good default value here?
-    if (!selectedCell) return false;
-
-    const { columnId, rowId } = selectedCell.location;
-    //make a copy of rows
-    let newRows = cloneDeep(rows);
-    //update the select cell with the new styles
-    let currentCell = newRows[rowId].cells[columnId];
-    let newCustomStyle = {
-      ...currentCell.customStyles,
-      fontSize: parseInt(fontSize),
-    };
-    currentCell.customStyles = newCustomStyle;
-    //update rows to affect changes
-    setRows(newRows);
-
-    //we also need to change the selectedCell, sincec we just changed it
-    setSelectedCell({ ...selectedCell, cellData: currentCell });
-  };
-  //todo: refractor these functions
   //todo: on keydown, remove focus from input to tell the user a change has been affected
   const {
     isBold,
@@ -421,6 +347,7 @@ export default function CellOptions() {
             sx={{ paddingLeft: 1, paddingRight: 1 }}
           />
           <InputBase
+            //disable if row cell or column cell
             sx={{ ml: 1, flex: 1 }}
             value={cellValueInput}
             onChange={(e) => {
@@ -428,7 +355,11 @@ export default function CellOptions() {
             }}
             inputProps={{ "aria-label": "update the currently selected cell" }}
             onKeyDown={keyHandler}
-            disabled={!selectedCell?.cellData}
+            disabled={
+              !selectedCell?.cellData ||
+              selectedCell?.location?.rowId === 0 ||
+              selectedCell?.location?.columnId === 0
+            }
           />
         </Stack>
       </Paper>

@@ -21,7 +21,7 @@ const checkFormulaGraph = () => {
       });
     }
   }
-  graphy.printGraphe();
+  //graphy.printGraphe();
   return graphy.detectCycle();
 };
 const arrayInsertItemAtIndex = (index, item, array) => {
@@ -70,22 +70,51 @@ const toString26 = (num) => {
 
   return result;
 };
-
+const getColumnCell = (text) => {
+  return {
+    type: "text",
+    text,
+    nonEditable: true,
+    style: {
+      background: "#e8eaed",
+      border: {
+        left: { color: "#c0c0c0" },
+        top: { color: "#c0c0c0" },
+        right: { color: "#c0c0c0" },
+        bottom: { color: "#c0c0c0" },
+      },
+    },
+  };
+};
 const getFirstRow = (length = 27) => {
   /*
   this is our first row
   */
   const columns = getColumns(length);
   return {
-    rowId: "header",
+    rowId: 0,
     cells: columns.map((col) => {
-      return { type: "header", text: col.columnName };
+      return getColumnCell(col.columnName);
     }),
   };
 };
+
 const getFirstCell = (text) => {
   /* returns what the first cell of each row should contain and what mete data it should have */
-  return { type: "extendedText", text, nonEditable: true };
+  return {
+    type: "text",
+    text,
+    nonEditable: true,
+    style: {
+      background: "#e8eaed",
+      border: {
+        left: { color: "#c0c0c0" },
+        top: { color: "#c0c0c0" },
+        right: { color: "#c0c0c0" },
+        bottom: { color: "#c0c0c0" },
+      },
+    },
+  };
 };
 const getRows = (columnCount = 27, rowCount = ROW_COUNT) => {
   /*
@@ -403,7 +432,7 @@ const formulateRows = (rows) => {
   //and re-eval all of them again
   let newRows = cloneDeep(rows).map((item, rowId) => {
     return {
-      rowId: rowId === 0 ? "header" : rowId,
+      rowId: rowId,
       cells: item.cells.map((item) => {
         let newCell = { ...item };
         delete newCell.dependantFormulas;
@@ -745,7 +774,7 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
       //use the generated columns above here
       //update the title of the first row (columns)
       let newCells = finalColumns.map((item) => {
-        return { type: "header", text: item.columnName };
+        return getColumnCell(item.columnName);
       });
       newRows[0].cells = newCells;
     } else {
@@ -790,11 +819,7 @@ const addRow = (selectedRowId, direction, rows) => {
     //only really using this for the length value
     cells: newRowsBefore[0].cells.map((item, index) => {
       if (index === 0) {
-        return {
-          type: "extendedText",
-          text: newRowsBefore.length.toString(),
-          nonEditable: true,
-        };
+        return getFirstCell(newRowsBefore.length.toString());
       }
       return {
         type: "extendedText",
@@ -857,7 +882,7 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
       //use the generated columns above here
       //update the title of the first row (columns)
       let newCells = finalColumns.map((item) => {
-        return { type: "header", text: item.columnName };
+        return getColumnCell(item.columnName);
       });
       return { ...item, cells: newCells };
     } else {
@@ -995,7 +1020,7 @@ const dataToJson2 = (data, meta) => {
         //we have a value, this gets included into the data we send
 
         let textData = { input: item.input, output: item.output };
-
+        //TODO: make a function out this
         let metaArray = [];
         if (item.customStyles) {
           //make our customStyles obj from this data
