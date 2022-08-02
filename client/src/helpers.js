@@ -74,6 +74,7 @@ const getColumnCell = (text) => {
   return {
     type: "text",
     text,
+    input: "", //we have this for display purposes in CellOptions (input bar)
     nonEditable: true,
     style: {
       background: "#e8eaed",
@@ -104,6 +105,7 @@ const getFirstCell = (text) => {
   return {
     type: "text",
     text,
+    input: "", //we have this for display purposes in CellOptions (input bar)
     nonEditable: true,
     style: {
       background: "#e8eaed",
@@ -440,12 +442,21 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
       if (newDependantFormulas.length === 0) {
         delete newRows[cellRowId].cells[cellColumnId].dependantFormulas;
       }
+      if (currentCell.formulaData) {
+        //if this cell is a formula
+        //since we just updated dependantFormulas list we have to update the referencing too
+        formulatedList.set(
+          `${cellColumnId},${cellRowId}`,
+          newRows[cellRowId].cells[cellColumnId]
+        );
+      }
     }
   });
   //return the new udpate rows
   return newRows;
 };
 const formulateRows = (rows) => {
+  //TODO: comments pls
   //remvoe all depandant formulas and formulaData
   //and re-eval all of them again
   let newRows = cloneDeep(rows).map((item, rowId) => {
@@ -455,9 +466,12 @@ const formulateRows = (rows) => {
         let newCell = { ...item };
         delete newCell.dependantFormulas;
         //if we have formulaData extract the non-evaled text and make it the text here
-        if (newCell.formulaData) {
-          newCell.text = newCell.formulaData.nonEvaledText;
+        if (newCell.formulaData || newCell.isFormula) {
+          newCell.text = newCell.placeholder; //set input(placeholder) to text so we can re-eval this
           delete newCell.formulaData;
+          delete newCell.placeholder;
+          //mark cell as a none formula
+          delete newCell.isFormula;
         }
         return newCell;
       }),
@@ -517,9 +531,11 @@ const updateCell = (changes, prevRows) => {
     //we reset this in case we're going from formula to text cell
     placeholder: "",
   };
+  //we remove this in case we go from formula( or formula feedback) => text cell
+  delete updatedCell.isFormula;
 
   newRows[rowId].cells[columnId] = updatedCell;
-  if (updatedCell.isFormula && updatedCell.formulaData) {
+  if (updatedCell.formulaData) {
     //we have a formula here, we have to treat it
     newRows = unHookFormula(updatedCell.formulaData, columnId, rowId, newRows);
   }
@@ -601,7 +617,6 @@ const updateFormulaFoo = (
   //TODO: on changing the formula cell, that cell can also have depandant cells
   //does the formula cell have dependant cells?
   const dependantFormulas = newFormulaCell.dependantFormulas;
-  // console.log("newFormulaCell", newFormulaCell);
   //add the updated formula to our formula(ted) list
   formulatedList.set(`${formulaColId},${formulaRowId}`, newFormulaCell);
   if (checkFormulaGraph() === "there is a cycle") {
@@ -913,8 +928,7 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
       columnName: toString26(startIndex + index).toUpperCase(),
     };
   });
-  console.log("newColumnsBefore", newColumnsBefore);
-  console.log("newColumnsAfter", newColumnsAfter);
+
   //merge the two parts
   const finalColumns = [...newColumnsBefore, ...newColumnsAfter];
   //update our rows, deleteing the cells that need to be
@@ -1028,7 +1042,7 @@ const rowsToArrays = (rows) => {
   return parsedRows;
 };
 const metaArrayToStyleArray = (metaArray) => {
- //TODO: comment
+  //TODO: comment
   const styleArray = metaArray.map((meta, index) => {
     const metaObj = meta[1].reduce((a, b) => Object.assign(a, b), {});
     //generic meta obj used in the frontend
@@ -1168,10 +1182,12 @@ const formatDate = (dateNumber) => {
   //converts a given date object into something we can show the user
   //TODO: display hours and mins?
   var options = {
-    weekday: "short",
     year: "numeric",
     month: "short",
     day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
   };
   const dateObj = new Date(dateNumber);
   return dateObj.toLocaleDateString("en-US", options);
@@ -1194,7 +1210,7 @@ const exportRowsCSV = () => {
   const rows = useStore.getState().rows;
   const parsedRows = rowsToArrays(rows);
   const results = Papa.unparse(parsedRows);
-  console.log("results", results);
+
   downloadBlob(results, "export.csv", "text/csv;charset=utf-8;");
   return true;
 };
