@@ -1,7 +1,17 @@
 import { SUM, PRODUCT } from "@formulajs/formulajs"; // import individual components
 
 const availableFormulas = [
-  { name: "SUM", execute: SUM },
+  {
+    name: "SUM",
+    execute: (arr) => {
+      //make sure all the inputs are (stringed) numbers
+      const isValid = arr.every((value) => !isNaN(parseInt(value)));
+      //feedback to the user
+      if (!isValid) return "#ERR: params must be numbers";
+
+      return SUM(arr);
+    },
+  },
   { name: "PRODUCT", execute: PRODUCT },
   {
     name: "EXACT",
@@ -11,7 +21,7 @@ const availableFormulas = [
     name: "DIV",
     execute: (arr) => {
       //divide first value by second
-      if (arr.length > 2) return "Error too many params";
+      if (arr.length > 2) return "#ERR: too many params";
       return arr[0] / arr[1];
     },
   },

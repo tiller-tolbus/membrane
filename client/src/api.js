@@ -30,8 +30,9 @@ const api = {
   putSpreadSheetData: async (uneditedSheetMeta) => {
     //get data from our zustand store
     const rows = useStore.getState().rows;
+    const columns = useStore.getState().columns;
     //transform the data into something the back end expects
-    const json = dataToJson2(rows, uneditedSheetMeta);
+    const json = dataToJson2(rows, columns, uneditedSheetMeta);
 
     return api.createApi().poke({
       app: "membrane",
@@ -108,6 +109,27 @@ const api = {
       app: "membrane",
       mark: "membrane-action",
       json: { "send-rsvp": inviteId },
+    });
+  },
+  acceptInvite: async (inviteId) => {
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { "send-rsvp": inviteId },
+    });
+  },
+  cancelInvite: async (inviteId) => {
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { "cancel-invite": inviteId },
+    });
+  },
+  declineInvite: async (inviteId) => {
+    return api.createApi().poke({
+      app: "membrane",
+      mark: "membrane-action",
+      json: { "decline-invite": inviteId },
     });
   },
 };

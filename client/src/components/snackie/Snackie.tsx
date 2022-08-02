@@ -6,18 +6,25 @@ import Snackbar from "@mui/material/Snackbar";
 
 import Alert from "../alert/Alert";
 import verbiage from "../../verbiage";
-export default function Snackie({ open, synced, handleClose, errorRetry }) {
-  const { success, error } = synced;
+export default function Snackie({
+  open,
+  state,
+  handleClose,
+  errorRetry = null,
+  successText,
+  errorText,
+}) {
+  const { success, error } = state;
   if (success) {
     return (
       <Snackbar
         open={open}
-        autoHideDuration={2000}
+        autoHideDuration={3000}
         onClose={handleClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <Alert onClose={handleClose} severity={"success"} sx={{ width: 300 }}>
-          {verbiage.syncSuccess}
+          {successText}
         </Alert>
       </Snackbar>
     );
@@ -25,24 +32,27 @@ export default function Snackie({ open, synced, handleClose, errorRetry }) {
     return (
       <Snackbar
         open={open}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        autoHideDuration={3000}
       >
         <Alert
           severity={"error"}
           sx={{ width: 300 }}
           action={
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() => {
-                errorRetry();
-              }}
-            >
-              {verbiage.tryAgain}
-            </Button>
+            errorRetry && (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  errorRetry();
+                }}
+              >
+                {verbiage.tryAgain}
+              </Button>
+            )
           }
         >
-          {verbiage.syncFail}
+          {errorText}
         </Alert>
       </Snackbar>
     );

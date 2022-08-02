@@ -44,7 +44,6 @@ function Grid() {
   };
 
   const handleChanges = (changes: CellChange<TextCell>[]) => {
-    console.log("changes",changes)
     let newRows = rows;
     //TODO: requires more testing
     //perform update x times
@@ -188,7 +187,6 @@ function Grid() {
     return menuOptions;
   };
   /**
-   * display error state in formulas
    * todo: update selected cell value to display correctly
    */
   return (

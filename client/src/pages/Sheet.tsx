@@ -17,6 +17,7 @@ import {
   formulateFormula,
   inCell,
   structureJson,
+  metaArrayToStyleArray,
 } from "../helpers";
 import verbiage from "../verbiage";
 import { useLocation } from "react-router-dom";
@@ -119,18 +120,21 @@ function Sheet() {
     const path = location.pathname.split("/apps/membrane/sheet")[1];
     try {
       const sheetData = await api.getSheetByPath(path);
-
       setFetchedSheetData(sheetData);
 
       const data = structureJson(sheetData);
 
-      const { columnCount, rowCount } = data.sheetMeta;
+      const { columnCount, rowCount, columnMeta, rowMeta } = data.sheetMeta;
+      //make the meta arrays useable
+      const columnStyles = metaArrayToStyleArray(columnMeta);
+      const rowStyles = metaArrayToStyleArray(rowMeta);
+
       //generate grid of x size
-      const rows = getRows(columnCount, rowCount);
-      //go ahead and insert the values into this row
+      const rows = getRows(columnCount, rowCount, columnStyles, rowStyles);
+      //go ahead and insert the values into the rows (also column/row styles)
       let newRows = inCell(data.sheetData, rows);
       //make our columns based on the length
-      let newColumns = getColumns(columnCount);
+      let newColumns = getColumns(columnCount, columnStyles);
       //go through each cell to eval formula if any
       let newRowsFormulas = newRows;
 
@@ -173,9 +177,11 @@ function Sheet() {
     <main>
       <Snackie
         open={snackieOpen}
-        synced={synced}
+        state={synced}
         handleClose={handleSanckieClose}
         errorRetry={syncSheet}
+        successText={verbiage.syncSuccess}
+        errorText={verbiage.syncFail}
       />
       <Header
         sheetName={title}

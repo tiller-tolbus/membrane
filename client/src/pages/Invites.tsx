@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 import api from "../api";
 import Typography from "@mui/material/Typography";
@@ -9,7 +9,6 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { GoBackButton } from "../components";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import { blue } from "@mui/material/colors";
@@ -20,14 +19,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 
 import { formatDate } from "../helpers";
+import { GoBackButton, Snackie } from "../components";
+import { LoadingButton } from "@mui/lab";
 
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
@@ -57,79 +53,6 @@ const shipName = (ship) => {
   );
 };
 
-function InviteMenu() {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  return (
-    <div>
-      <IconButton
-        aria-label="more"
-        id="long-button"
-        aria-controls={open ? "invite-menu" : undefined}
-        aria-expanded={open ? "true" : undefined}
-        aria-haspopup="true"
-        onClick={handleClick}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        id="invite-menu"
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: "visible",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-            mt: 1.5,
-            "& .MuiAvatar-root": {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
-            "&:before": {
-              content: '""',
-              display: "block",
-              position: "absolute",
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: "background.paper",
-              transform: "translateY(-50%) rotate(45deg)",
-              zIndex: 0,
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        <MenuItem onClick={() => console.log("ola")}>
-          <ListItemIcon>
-            {/* <PeopleAltOutlinedIcon fontSize="medium" /> */}
-          </ListItemIcon>
-          Share
-        </MenuItem>
-        <MenuItem onClick={() => console.log("ola")}>
-          <ListItemIcon>
-            {/* <DriveFileRenameOutlineIcon fontSize="medium" />*/}
-          </ListItemIcon>
-          Rename
-        </MenuItem>
-      </Menu>
-    </div>
-  );
-}
 function InviteActionDialog({
   open,
   handleClose,
@@ -164,9 +87,80 @@ function InviteItem({
   status,
   id,
   onInviteAccept = null,
-  onInviteReject = null,
+  onInviteDecline = null,
   onInviteCancel = null,
+  loading,
 }) {
+  /*
+  ::  a status indicates one of five things
+  ::  invited: appeal has been sent but not acknowledged
+  ::  waiting: appeal has been sent and acknowledged
+  ::  canceled: appeal was canceled by sender
+  ::  declined: appeal was declined by receiver
+  ::  accepted: appeal has been approved and rsvp sent; awaiting package
+  ::  sent: package has been sent but not acknowledged
+  ::  received: package has been sent and acknowledged
+  */
+  const actions = (status = "", direction, loading) => {
+    if (direction === "incoming") {
+      if (status === "waiting") {
+        return (
+          <>
+            <LoadingButton
+              color="success"
+              loading={loading.accept && loading.id === id}
+              onClick={() => onInviteAccept(id, true, path)}
+            >
+              accept
+            </LoadingButton>
+            <LoadingButton
+              loading={loading.decline && loading.id === id}
+              color="error"
+              onClick={() => onInviteDecline(id)}
+            >
+              decline
+            </LoadingButton>
+          </>
+        );
+      }
+    } else {
+      if (status === "waiting" || status === "invited") {
+        return (
+          <LoadingButton
+            loading={loading.cancel && loading.id === id}
+            color="error"
+            onClick={() => onInviteCancel(id)}
+          >
+            cancel
+          </LoadingButton>
+        );
+      }
+    }
+
+    return <div style={{ height: 36.5 }}></div>;
+  };
+  const styleStatus = (status = "") => {
+    if (status === "received") {
+      return (
+        <Typography variant="subtitle2" color="success.main">
+          {status}
+        </Typography>
+      );
+    } else if (status === "canceled" || status === "declined") {
+      return (
+        <Typography variant="subtitle2" color="error">
+          {status}
+        </Typography>
+      );
+    } else {
+      //all the pending ones go here
+      return (
+        <Typography variant="subtitle2" color="warning.main">
+          {status}
+        </Typography>
+      );
+    }
+  };
   return (
     <Item variant="outlined">
       <Grid container alignItems="center">
@@ -183,41 +177,70 @@ function InviteItem({
           {formatDate(date)}
         </Grid>
         <Grid item xs={2}>
-          {status}
+          {styleStatus(status)}
         </Grid>
 
         <Grid item xs={2}>
-          {direction === "incoming" ? (
-            <>
-              <Button
-                color="success"
-                onClick={() => onInviteAccept(id, true, path)}
-              >
-                accept
-              </Button>
-              <Button color="error" onClick={() => onInviteReject(id)}>
-                refuse
-              </Button>
-            </>
-          ) : (
-            <Button color="error" onClick={() => onInviteCancel(id)}>
-              cancel
-            </Button>
-          )}
+          {actions(status, direction, loading)}
         </Grid>
       </Grid>
     </Item>
   );
 }
-function LabTabs({ incoming, outgoing }) {
+function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
   const [value, setValue] = React.useState("1");
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [selectedInvite, setSelectedInvite] = React.useState(null);
+  const [loading, setLoading] = React.useState({
+    accept: false,
+    decline: false,
+    cancel: false,
+    id: null,
+  });
+  const [snackieOpen, setSnackieOpen] = React.useState(false);
+  const [snackieState, setSnackieState] = React.useState({
+    success: false,
+    error: false,
+  });
+  const onInviteItemUpdate = (id: string, newStatus: string) => {
+    //todo: merge these and only filter while displaying in tabs
+
+    const newOutgoing = outgoing.map((item) => {
+      if (item[0] === id) {
+        return [item[0], { ...item[1], why: newStatus }];
+      }
+      return item;
+    });
+    const newIncoming = incoming.map((item) => {
+      if (item[0] === id) {
+        return [item[0], { ...item[1], why: newStatus }];
+      }
+      return item;
+    });
+    setIncoming(newIncoming);
+    setOutgoing(newOutgoing);
+  };
+  const handleSanckieClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackieOpen(false);
+  };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedInvite(null);
   };
-  const onInviteAccept = async (id, validatePath: true, path) => {
+  const onInviteAccept = async (
+    id: string,
+    validatePath: true,
+    path: string,
+    direction: string
+  ) => {
     try {
       if (validatePath) {
         //check if this user already has a sheet at the target path,
@@ -229,23 +252,117 @@ function LabTabs({ incoming, outgoing }) {
         }
         console.log("pathExists", pathExists);
       }
+      setLoading({
+        accept: true,
+        decline: false,
+        cancel: false,
+        id,
+      });
       const result = await api.acceptInvite(id);
       console.log("onInviteAccept result => ", result);
+      if (result) {
+        setSnackieOpen(true);
+        setSnackieState({ success: true, error: false });
+        onInviteItemUpdate(id, "accepted");
+      } else {
+        setSnackieOpen(true);
+        setSnackieState({ success: false, error: true });
+      }
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: false,
+        id: null,
+      });
       handleDialogClose();
     } catch (e) {
       console.log("onInviteAccept error => ", e);
       if (e === "path already exists") {
-        console.log("here");
         setDialogOpen(true);
         setSelectedInvite({ id, path });
+      } else {
+        setSnackieOpen(true);
+        setSnackieState({ success: false, error: true });
       }
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: false,
+        id: null,
+      });
     }
   };
-  const onInviteReject = () => {
-    handleDialogClose();
+  const onInviteDecline = async (id: string, direction: string) => {
+    try {
+      setLoading({
+        accept: false,
+        decline: true,
+        cancel: false,
+        id,
+      });
+      const result = await api.declineInvite(id);
+      console.log("onInviteDecline result => ", result);
+      if (result) {
+        setSnackieOpen(true);
+        setSnackieState({ success: true, error: false });
+        onInviteItemUpdate(id, "declined");
+      } else {
+        setSnackieOpen(true);
+        setSnackieState({ success: false, error: true });
+      }
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: false,
+        id: null,
+      });
+    } catch (e) {
+      console.log("onInviteDecline error => ", e);
+      setSnackieOpen(true);
+      setSnackieState({ success: false, error: true });
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: false,
+        id: null,
+      });
+    }
   };
-  const onInviteCancel = () => {
-    handleDialogClose();
+  const onInviteCancel = async (id: string, direction: string) => {
+    try {
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: true,
+        id,
+      });
+      const result = await api.cancelInvite(id);
+      if (result) {
+        setSnackieOpen(true);
+        setSnackieState({ success: true, error: false });
+        onInviteItemUpdate(id, "canceled");
+      } else {
+        setSnackieOpen(true);
+        setSnackieState({ success: false, error: true });
+      }
+      console.log("onInviteCancel result => ", result);
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: false,
+        id: null,
+      });
+    } catch (e) {
+      console.log("onInviteCancel error => ", e);
+      setSnackieOpen(true);
+      setSnackieState({ success: false, error: true });
+      setLoading({
+        accept: false,
+        decline: false,
+        cancel: false,
+        id: null,
+      });
+    }
   };
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -282,6 +399,13 @@ function LabTabs({ incoming, outgoing }) {
 
   return (
     <Box>
+      <Snackie
+        open={snackieOpen}
+        state={snackieState}
+        handleClose={handleSanckieClose}
+        successText={"hey! that worked!"}
+        errorText={"whops! that did go well :c"}
+      />
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
@@ -304,7 +428,8 @@ function LabTabs({ incoming, outgoing }) {
                 id={item[0]}
                 direction={"incoming"}
                 onInviteAccept={onInviteAccept}
-                onInviteReject={onInviteReject}
+                onInviteDecline={onInviteDecline}
+                loading={loading}
               />
             );
           })}
@@ -324,6 +449,7 @@ function LabTabs({ incoming, outgoing }) {
                 id={item[0]}
                 direction={"outgoing"}
                 onInviteCancel={onInviteCancel}
+                loading={loading}
               />
             );
           })}
@@ -341,23 +467,25 @@ function LabTabs({ incoming, outgoing }) {
 export default function Invites() {
   const [outgoing, setOutgoing] = useState([]);
   const [incoming, setIncoming] = useState([]);
+
   const getInvites = async () => {
     try {
       const invites = await api.getInvites();
       //convert these into something we can use
       const outgoing = Object.entries(invites.outbox);
       const incoming = Object.entries(invites.inbox);
-      console.log("invites", invites);
+      console.log("getInvites result => ", invites);
 
       setOutgoing(outgoing);
       setIncoming(incoming);
     } catch (e) {
-      console.log("e", e);
+      console.log("getInvites error =>", e);
     }
   };
   useEffect(() => {
     getInvites();
   }, []);
+
   return (
     <>
       <Box
@@ -376,7 +504,12 @@ export default function Invites() {
             Invites
           </Typography>
         </Stack>
-        <LabTabs outgoing={outgoing} incoming={incoming} />
+        <LabTabs
+          outgoing={outgoing}
+          incoming={incoming}
+          setIncoming={setIncoming}
+          setOutgoing={setOutgoing}
+        />
       </Container>
     </>
   );

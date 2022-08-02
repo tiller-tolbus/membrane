@@ -1,4 +1,4 @@
-import { ROW_COUNT, CELL_CAP } from "./constants";
+import { ROW_COUNT, CELL_CAP, COLUMN_WIDTH } from "./constants";
 import availableFormulas from "./components/grid/formulajs";
 import cloneDeep from "lodash/cloneDeep";
 import Papa from "papaparse";
@@ -116,15 +116,26 @@ const getFirstCell = (text) => {
     },
   };
 };
-const getRows = (columnCount = 27, rowCount = ROW_COUNT) => {
+const getRows = (
+  columnCount = 27,
+  rowCount = ROW_COUNT,
+  columnStyles,
+  rowStyles
+) => {
   /*
   main grid data is returned here
   */
-  return generateRows(rowCount, [getFirstRow(columnCount)]);
+  return generateRows(
+    rowCount,
+    [getFirstRow(columnCount)],
+    columnStyles,
+    rowStyles
+  );
 };
 
-const getColumns = (length = 27) => {
+const getColumns = (length = 27, columnStyles = []) => {
   /**
+   * TODO: update comments
    * given a length generate the columns react-grid needs and we need to display stuff
    * note this is different from first row in our rows
    *
@@ -136,11 +147,18 @@ const getColumns = (length = 27) => {
   let newLength = length + 1;
   for (let i = 0; i < newLength; i++) {
     //make first COLUMN smaller
-    let width = 100;
+    let width = COLUMN_WIDTH;
     if (i === 0) {
       width = 60;
     }
-
+    //if we have width in our columnStyles we override the value
+    columnStyles.forEach((item) => {
+      if (item[0] === i - 1) {
+        if (item[1].width) {
+          width = item[1].width;
+        }
+      }
+    });
     columns.push({
       columnId: i,
       columnName: toString26(i).toUpperCase(),
@@ -618,7 +636,7 @@ const updateFormulaFoo = (
 
   return newRows;
 };
-const generateRows = (rowCount, oldRows) => {
+const generateRows = (rowCount, oldRows, columnStyles = [], rowStyles = []) => {
   //++cellcount
   /* 
     generate X more rows 
@@ -628,6 +646,7 @@ const generateRows = (rowCount, oldRows) => {
   const newRows = cloneDeep(oldRows);
   //establish the number of columns
   const colCount = newRows[0].cells.length;
+
   //add x rows (rowCount)
   for (let i = 0; i < rowCount; i++) {
     let cells = [];
@@ -652,6 +671,27 @@ const generateRows = (rowCount, oldRows) => {
       cells,
     });
   }
+  //attach column styles if any
+  //TODO: when saving remove false values to save space
+  columnStyles.forEach((item) => {
+    const colIndex = item[0] + 1; //offset we have an extra (just for display) column
+    const customStyles = item[1];
+
+    newRows[0].cells[colIndex] = {
+      ...newRows[0].cells[colIndex],
+      customStyles,
+    };
+  });
+  //attach the row styles if any
+  rowStyles.forEach((item) => {
+    const rowIndex = item[0] + 1; //offset we have an extra (just for display) column
+    const customStyles = item[1];
+
+    newRows[rowIndex].cells[0] = {
+      ...newRows[rowIndex].cells[0],
+      customStyles,
+    };
+  });
   return newRows;
 };
 const verifyCellCount = (columns, rows, offset) => {
@@ -666,8 +706,9 @@ const verifyCellCount = (columns, rows, offset) => {
   }
   return true;
 };
-const inCell = (cellArray, rows) => {
+const inCell = (cellArray, rows, columnStyles = []) => {
   /***
+   * TODO: update comments
    * given cells array
    * example: [[1,1],{"meta":{ "bold":true },"data":{"input":"ID","output":"ID"}}]
    * put them in their place!
@@ -677,6 +718,7 @@ const inCell = (cellArray, rows) => {
   formulatedList = new Map();
 
   let newRows = cloneDeep(rows);
+
   cellArray.forEach((item) => {
     //offset by one to
     let rowId = item[0][0] + 1;
@@ -689,7 +731,7 @@ const inCell = (cellArray, rows) => {
     cellToUpdate.input = cellData.data.input;
     cellToUpdate.output = cellData.data.output;
     //make our customStyles obj from this data
-    //array of objs to a shallow obj thatwe can use
+    //array of objs to a shallow obj that we can use
     const metaObj = cellData.meta.reduce((a, b) => Object.assign(a, b), {});
     //generic meta obj used in the frontend
     let customStyles = {
@@ -752,7 +794,7 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
     columnId: newColumnsBefore.length,
     //todo: use base26string on this and on the rest of the columnNames
     columnName: toString26(newColumnsBefore.length).toUpperCase(),
-    width: 100,
+    width: COLUMN_WIDTH,
     resizable: true,
   });
   //adjust the after array's indecies
@@ -985,7 +1027,55 @@ const rowsToArrays = (rows) => {
 
   return parsedRows;
 };
-const dataToJson2 = (data, meta) => {
+const metaArrayToStyleArray = (metaArray) => {
+ //TODO: comment
+  const styleArray = metaArray.map((meta, index) => {
+    const metaObj = meta[1].reduce((a, b) => Object.assign(a, b), {});
+    //generic meta obj used in the frontend
+    let customStyles = {
+      bold: metaObj.bold,
+      italic: metaObj.italic,
+      color: metaObj.foreground,
+      backgroundColor: metaObj.background,
+      strikeThrough: metaObj.strikethrough,
+      underline: metaObj.underline,
+      fontSize: metaObj.size,
+      width: metaObj.width,
+    };
+    //remove all the fields that evaled to undefined (don't exist)
+    Object.keys(customStyles).forEach(
+      (key) => customStyles[key] === undefined && delete customStyles[key]
+    );
+    return [meta[0], customStyles];
+  });
+  return styleArray;
+};
+const styleObjectToMetaArray = (customStyles) => {
+  /**
+   * TODO:COMMENT OUT
+   */
+  let metaArray = [];
+  if (customStyles) {
+    //make our customStyles obj from this data
+    let metaObj = {
+      bold: customStyles.bold,
+      italic: customStyles.italic,
+      foreground: customStyles.color,
+      background: customStyles.backgroundColor,
+      strikethrough: customStyles.strikeThrough,
+      underline: customStyles.underline,
+      size: customStyles.fontSize,
+    };
+    Object.keys(metaObj).forEach((key) => {
+      //if field is defined add it to our list
+      if (metaObj[key] !== undefined) {
+        metaArray.push({ [key]: metaObj[key] });
+      }
+    });
+  }
+  return metaArray;
+};
+const dataToJson2 = (data, columns, meta) => {
   //TODO:comment better
   /*
     takes grid data(rows) and transform it into what the back-end expects
@@ -994,25 +1084,49 @@ const dataToJson2 = (data, meta) => {
   */
   //exclude first row (a,b,c...) (coulmns)
   let newData = cloneDeep(data);
-  newData.shift();
-
+  const columnRow = newData.shift(); //remove from newData and assign the result to columnRow
+  //generate column meta
+  const columnMeta = [];
+  columnRow.cells.forEach((col, index) => {
+    //always exclude first column
+    if (index === 0) return;
+    //if this column either has a custom width or customStlyes, we save it
+    if (
+      columns[index].width !== COLUMN_WIDTH ||
+      (col.customStyles && Object.keys(col.customStyles).length > 0)
+    ) {
+      const columnMetaArray = styleObjectToMetaArray(col.customStyles);
+      //check for width in corresponding column (coulmn array)
+      if (columns[index].width !== COLUMN_WIDTH) {
+        //we have a width that differs from app default
+        //we add this to the metaArray
+        columnMetaArray.push({ width: parseInt(columns[index].width) }); //only accepts ints not floats
+      }
+      if (columnMetaArray && columnMetaArray.length > 0) {
+        columnMeta.push([index - 1, columnMetaArray]); //make shore to offset first column
+      }
+    }
+  });
   //update row/column count and last-modified for now
   const rowCount = data.length - 1;
   const columnCount = data[0].cells.length - 1;
   const timeNow = new Date().getTime();
-  const sheetMeta = {
-    ...meta,
-    "column-count": columnCount,
-    "row-count": rowCount,
-    "last-modified": timeNow,
-  };
 
   const jsonData = [];
-
+  const rowMeta = [];
   newData.forEach((item, rowIndex) => {
     let newCells = [...item.cells];
     //exclude the first cell (1,2,3...) (row count cell)
-    newCells.shift();
+    //if check the first cell we just removed for row styles
+    const rowCell = newCells.shift();
+    if (rowCell.customStyles) {
+      //we have styles, update row meta array
+      const rowMetaArray = styleObjectToMetaArray(rowCell.customStyles);
+      if (rowMetaArray && rowMetaArray.length > 0) {
+        rowMeta.push([rowIndex, rowMetaArray]); //we already offset :)
+      }
+    }
+
     return newCells.forEach((item, columnIndex) => {
       //these are the values we save to urbit
       //either cells that have a text value or customStyles value
@@ -1020,26 +1134,7 @@ const dataToJson2 = (data, meta) => {
         //we have a value, this gets included into the data we send
 
         let textData = { input: item.input, output: item.output };
-        //TODO: make a function out this
-        let metaArray = [];
-        if (item.customStyles) {
-          //make our customStyles obj from this data
-          let metaObj = {
-            bold: item.customStyles.bold,
-            italic: item.customStyles.italic,
-            foreground: item.customStyles.color,
-            background: item.customStyles.backgroundColor,
-            strikethrough: item.customStyles.strikeThrough,
-            underline: item.customStyles.underline,
-            size: item.customStyles.fontSize,
-          };
-          Object.keys(metaObj).forEach((key) => {
-            //if field is defined add it to our list
-            if (metaObj[key] !== undefined) {
-              metaArray.push({ [key]: metaObj[key] });
-            }
-          });
-        }
+        let metaArray = styleObjectToMetaArray(item.customStyles);
         //rowId =>  rowIndex
         //columnId => cellIndex
         let jsonDataItem = [
@@ -1051,6 +1146,15 @@ const dataToJson2 = (data, meta) => {
       }
     });
   });
+  const sheetMeta = {
+    ...meta,
+    "column-count": columnCount,
+    "column-meta": columnMeta,
+
+    "row-count": rowCount,
+    "row-meta": rowMeta,
+    "last-modified": timeNow,
+  };
   return { meta: sheetMeta, data: jsonData };
 };
 
@@ -1191,4 +1295,5 @@ export {
   structureJson,
   structureJson1,
   matchURLSafe,
+  metaArrayToStyleArray,
 };

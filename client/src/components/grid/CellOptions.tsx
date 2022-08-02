@@ -121,7 +121,8 @@ export default function CellOptions() {
     //TODO: comment this function
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
-
+    //we don't want to have any styles affect this cell
+    if (columnId === 0 && rowId === 0) return;
     let newRows = cloneDeep(rows);
     let currentCell = newRows[rowId].cells[columnId];
     let newCustomStyle = { ...currentCell.customStyles };
@@ -185,6 +186,8 @@ export default function CellOptions() {
 
     if (!selectedCell) return false;
     const { columnId, rowId } = selectedCell.location;
+    //we don't want to have any styles affect this cell
+    if (columnId === 0 && rowId === 0) return;
     //make a copy of rows
     let newRows = cloneDeep(rows);
     let currentCell = newRows[rowId].cells[columnId];
