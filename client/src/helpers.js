@@ -70,8 +70,8 @@ const toString26 = (num) => {
 
   return result;
 };
-const getColumnCell = (text) => {
-  return {
+const getColumnCell = (text, customStyles) => {
+  const cell = {
     type: "text",
     text,
     input: "", //we have this for display purposes in CellOptions (input bar)
@@ -86,6 +86,10 @@ const getColumnCell = (text) => {
       },
     },
   };
+  if (customStyles) {
+    cell.customStyles = customStyles;
+  }
+  return cell;
 };
 const getFirstRow = (length = 27) => {
   /*
@@ -754,7 +758,7 @@ const inCell = (cellArray, rows, columnStyles = []) => {
       italic: metaObj.italic,
       color: metaObj.foreground,
       backgroundColor: metaObj.background,
-      strikeThrough: metaObj.strikethrough,
+      strikethrough: metaObj.strikethrough,
       underline: metaObj.underline,
       fontSize: metaObj.size,
     };
@@ -815,10 +819,12 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
   //adjust the after array's indecies
   let startIndex = newColumnsBefore.length;
   newColumnsAfter = newColumnsAfter.map((item, index) => {
+    let newIndex = startIndex + index;
+
     return {
       ...item,
-      columnId: startIndex + index,
-      columnName: toString26(startIndex + index).toUpperCase(),
+      columnId: newIndex,
+      columnName: toString26(newIndex).toUpperCase(),
     };
   });
   //merge the two parts
@@ -830,8 +836,21 @@ const addColumn = (selectedColumnId, direction, columns, rows) => {
       //header cells
       //use the generated columns above here
       //update the title of the first row (columns)
-      let newCells = finalColumns.map((item) => {
-        return getColumnCell(item.columnName);
+      //we make sure to reinsert column styles
+      let newCells = finalColumns.map((item, columnIndex) => {
+        let customStyles;
+        //try catch since there is always an cell difference between columns and rows(one we add here)
+        try {
+          //we don't look for styles in new cell position
+          if (columnIndex < cellIndex) {
+            //before insert position
+            customStyles = newRows[0].cells[columnIndex].customStyles;
+          } else if (columnIndex > cellIndex) {
+            //after insert position
+            customStyles = newRows[0].cells[columnIndex - 1].customStyles;
+          }
+        } catch (e) {}
+        return getColumnCell(item.columnName, customStyles);
       });
       newRows[0].cells = newCells;
     } else {
@@ -937,8 +956,24 @@ const deleteColumn = (selectedColumnId, columns, rows) => {
       //header cells
       //use the generated columns above here
       //update the title of the first row (columns)
-      let newCells = finalColumns.map((item) => {
-        return getColumnCell(item.columnName);
+      //we make sure to reinsert column styles
+      let newCells = finalColumns.map((item, columnIndex) => {
+        //we want to reinsert styles if we have any
+        let customStyles;
+        //try catch since there is always an cell difference between columns and rows(one we add here)
+        try {
+          if (columnIndex < selectedColumnId) {
+            //before delete position
+            customStyles = newRows[0].cells[columnIndex].customStyles;
+          } else if (columnIndex > selectedColumnId) {
+            //after delete position
+            customStyles = newRows[0].cells[columnIndex + 1].customStyles;
+          } else if (columnIndex === selectedColumnId) {
+            //at delete position
+            customStyles = newRows[0].cells[columnIndex + 1].customStyles;
+          }
+        } catch (e) {}
+        return getColumnCell(item.columnName, customStyles);
       });
       return { ...item, cells: newCells };
     } else {
@@ -1051,7 +1086,7 @@ const metaArrayToStyleArray = (metaArray) => {
       italic: metaObj.italic,
       color: metaObj.foreground,
       backgroundColor: metaObj.background,
-      strikeThrough: metaObj.strikethrough,
+      strikethrough: metaObj.strikethrough,
       underline: metaObj.underline,
       fontSize: metaObj.size,
       width: metaObj.width,
@@ -1076,7 +1111,7 @@ const styleObjectToMetaArray = (customStyles) => {
       italic: customStyles.italic,
       foreground: customStyles.color,
       background: customStyles.backgroundColor,
-      strikethrough: customStyles.strikeThrough,
+      strikethrough: customStyles.strikethrough,
       underline: customStyles.underline,
       size: customStyles.fontSize,
     };
@@ -1140,7 +1175,6 @@ const dataToJson2 = (data, columns, meta) => {
         rowMeta.push([rowIndex, rowMetaArray]); //we already offset :)
       }
     }
-
     return newCells.forEach((item, columnIndex) => {
       //these are the values we save to urbit
       //either cells that have a text value or customStyles value
