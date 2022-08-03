@@ -1,4 +1,5 @@
 /-  *membrane-sheet
+/+  *membrane-utils
 =,  dejs:format
 !:
 |%
@@ -52,7 +53,7 @@
 ++  dejs-path
   |=  jon=json
   ^-  path
-  (stab (so jon))
+  (wrap-path (stab (so jon)))
 ++  dejs-title
   |=  jon=json
   ^-  @t

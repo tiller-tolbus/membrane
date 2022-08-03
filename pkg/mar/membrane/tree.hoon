@@ -1,4 +1,4 @@
-=,  enjs:format
+/+  *membrane-enjs
 |_  tree=(list ^path)
 ++  grow
   |%
@@ -8,11 +8,11 @@
     :-  %a
     ^-  (list ^json)
     %-  turn
-    :-  tree  path
+    :-  tree  enjs-path
   --
 ++  grab
   |%
-  ++  noun  ^-((list ^path) tree)
+  ++  noun  (list ^path)
   --
 ++  grad  %noun
   --

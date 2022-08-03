@@ -3,20 +3,20 @@
 ::  mark for all membrane pokes from front-end client is %membrane-action
 +$  action
   $%
-    ::  {"replace": [path, sheet]}
-    [%replace path sheet]
+    ::  {"write": [path, sheet]}
+    [%write where=path what=sheet]
     ::  {"create": [path, title]}
-    [%create path @t]
+    [%create where=path what=@t]
     ::  {"rename": [path, title]}
-    [%rename path @t]
+    [%rename where=path what=@t]
     ::  {"retag": [path, [tag1, tag2, tag3 ... ]]}
-    [%retag path (set tag)]
+    [%retag where=path what=(set tag)]
     ::  {"delete": path}
-    [%delete path]
+    [%delete where=path]
     ::  {"move": [path, path]}
-    [%move path path]
+    [%move opax=path npax=path]
     ::  {"send-invite": [address, path]}
-    [%send-invite @p path]
+    [%send-invite who=@p where=path]
     ::  {"send-rsvp": id}
     [%send-rsvp id=@uw]
     ::  {"cancel-invite": id}

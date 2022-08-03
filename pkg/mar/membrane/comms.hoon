@@ -30,7 +30,7 @@
       :~  [%who (tape (scow %p who.inv))]
         [%what (tape (trip what.inv))]
         [%when (time when.inv)]
-        [%where (path where.inv)]
+        [%where (enjs-path where.inv)]
         [%why (tape (trip why.inv))]
         ==
     --

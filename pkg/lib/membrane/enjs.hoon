@@ -1,4 +1,5 @@
 /-  *membrane-sheet
+/+  *membrane-utils
 =,  enjs:format
 !:
 |%
@@ -32,9 +33,9 @@
   ^-  json
   (tape (scow %uw id))
 ++  enjs-path
-  |=  path=^path
+  |=  pax=^path
   ^-  json
-  (tape (spud path))
+  (path (unwrap-path pax))
 ++  enjs-title
   |=  title=@t
   ^-  json

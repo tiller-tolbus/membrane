@@ -1,19 +1,23 @@
 /-  *membrane-sheet
 /+  *membrane-dejs
 /+  *membrane-enjs
-|_  shet=sheet
+|_  s=sheet
 ::  grow: methods for converting from our mark to another mark
 ::
 ++  grow
   |%
-  ++  noun  shet
-  ++  json  (enjs-sheet shet)
+  ::  mime type so mounting a clay desk doesn't return an error   
+  ::  not currently useful for anything
+  ++  mime  [/application/octet-stream (as-octs:mimes:html (jam s))]
+  ++  noun  s
+  ++  json  (enjs-sheet s)
   --
 ::  grab:  methods for converting to our mark from another mark.
 ::
 ++  grab
   |%
-  ++  noun  ^-(sheet shet)
+  ++  mime  |=(=^mime (sheet (cue q.q.mime)))
+  ++  noun  sheet
   ++  json  dejs-sheet
   --
 ::  revision control methods
