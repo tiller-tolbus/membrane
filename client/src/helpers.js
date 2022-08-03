@@ -1045,8 +1045,8 @@ const jsonToData = (json) => {
       cells.push({
         type: "extendedText",
         text: item,
-        output: "",
-        input: "",
+        output: item,
+        input: item,
       });
     });
     return {
@@ -1070,7 +1070,7 @@ const rowsToArrays = (rows) => {
     //exclude the first cell (1,2,3...) (row count cell)
     newCells.shift();
     return newCells.map((item) => {
-      return item.text;
+      return item.output;
     });
   });
 

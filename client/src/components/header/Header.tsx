@@ -20,6 +20,7 @@ import {
 import useStore from "../../store";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import api from "../../api";
+import { CELL_CAP } from "../../constants";
 const TitleInput = styled(OutlinedInput)(({ theme }) => ({
   ...theme.typography.h6,
 
@@ -59,6 +60,8 @@ export default function Header({
 
   const setRows = useStore((store) => store.setRows);
   const setColumns = useStore((store) => store.setColumns);
+
+  const cellCapAlertToggle = useStore((store) => store.cellCapAlertToggle);
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -200,11 +203,14 @@ export default function Header({
                   //parse the text into arrays of arrays
                   const arrayData = importCSV(textValues);
                   //parse the array of arrays intro
-                  //TODO: this is repeated in Sheet.tsx
-                  const columnLength = arrayData[0].length + 1; // +1 because the first column is the row count one
-
-                  // do formula stuff before setting rows
-                  //TODO: add formulas here?
+                  //TODO: this is repeated in Sheet.tsx refractor later
+                  const columnLength = arrayData[0].length + 1; // +1 because the first column is the row count one*
+                  //directly check if we have too many incoming cells
+                  const cellCount = columnLength * arrayData.length;
+                  if (cellCount > CELL_CAP) {
+                    cellCapAlertToggle(true);
+                    return;
+                  }
                   const parsedData = jsonToData(arrayData);
 
                   setColumns(getColumns(columnLength));
