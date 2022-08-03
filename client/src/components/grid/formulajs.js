@@ -12,6 +12,19 @@ const availableFormulas = [
       return SUM(arr);
     },
   },
+  {
+    name: "DIFF",
+    execute: (arr) => {
+      //make sure all the inputs are (stringed) numbers
+      const isValid = arr.every((value) => !isNaN(parseInt(value)));
+      //feedback to the user
+      if (!isValid) return "#ERR: params must be numbers";
+
+      return arr.reduce(
+        (previousValue, currentValue) => previousValue - currentValue
+      );
+    },
+  },
   { name: "PRODUCT", execute: PRODUCT },
   {
     name: "EXACT",

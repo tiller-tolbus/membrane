@@ -1024,6 +1024,7 @@ const deleteRow = (selectedRowId, rows) => {
 };
 /* JSON HELPERS */
 const jsonToData = (json) => {
+  //TODO: update comments
   /*
     take parsed json from the server and turn it into something client can use
     returns rows
@@ -1058,6 +1059,7 @@ const jsonToData = (json) => {
   return [...firstRow, ...rows];
 };
 const rowsToArrays = (rows) => {
+  //TODO: update comments
   /*
     giving rows returns and array of arrays of just text data(includes empty rows) (csv like) 
   */
