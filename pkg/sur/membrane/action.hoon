@@ -10,13 +10,13 @@
     ::  {"rename": [path, title]}
     [%rename where=path what=@t]
     ::  {"retag": [path, [tag1, tag2, tag3 ... ]]}
-    [%retag path (set tag)]
+    [%retag where=path what=(set tag)]
     ::  {"delete": path}
-    [%delete path]
+    [%delete where=path]
     ::  {"move": [path, path]}
-    [%move path path]
+    [%move opax=path npax=path]
     ::  {"send-invite": [address, path]}
-    [%send-invite @p path]
+    [%send-invite who=@p where=path]
     ::  {"send-rsvp": id}
     [%send-rsvp id=@uw]
     ::  {"cancel-invite": id}

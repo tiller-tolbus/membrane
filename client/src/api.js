@@ -24,9 +24,6 @@ const api = {
 
     return urb;
   }),
-  getSpreadsheetData: async () => {
-    return api.createApi().scry({ app: "membrane", path: "/pull" });
-  },
   putSpreadSheetData: async (uneditedSheetMeta) => {
     //get data from our zustand store
     const rows = useStore.getState().rows;
@@ -36,11 +33,11 @@ const api = {
     return api.createApi().poke({
       app: "membrane",
       mark: "membrane-action",
-      json: { replace: [uneditedSheetMeta.path, json] },
+      json: { write: [uneditedSheetMeta.path, json] },
     });
   },
   getSheetByPath: async (path) => {
-    return api.createApi().scry({ app: "membrane", path: "/retrieve" + path });
+    return api.createApi().scry({ app: "membrane", path: "/read" + path });
   },
   getAllPaths: async (path = "") => {
     return api.createApi().scry({ app: "membrane", path: "/tree" + path });

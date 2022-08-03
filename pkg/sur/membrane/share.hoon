@@ -22,17 +22,17 @@
   %accepted 
   %sent 
   %received
-  ==
-::  an inbox maps ids to invitations 
+==
+::  an inbox maps IDs to invitations 
 +$  inbox  (map @uw invitation)
 ::  an outbox is the same as an inbox but for outbound invitations
 +$  outbox  inbox
 ::  messages between ships for sharing
 +$  message
   $%
-    [%invite appeal]
+    [%invite a=appeal]
     [%rsvp id=@uw]
-    [%package id=@uw sheet]
+    [%package id=@uw s=sheet]
     [%cancel id=@uw]
     [%decline id=@uw]
   ==

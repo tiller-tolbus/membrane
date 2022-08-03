@@ -23,12 +23,12 @@
 %-  agent:dbug
 =|  state-0
 =*  state  -
-::  temporary filesystem (pre-clay)
 ^-  agent:gall
 |_  =bowl:gall
 +*  this  .
     def   ~(. (default-agent this %) bowl)
     io  ~(. agentio bowl)
+    prefix  ~[(scot %p our.bowl) %membrane (scot %da now.bowl)]
 ::  Agent arms (10) (mandatory)
 ::
 ++  on-init  on-init:def
@@ -58,43 +58,43 @@
     ?-  -.act
       %write
         :_  this
-        [(mut-card where.act (update what.act now.bowl)]~
+        [(mut-card where.act (update-time what.act now.bowl))]~
       %create
         :_  this
-        [(ins-card where.act (create-sheet where.act what.act bowl)]~
+        [(ins-card where.act (create-sheet where.act what.act bowl))]~
       %rename
-        =/  sht=sheet  ^.(sheet %cx (meld /=membrane=/sheets/ where.act))
+        =/  s=sheet  .^(sheet %cx (weld prefix where.act))
         :_  this
-        [(mut-card where.act (update sht(title.meta what.act) now.bowl)]~
+        [(mut-card where.act (update-time s(title.meta what.act) now.bowl))]~
       %retag
-        =/  pax=path  +<.act
-        =/  tags=(set tag)  +>.act
-        `this(files (~(jab by files) pax (retag-gate tags)))
+        =/  s=sheet  .^(sheet %cx (weld prefix where.act))
+        :_  this
+        [(mut-card where.act (update-time s(tags.meta what.act) now.bowl))]~
       %delete
-        =/  pax=path  +.act
-        `this(files (~(del by files) pax))
+        :_  this
+        [(del-card where.act)]~
       %move
-        =/  opax=path  +<.act
-        =/  npax=path  +>.act
-        `this(files (move-sheet files opax npax))
+        =/  s=sheet  .^(sheet %cx (weld prefix opax.act))
+        :_  this
+        :~  
+          %-  move-card 
+          :+  opax.act  npax.act 
+          (update-time s(path.meta npax.act) now.bowl)
+        ==
       %send-invite
-        =/  who=@p  +<.act
-        =/  pax=path  +>.act
-        =/  what=sheet  (~(got by files) pax)
+        =/  what=sheet  .^(sheet %cx (weld prefix where.act))
         =/  id=@uw  (create-id eny.bowl)
-        =/  appl=appeal  [id title.meta.what pax]
-        =/  =dock  [who %membrane]
+        =/  appl=appeal  [id title.meta.what where.act]
+        =/  =dock  [who.act %membrane]
         =/  =cage  [%membrane-message !>(`message`[%invite appl])]
         :-  ~[(~(poke pass:io /invite/(scot %uw id)) dock cage)]
-        this(outbox (~(put by outbox) id (process-appeal-out appl who now.bowl)))
+        this(outbox (~(put by outbox) id (process-appeal-out appl who.act now.bowl)))
       %send-rsvp
-        =/  id=@uw  +.act
-        =/  inv=invitation  (~(got by inbox) id)
-        =/  who=@p  who.inv 
-        =/  =dock  [who %membrane]
-        =/  =cage  [%membrane-message !>(`message`[%rsvp id])]
-        :-  ~[(~(poke pass:io /rsvp/(scot %uw id)) dock cage)]
-        this(inbox (~(put by inbox) id inv(why %accepted)))
+        =/  inv=invitation  (~(got by inbox) id.act)
+        =/  =dock  [who.inv %membrane]
+        =/  =cage  [%membrane-message !>(`message`[%rsvp id.act])]
+        :-  ~[(~(poke pass:io /rsvp/(scot %uw id.act)) dock cage)]
+        this(inbox (~(jab by inbox) id.act (mark-status %accepted)))
       %cancel-invite
         =/  inv=invitation  (~(got by outbox) id.act)
         =/  =dock  [who.inv %membrane]
@@ -116,45 +116,36 @@
       ::  puts invitation into the inbox
       ::  a notification might be appropriate here
       %invite
-        =/  =appeal  +.msg
-        =/  =invitation  (process-appeal appeal src.bowl now.bowl)
-        `this(inbox (~(put by inbox) id.appeal invitation))
+        ::  crash if id already exists
+        ?<  (~(has by inbox) id.a.msg)
+        =/  inv=invitation  (process-appeal a.msg src.bowl now.bowl)
+        `this(inbox (~(put by inbox) id.a.msg inv))
       ::  handle an accepted invite
       %rsvp
-        =/  id=@uw  +.msg
-        =/  uinv=(unit invitation)  (~(get by outbox) id)
+        =/  uinv=(unit invitation)  (~(get by outbox) id.msg)
         ?~  uinv
           ::  insert proper error message here
           (on-poke:def mark vase)
         =/  inv=invitation  u.uinv
         ?>  =(why.inv %waiting)
         ?>  =(who.inv src.bowl)
-        =/  uwhat=(unit sheet)  (~(get by files) where.inv)
-        ?~   uwhat
-          ::  insert proper error message here
-          (on-poke:def mark vase)
-        =/  what=sheet  u.uwhat
+        =/  what=sheet  .^(sheet %cx (weld prefix where.inv))
         =/  =dock  [who.inv %membrane]
-        =/  =cage  [%membrane-message !>(`message`[%package id what])]
-        :-  ~[(~(poke pass:io /package/(scot %uw id)) dock cage)]
-          this(outbox (~(jab by outbox) id (mark-status %sent)))
+        =/  =cage  [%membrane-message !>(`message`[%package id.msg what])]
+        :-  ~[(~(poke pass:io /package/(scot %uw id.msg)) dock cage)]
+          this(outbox (~(jab by outbox) id.msg (mark-status %sent)))
       ::  handle an incoming sheet
       %package
-        =/  id=@uw  +<.msg
-        =/  what=sheet  +>.msg
         ::  authenticate package
-        =/  uinv=(unit invitation)  (~(get by inbox) id)
+        =/  uinv=(unit invitation)  (~(get by inbox) id.msg)
         ?~  uinv
           ::  insert proper error message here
           (on-poke:def mark vase)
         =/  inv=invitation  u.uinv
         ?>  =(why.inv %accepted)
         ::  save sheet and mark invitation as received
-        :-  ~
-        %=  this
-          inbox  (~(jab by inbox) id (mark-status %received))
-          files  (~(put by files) where.inv what)
-        ==
+        :-  [(ins-card where.inv s.msg)]~
+        this(inbox (~(jab by inbox) id.msg (mark-status %received)))
       ::  handle case where sender cancels an invite to our ship
       %cancel
         `this(inbox (~(jab by inbox) id.msg (mark-status %canceled)))
@@ -175,7 +166,7 @@
     %poke-ack
       ?~  p.sign
         =/  id=@uw  (slav %uw +<.wire)
-        ::  synchronize status across ships (read receipts basically)
+        ::  synchronize status across ships (delivery receipts basically)
         ?+  -.wire  (on-agent:def wire sign)
           %invite
             `this(outbox (~(jab by outbox) id (mark-status %waiting)))
@@ -195,24 +186,23 @@
   ?.  ?=([%x @ *] pax)
     ~
   ?+  i.t.pax  (on-peek:def pax)
-    %retrieve
-      =/  rsv=sheet  (~(got by files) t.t.pax)
-      :^  ~  ~  %sheet
-        !>(rsv)
+    %read
+      ::  path: "/read/path/to/file"
+      =/  s=sheet  .^(sheet %cx (weld prefix (wrap-path t.t.pax)))
+      :^  ~  ~  %sheet  !>(s)
     %tree
-      =/  pat=path  t.t.pax
-      =/  keys=(list path)
-        (filter-tree pat ~(tap in ~(key by files)))
+      ::  path: "/tree/path/to/dir"
+      ::  if path is just "/tree", returns all valid paths
+      =/  tree=(list path)  .^((list path) %ct (zing ~[prefix /sheets t.t.pax]))
       :^  ~  ~  %membrane-tree
-        !>(keys)
+        !>(tree)
     %metatree
-      =/  pat=path  t.t.pax
-      =/  keys=(list path)
-        (filter-tree pat ~(tap in ~(key by files)))
-      =/  rsv=(map path sheet-meta)
-        (tree-to-metatree files keys)
+      ::  path: "/metatree/path/to/dir"
+      ::  if path is just "/metatree", returns all valid paths
+      =/  tree=(list path)  .^((list path) %ct (zing ~[prefix /sheets t.t.pax]))
+      =/  mt=(map path sheet-meta)  (tree-to-metatree tree prefix)
       :^  ~  ~  %membrane-metatree
-        !>(rsv)
+        !>(mt)
     %comms
       =/  comms=[^inbox ^outbox]  [inbox outbox]
       :^  ~  ~  %membrane-comms

@@ -87,7 +87,7 @@
   sht(path.meta npax)
 ++  tree-to-metatree
   ::  get just metadata for every path in tree
-  |=  [max=(map path sheet) tree=(list path)]
+  |=  [tree=(list path) prefix=path]
   ^-  (map path sheet-meta)
   %-  molt
   %-  turn
@@ -97,8 +97,8 @@
     :-  pax
     =<  meta
     ^-  sheet
-    (~(got by max) pax)
-++  update
+    .^(sheet %cx (weld prefix pax))
+++  update-time
   |=  [what=sheet when=@da]
   ^-  sheet
   what(last-modified.meta when)
@@ -136,30 +136,60 @@
   ^-  @uw
   (cut 0 [0 32] eny)
 ::  clay utils
-++  ins-card
-  |=  [=path =sheet]
+++  base-card
+  |=  =soba:clay
   ^-  card:agent:gall
+  :-  %pass  :-  /membrane/info
+  ^-  note:agent:gall
+  :-  %arvo
+  ^-  note-arvo
   :-  %c
   ^-  task:clay
   :-  %info  :-  %membrane
   ^-  nori:clay
-  :-  %&
+  :-  %&  soba
+++  ins-card
+  |=  [=path =sheet]
+  ^-  card:agent:gall
+  %-  base-card
   ^-  soba:clay
-  :~  :-  path
-  ^-  miso:clay
-  [%ins %sheet !>(sheet)]
+  :~  
+    :-  path  `miso:clay`[%ins %sheet !>(sheet)]
   ==
 ++  mut-card
   |=  [=path =sheet]
   ^-  card:agent:gall
-  :-  %c
-  ^-  task:clay
-  :-  %info  :-  %membrane
-  ^-  nori:clay
-  :-  %&
+  %-  base-card
   ^-  soba:clay
-  :~  :-  path
-  ^-  miso:clay
-  [%mut %sheet !>(sheet)]
+  :~  
+    :-  path  `miso:clay`[%mut %sheet !>(sheet)]
   ==
+++  del-card
+  |=  =path
+  ^-  card:agent:gall
+  %-  base-card
+  ^-  soba:clay
+  :~  
+    :-  path  `miso:clay`[%del ~]
+  ==
+++  move-card
+  |=  [opax=path npax=path =sheet]
+  ^-  card:agent:gall
+  %-  base-card
+  ^-  soba:clay
+  :~  
+    :-  npax  `miso:clay`[%ins %sheet !>(sheet)]
+    :-  opax  `miso:clay`[%del ~]
+  ==
+++  wrap-path  
+  ::  transform naive path into full clay path
+  ::  add ship, desk, timestamp, and mark
+  |=  pax=path
+  ^-  path
+  (zing ~[/sheets pax /sheet])
+++  unwrap-path
+  ::  transform clay path back into naive path
+  |=  pax=path
+  ^-  path
+  (snip (tail pax))
 --

@@ -15,13 +15,13 @@
     =,  dejs:format
     %-  of
     :~  
-      [%write (at ~[pa dejs-sheet])]
-      [%create (at ~[pa so])]
-      [%rename (at ~[pa so])]
-      [%retag (at ~[pa (as so)])]
-      [%delete pa]
-      [%move (at ~[pa pa])]
-      [%send-invite (at ~[(se %p) pa])]
+      [%write (at ~[dejs-path dejs-sheet])]
+      [%create (at ~[dejs-path so])]
+      [%rename (at ~[dejs-path so])]
+      [%retag (at ~[dejs-path (as so)])]
+      [%delete dejs-path]
+      [%move (at ~[dejs-path dejs-path])]
+      [%send-invite (at ~[(se %p) dejs-path])]
       [%send-rsvp (se %uw)]
       [%cancel-invite (se %uw)]
       [%decline-invite (se %uw)]
