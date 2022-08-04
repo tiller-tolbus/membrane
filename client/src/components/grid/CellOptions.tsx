@@ -94,7 +94,6 @@ export default function CellOptions() {
       fontSize = cellData.customStyles?.fontSize
         ? cellData.customStyles?.fontSize
         : 14;
-
       if (cellData.formulaData) {
         isFormula = true;
       }

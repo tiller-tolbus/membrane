@@ -9,10 +9,7 @@ export default function MultiSelect({
   defaultValue,
   disabled,
 }) {
-  const [selectedValue, setSelectedValue] = React.useState(null);
-
   const handleChange = (event: SelectChangeEvent) => {
-    setSelectedValue(event.target.value);
     //callback here
     onSelection(event.target.value);
   };
@@ -21,8 +18,7 @@ export default function MultiSelect({
     <FormControl sx={{ m: 1 }} size="small">
       <Select
         id="font-size-select"
-        //if no selected value use default one
-        value={selectedValue ? selectedValue : defaultValue}
+        value={defaultValue}
         onChange={handleChange}
         disabled={disabled}
         size="small"
