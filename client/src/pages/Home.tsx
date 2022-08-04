@@ -106,6 +106,7 @@ export default function Home() {
   const [allTags, setAllTags] = React.useState(new Set());
   const [searchValue, setSearchValue] = React.useState("");
   const [filterTags, setFilterTags] = React.useState([]);
+  const [pals, setPals] = React.useState([]);
 
   React.useEffect(() => {
     if (sheetList && sheetList.length > 0) {
@@ -175,9 +176,27 @@ export default function Home() {
       setFetchData({ trying: false, success: false, error: true });
     }
   };
+  const getPals = async () => {
+    /*
+     * we get the pals and save them to use as autocomplete values when sharing a sheet
+     */
+    try {
+      const result = await api.getPals();
+      console.log("getPals result => ", result);
+      //we use outgoing(pals my ship trusts)
+      if (result) {
+        const newPals = Object.entries(result.outgoing).map(
+          (item) => "~" + item[0]
+        );
+        setPals(newPals);
+      }
+    } catch (e) {
+      console.log("getPals error =>", e);
+    }
+  };
   React.useEffect(() => {
-    //fetch our sheets (just one for now)
     getSheets();
+    getPals();
   }, []);
   let navigate = useNavigate();
   const goToSheet = (path) => navigate("/apps/membrane/sheet" + path, {});
@@ -222,7 +241,6 @@ export default function Home() {
     setFilterDialogOpen(true);
   };
   const onFilterDialogUpdate = (tags: []) => {
-    console.log("tags", tags);
     onFilterTags(tags);
     onFilterDialogClose();
   };
@@ -247,6 +265,7 @@ export default function Home() {
               <SheetItem
                 key={index}
                 item={item}
+                pals={pals}
                 sheetList={sheetList}
                 goToSheet={goToSheet}
                 pathList={pathList}

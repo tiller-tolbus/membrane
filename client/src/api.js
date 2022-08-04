@@ -46,6 +46,9 @@ const api = {
   getAllSheetMeta: async () => {
     return api.createApi().scry({ app: "membrane", path: "/metatree" });
   },
+  getPals: async () => {
+    return api.createApi().scry({ app: "pals", path: "/json" });
+  },
   createSheet: async (path, title) => {
     return api.createApi().poke({
       app: "membrane",

@@ -3,14 +3,12 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import api from "../../api";
 
 import { blue } from "@mui/material/colors";
 
 import Grid from "@mui/material/Grid";
 import Chips from "./Chips";
 import SheetMenu from "./SheetMenu";
-import { formatDate } from "../../helpers";
 const Item = styled(Paper)(({ theme }) => ({
   transition: theme.transitions.create(["background", "background-color"], {
     duration: theme.transitions.duration.short,
@@ -31,6 +29,7 @@ export default function SheetItem({
   sheetList,
   updateSheetList,
   updatePathList,
+  pals,
 }) {
   const { title, id, tags, path, lastEditedFromatedDate } = item;
 
@@ -64,6 +63,7 @@ export default function SheetItem({
               updatePathList={updatePathList}
               sheetList={sheetList}
               tags={tags}
+              pals={pals}
               updateSheetList={updateSheetList}
             />
           </Stack>

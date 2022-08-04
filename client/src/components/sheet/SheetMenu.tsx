@@ -28,6 +28,7 @@ export default function SheetMenu({
   tags,
   updateSheetList,
   updatePathList,
+  pals
 }) {
   const [updatingTags, setUpdatingTags] = React.useState({
     trying: false,
@@ -351,6 +352,7 @@ export default function SheetMenu({
         open={shareDialogOpen}
         onConfirm={onShareDialogUpdate}
         onClose={onShareDialogClose}
+        pals={pals}
       />
       <EditTagsDialog
         open={editTagsDialogOpen}

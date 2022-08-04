@@ -7,8 +7,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Autocomplete from "@mui/material/Autocomplete";
+
 const ob = require("urbit-ob");
-export default function ShareDialog({ open, onConfirm, onClose }) {
+export default function ShareDialog({ open, onConfirm, onClose, pals }) {
   const [inputValue, setInputValue] = React.useState<string>("~");
 
   const [pathError, setPathError] = React.useState<boolean>(false);
@@ -55,22 +57,39 @@ export default function ShareDialog({ open, onConfirm, onClose }) {
         <DialogContentText>
           Enter the ship name you wish to send this sheet to
         </DialogContentText>
-        <TextField
-          autoFocus
-          error={pathError}
-          helperText={pathErrorMessage}
-          margin="dense"
-          id="name"
-          label="@p"
-          type="text"
+        <Autocomplete
+          freeSolo
+          id="pals-autocomplete"
+          disableClearable
+          options={pals}
           value={inputValue}
-          onChange={handleChange}
-          fullWidth
+          onChange={(event, value) => {
+            //we handle this a little different from a standard input
+            setInputValue(value);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              spellCheck="false"
+              error={pathError}
+              helperText={pathErrorMessage}
+              margin="dense"
+              id="name"
+              label="@p"
+              type="text"
+              value={inputValue}
+              onChange={handleChange}
+              autoFocus
+              fullWidth
+            />
+          )}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleShare}>Share</Button>
+        <Button disabled={!inputValue} onClick={handleShare}>
+          Share
+        </Button>
       </DialogActions>
     </Dialog>
   );
