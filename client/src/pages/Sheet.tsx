@@ -31,7 +31,7 @@ function CircularIndeterminate() {
       justifyContent="center"
     >
       <CircularProgress />
-      <Typography variant="h6">Loading sheet...</Typography>
+      <Typography variant="h6">Loading Sheet...</Typography>
     </Stack>
   );
 }
@@ -93,7 +93,7 @@ function Sheet() {
 
   const syncSheet = async () => {
     /*
-      PUT the shee to urbit (saving changes)
+      PUT the sheet to urbit (saving changes)
     */
 
     try {
@@ -113,7 +113,8 @@ function Sheet() {
   };
   const getData = async () => {
     /**
-     * Fetch sheetdata based on the passed path
+     * Fetch sheet data based on the passed path
+     * managing inputs(formulas) and outputs and columns
      */
     setConnected({ success: false, trying: true, error: false });
     //TODO: can we do better? probably, just use the whole url up to membrane/sheet to split by

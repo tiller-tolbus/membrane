@@ -86,7 +86,6 @@ function FailedToConnect(getData) {
 }
 export default function Home() {
   const [sheetList, setSheetList] = React.useState([]); //list of sheets
-  //TODO:update the way we do this???
   const [filteredData, setFilteredData] = React.useState([]);
 
   const [pathList, setPathList] = React.useState([]);
@@ -109,36 +108,34 @@ export default function Home() {
   const [pals, setPals] = React.useState([]);
 
   React.useEffect(() => {
-    if (sheetList && sheetList.length > 0) {
-      //everytime one of our dependencies change, we make sure to keep the dispaly up to date(filter, search, order...)
-      let results = [];
+    //everytime one of our dependencies change, we make sure to keep the dispaly up to date(filter, search, order...)
+    let results = [];
 
-      const newSheetList = cloneDeep(sheetList);
-      //order sheets
-      //The sort() meth...returns the reference to the same array, now sorted
-      //as to why we create a copy (a new array )^^
-      results = newSheetList.sort((a, b) => {
-        if (sortDirection === "asc") return a.lastEdited - b.lastEdited;
-        if (sortDirection === "dsc") return b.lastEdited - a.lastEdited;
+    const newSheetList = cloneDeep(sheetList);
+    //order sheets
+    //The sort() meth...returns the reference to the same array, now sorted
+    //as to why we create a copy (a new array )^^
+    results = newSheetList.sort((a, b) => {
+      if (sortDirection === "asc") return a.lastEdited - b.lastEdited;
+      if (sortDirection === "dsc") return b.lastEdited - a.lastEdited;
+    });
+    //search by string if any
+    if (searchValue) {
+      results = results.filter((item) => {
+        //does this sheet's title contain the search query? return boolean accordingly
+        return item.title.toLowerCase().includes(searchValue.toLowerCase());
       });
-      //search by string if any
-      if (searchValue) {
-        results = results.filter((item) => {
-          //does this sheet's title contain the search query? return boolean accordingly
-          return item.title.toLowerCase().includes(searchValue.toLowerCase());
-        });
-      }
-      //filter by tags if any
-      if (filterTags && filterTags.length > 0) {
-        results = results.filter((item) => {
-          const tagsArray = item.tags.map((item) => item.label);
-          return filterTags.some((item) => tagsArray.includes(item));
-        });
-      }
-      //we always at least sort, so sheets are always available
-      //update our state
-      setFilteredData(results);
     }
+    //filter by tags if any
+    if (filterTags && filterTags.length > 0) {
+      results = results.filter((item) => {
+        const tagsArray = item.tags.map((item) => item.label);
+        return filterTags.some((item) => tagsArray.includes(item));
+      });
+    }
+    //we always at least sort, so sheets are always available
+    //update our state
+    setFilteredData(results);
   }, [searchValue, filterTags, sortDirection, sheetList]);
 
   const getTagsFromSheets = (sheetList = []) => {

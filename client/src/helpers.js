@@ -30,7 +30,6 @@ const arrayInsertItemAtIndex = (index, item, array) => {
 /* GRID HELPERS */
 const charRange = (start, stop) => {
   var result = [];
-
   // get all chars from starting char
   // to ending char
   var i = start.charCodeAt(0),
@@ -141,11 +140,9 @@ const getRows = (
 
 const getColumns = (length = 27, columnStyles = []) => {
   /**
-   * TODO: update comments
-   * given a length generate the columns react-grid needs and we need to display stuff
+   * given a length generate the columns we need
+   * also inserts columnStyles (width) if any are provided
    * note this is different from first row in our rows
-   *
-   * decides metadata like width and height of columns
    * retuns columns
    **/
   let columns = [];
@@ -460,9 +457,11 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   return newRows;
 };
 const formulateRows = (rows) => {
-  //TODO: comments pls
-  //remvoe all depandant formulas and formulaData
-  //and re-eval all of them again
+  /**
+   * remvoe all depandant formulas and formulaData
+   * and re-eval all of them again
+   * returns updated rows
+   */
   let newRows = cloneDeep(rows).map((item, rowId) => {
     return {
       rowId: rowId,
@@ -499,8 +498,9 @@ const formulateRows = (rows) => {
   return newRowsFormulas;
 };
 const updateCell = (changes, prevRows) => {
-  //use the changes object to directly access the correct cell and update it using the new text!
-
+  /**
+   * given incoming changes we update our cell and affect other cells if need be
+   */
   const { rowId, columnId, newCell, previousCell } = changes;
   let newRows = cloneDeep(prevRows);
 
@@ -725,9 +725,8 @@ const verifyCellCount = (columns, rows, offset) => {
   }
   return true;
 };
-const inCell = (cellArray, rows, columnStyles = []) => {
+const inCell = (cellArray, rows) => {
   /***
-   * TODO: update comments
    * given cells array
    * example: [[1,1],{"meta":{ "bold":true },"data":{"input":"ID","output":"ID"}}]
    * put them in their place!
@@ -1024,13 +1023,10 @@ const deleteRow = (selectedRowId, rows) => {
 };
 /* JSON HELPERS */
 const jsonToData = (json) => {
-  //TODO: update comments
-  /*
-    take parsed json from the server and turn it into something client can use
-    returns rows
- */
-  //todo: add a check?
-  //if (!json || json.length === 0)return false;
+  /**
+   *  given an array of arrays turn them into into rows and return them
+   */
+
   let columnLength = json[0].length + 1; // +1 because the first column is the row count one
   //our first row (columns)
   const firstRow = [getFirstRow(columnLength)];
@@ -1059,7 +1055,6 @@ const jsonToData = (json) => {
   return [...firstRow, ...rows];
 };
 const rowsToArrays = (rows) => {
-  //TODO: update comments
   /*
     giving rows returns and array of arrays of just text data(includes empty rows) (csv like) 
   */
@@ -1079,7 +1074,9 @@ const rowsToArrays = (rows) => {
   return parsedRows;
 };
 const metaArrayToStyleArray = (metaArray) => {
-  //TODO: comment
+  /**
+   * Given array of meta data(styles) from server turn it into something we can use in the frontend
+   */
   const styleArray = metaArray.map((meta, index) => {
     const metaObj = meta[1].reduce((a, b) => Object.assign(a, b), {});
     //generic meta obj used in the frontend
@@ -1103,7 +1100,7 @@ const metaArrayToStyleArray = (metaArray) => {
 };
 const styleObjectToMetaArray = (customStyles) => {
   /**
-   * TODO:COMMENT OUT
+   * Given a style object from the frontend turn it into something the backend can use
    */
   let metaArray = [];
   if (customStyles) {
@@ -1127,15 +1124,15 @@ const styleObjectToMetaArray = (customStyles) => {
   return metaArray;
 };
 const dataToJson2 = (data, columns, meta) => {
-  //TODO:comment better
   /*
-    takes grid data(rows) and transform it into what the back-end expects
-    excluding first cell of each row and the first entierly(meta data)
+    takes grid data(rows) and columns and transform it into what the back-end expects
+    excluding first cell of each row and the first row entierly
     returns back end ready data
   */
   //exclude first row (a,b,c...) (coulmns)
   let newData = cloneDeep(data);
-  const columnRow = newData.shift(); //remove from newData and assign the result to columnRow
+  //remove from newData and assign the result to columnRow, we use it to get column meta
+  const columnRow = newData.shift();
   //generate column meta
   const columnMeta = [];
   columnRow.cells.forEach((col, index) => {
@@ -1154,21 +1151,21 @@ const dataToJson2 = (data, columns, meta) => {
         columnMetaArray.push({ width: parseInt(columns[index].width) }); //only accepts ints not floats
       }
       if (columnMetaArray && columnMetaArray.length > 0) {
-        columnMeta.push([index - 1, columnMetaArray]); //make shore to offset first column
+        columnMeta.push([index - 1, columnMetaArray]); //make sure to offset first column
       }
     }
   });
-  //update row/column count and last-modified for now
+  //update row/column count and last-modified
   const rowCount = data.length - 1;
   const columnCount = data[0].cells.length - 1;
   const timeNow = new Date().getTime();
-
+  //get the data we save and meta data
   const jsonData = [];
   const rowMeta = [];
   newData.forEach((item, rowIndex) => {
     let newCells = [...item.cells];
     //exclude the first cell (1,2,3...) (row count cell)
-    //if check the first cell we just removed for row styles
+    //check the first cell we just removed for row styles
     const rowCell = newCells.shift();
     if (rowCell.customStyles) {
       //we have styles, update row meta array
@@ -1178,8 +1175,7 @@ const dataToJson2 = (data, columns, meta) => {
       }
     }
     return newCells.forEach((item, columnIndex) => {
-      //these are the values we save to urbit
-      //either cells that have a text value or customStyles value
+      //we save either cells that have a text value or customStyles value
       if (item.text.length > 0 || item.customStyles) {
         //we have a value, this gets included into the data we send
 
@@ -1214,9 +1210,12 @@ const isDev = () =>
 /* TIME HELPERS */
 //TODO: should be it's own file
 const formatDate = (dateNumber) => {
+  /**
+   * Converts a given date number into something we can show the user
+   * example: Aug 4, 2022, 8:01 PM
+   */
   if (!dateNumber) return "no date given";
-  //converts a given date object into something we can show the user
-  //TODO: display hours and mins?
+
   var options = {
     year: "numeric",
     month: "short",
@@ -1233,7 +1232,7 @@ function downloadBlob(content, filename, contentType) {
   // Create a blob
   var blob = new Blob([content], { type: contentType });
   var url = URL.createObjectURL(blob);
-  // Create a link to download it
+  // Create a link and trigger it programmatically to to download it
   var pom = document.createElement("a");
   pom.href = url;
   pom.setAttribute("download", filename);
@@ -1259,7 +1258,7 @@ const importCSV = (csv) => {
   return result.data;
 };
 function structureJson(data) {
-  //TODO: this one should be a single sheet item
+  //TODO: refractor this and structureJson1
   /**
    * converts json recieved into sommething that works for the front-end
    **/

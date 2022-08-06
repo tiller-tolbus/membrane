@@ -22,7 +22,7 @@ import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 
 import { formatDate } from "../helpers";
-import { GoBackButton, Snackie } from "../components";
+import { GoBackButton } from "../components";
 import { LoadingButton } from "@mui/lab";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -197,11 +197,7 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
     cancel: false,
     id: null,
   });
-  const [snackieOpen, setSnackieOpen] = React.useState(false);
-  const [snackieState, setSnackieState] = React.useState({
-    success: false,
-    error: false,
-  });
+
   const onInviteItemUpdate = (id: string, newStatus: string) => {
     //todo: merge these and only filter while displaying in tabs
 
@@ -219,16 +215,6 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
     });
     setIncoming(newIncoming);
     setOutgoing(newOutgoing);
-  };
-  const handleSanckieClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setSnackieOpen(false);
   };
 
   const handleDialogClose = () => {
@@ -261,12 +247,7 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
       const result = await api.acceptInvite(id);
       console.log("onInviteAccept result => ", result);
       if (result) {
-        setSnackieOpen(true);
-        setSnackieState({ success: true, error: false });
         onInviteItemUpdate(id, "accepted");
-      } else {
-        setSnackieOpen(true);
-        setSnackieState({ success: false, error: true });
       }
       setLoading({
         accept: false,
@@ -280,9 +261,6 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
       if (e === "path already exists") {
         setDialogOpen(true);
         setSelectedInvite({ id, path });
-      } else {
-        setSnackieOpen(true);
-        setSnackieState({ success: false, error: true });
       }
       setLoading({
         accept: false,
@@ -303,12 +281,7 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
       const result = await api.declineInvite(id);
       console.log("onInviteDecline result => ", result);
       if (result) {
-        setSnackieOpen(true);
-        setSnackieState({ success: true, error: false });
         onInviteItemUpdate(id, "declined");
-      } else {
-        setSnackieOpen(true);
-        setSnackieState({ success: false, error: true });
       }
       setLoading({
         accept: false,
@@ -318,8 +291,6 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
       });
     } catch (e) {
       console.log("onInviteDecline error => ", e);
-      setSnackieOpen(true);
-      setSnackieState({ success: false, error: true });
       setLoading({
         accept: false,
         decline: false,
@@ -338,12 +309,7 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
       });
       const result = await api.cancelInvite(id);
       if (result) {
-        setSnackieOpen(true);
-        setSnackieState({ success: true, error: false });
         onInviteItemUpdate(id, "canceled");
-      } else {
-        setSnackieOpen(true);
-        setSnackieState({ success: false, error: true });
       }
       console.log("onInviteCancel result => ", result);
       setLoading({
@@ -354,8 +320,7 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
       });
     } catch (e) {
       console.log("onInviteCancel error => ", e);
-      setSnackieOpen(true);
-      setSnackieState({ success: false, error: true });
+
       setLoading({
         accept: false,
         decline: false,
@@ -399,13 +364,6 @@ function LabTabs({ incoming, outgoing, setIncoming, setOutgoing }) {
 
   return (
     <Box>
-      <Snackie
-        open={snackieOpen}
-        state={snackieState}
-        handleClose={handleSanckieClose}
-        successText={"hey! that worked!"}
-        errorText={"whops! that did go well :c"}
-      />
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">

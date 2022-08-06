@@ -28,7 +28,7 @@ export default function SheetMenu({
   tags,
   updateSheetList,
   updatePathList,
-  pals
+  pals,
 }) {
   const [updatingTags, setUpdatingTags] = React.useState({
     trying: false,
@@ -74,7 +74,7 @@ export default function SheetMenu({
         const newPathList = pathList.filter((item) => {
           return item !== path;
         });
-
+        console.log("newSheetList", newSheetList);
         updatePathList(newPathList);
         updateSheetList(newSheetList);
         onDeleteDialogClose();
@@ -175,7 +175,7 @@ export default function SheetMenu({
           }
           return item;
         });
-        
+
         updateSheetList(newSheetList, true);
         onEditTagsDialogClose();
         setUpdatingTags({ trying: false, success: true, error: false });
