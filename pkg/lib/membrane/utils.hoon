@@ -17,8 +17,6 @@
     ^-  path  pax
     ::  title
     ^-  @t  tit
-    ::  owner
-    ^-  @p  our.bowl
     ::  tags
     ^-  (set tag)  ~
     ::  row-meta
@@ -29,8 +27,6 @@
     ^-  @ud  100
     ::  column-count
     ^-  @ud  26
-    ::  whitelist
-    ^-  whitelist  ~
     ::  last-modified
     ^-  @da  now:bowl
   ==
@@ -113,17 +109,6 @@
   |=  [=appeal who=@p when=@da]
   ^-  invitation
   [who what.appeal when where.appeal %invited]
-++  verify-access
-  ::  check to see if user has access to sheet
-  |=  [who=@p what=sheet]
-  ^-  ?
-  =/  acc=(unit access)  (~(get by whitelist.meta.what) who)
-  ?~  acc
-    %.n
-  ?|
-    .=  u.acc  %read
-    .=  u.acc  %write
-  ==
 ++  mark-status
   ::  mark an invitation as %waiting, %granted, %sent, or %received
   |=  stat=status
