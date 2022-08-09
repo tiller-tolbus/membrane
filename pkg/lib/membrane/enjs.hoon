@@ -19,13 +19,11 @@
   :~  [%id (enjs-id id:meta)]
     [%path (enjs-path path:meta)]
     [%title (enjs-title title:meta)]
-    [%owner (enjs-owner owner:meta)]
     [%tags (enjs-tags tags:meta)]
     [%row-meta (enjs-map-meta row-meta:meta)]
     [%column-meta (enjs-map-meta column-meta:meta)]
     [%row-count (numb row-count:meta)]
     [%column-count (numb column-count:meta)]
-    [%whitelist (enjs-whitelist whitelist:meta)]
     [%last-modified (time last-modified:meta)]
   ==
 ++  enjs-id
@@ -40,10 +38,6 @@
   |=  title=@t
   ^-  json
   (tape (trip title))
-++  enjs-owner
-  |=  owner=@p
-  ^-  json
-  (tape (scow %p owner))
 ++  enjs-tags
   |=  tags=(set tag)
   ^-  json
@@ -98,20 +92,6 @@
     ==
       (numb +.visual)
   ==
-++  enjs-whitelist 
-  |=  =whitelist
-  ^-  json
-  :-  %a
-  ^-  (list json)
-  %-  turn
-  :-  ~(tap by whitelist)
-    |=  duo=[@p access]
-    ^-  json
-    :-  %a
-    ^-  (list json)
-    :~  (tape (scow %p -.duo))
-      (tape (trip +.duo))
-    ==
 ++  enjs-sheet-data
   |=  data=(map address scell)
   ^-  json

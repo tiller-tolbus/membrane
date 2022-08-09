@@ -37,13 +37,11 @@
   :~  [%id dejs-id]
     [%path dejs-path]
     [%title dejs-title]
-    [%owner dejs-owner]
     [%tags dejs-tags]
     [%row-meta dejs-row-meta]
     [%column-meta dejs-column-meta]
     [%row-count dejs-row-count]
     [%column-count dejs-column-count]
-    [%whitelist dejs-whitelist]
     [%last-modified di]
   ==
 ++  dejs-id
@@ -58,10 +56,6 @@
   |=  jon=json
   ^-  @t
   (so jon)
-++  dejs-owner
-  |=  jon=json
-  ^-  @p
-  ((se %p) jon)
 ++  dejs-tags
   |=  jon=json
   ^-  (set tag)
@@ -98,17 +92,6 @@
   |=  jon=json
   ^-  @ud
   (ni jon)
-++  dejs-whitelist
-  |=  jon=json
-  ^-  whitelist
-  %-  molt
-  ((ar (at ~[(se %p) dejs-access])) jon)
-++  dejs-access
-  |=  jon=json
-  ^-  access
-  =/  acc  (so jon)
-  ?>  ?=(access acc)
-    acc
 ++  dejs-sheet-data
   |=  jon=json
   ^-  (map address scell)
