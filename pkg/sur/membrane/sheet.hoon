@@ -4,13 +4,11 @@
   id=@uw
   =path
   title=@t
-  owner=@p
   tags=(set tag)
   row-meta=(map @ud (set visual))
   column-meta=(map @ud (set visual))
   row-count=@ud
   column-count=@ud
-  =whitelist
   last-modified=@da
   ==
 +$  address  [row-address=@ud column-address=@ud]
@@ -31,6 +29,4 @@
   [%height @ud]
   [%width @ud]
   ==
-+$  whitelist  (map @p access)
-+$  access  ?(%read %write)
 --

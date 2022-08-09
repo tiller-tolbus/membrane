@@ -3,13 +3,11 @@
         "id": "0w3ns.NLSMC.E4W3l.UEXXy.Cg~SM.iDFy-.aXAlv.nrBhc.RVfB2",
         "path": "/demosheet",
         "title": "DemoSheet",
-        "owner": "~zod",
         "tags": ["demo"],
         "row-meta": [[1, [{"bold": true}, {"italic": true }]]],
         "column-meta": [],
         "row-count": 1000,
         "column-count": 50,
-        "whitelist": [ ["~zod", "write"], ["~nec", "read"] ],
         "last-modified": 1655594322246
     },
     "data": [ 

@@ -12,6 +12,7 @@
 |%
 +$  state-0
   $:
+    files=(map path sheet)
     =inbox
     =outbox
     =config
