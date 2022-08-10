@@ -290,27 +290,6 @@ export default function Home() {
   };
   return (
     <>
-      <Box
-        sx={{
-          backgroundColor: "lightgray",
-          paddingTop: 1,
-          paddingBottom: 1,
-        }}
-      >
-        <Typography sx={{ textAlign: "center" }} variant="subtitle2">
-          This is a Demo of the Membrane spreadsheet application, which is
-          specified at{" "}
-          <Link href="https://urbit.org/grants/membrane">
-            https://urbit.org/grants/membrane
-          </Link>
-          . Features are still being added and can be tracked at
-          <Link href="https://github.com/tiller-tolbus/membrane">
-            {" "}
-            https://github.com/tiller-tolbus/membrane
-          </Link>
-          . Do not store any important data here. Use for testing purposes only.
-        </Typography>
-      </Box>
       <Container fixed>
         <Box
           sx={{
