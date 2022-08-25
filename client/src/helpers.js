@@ -4,6 +4,15 @@ import cloneDeep from "lodash/cloneDeep";
 import Papa from "papaparse";
 import useStore from "./store";
 import Graph from "./Graph";
+
+import FormulaParser, {
+  FormulaHelpers,
+  Types,
+  FormulaError,
+  MAX_ROW,
+  MAX_COLUMN,
+} from "fast-formula-parser";
+
 //CONSIDERATION: should this be part of our store?
 let formulatedList = new Map();
 const checkFormulaGraph = () => {
@@ -281,38 +290,117 @@ const fetchFormulaData = (cellValue, rows) => {
   };
   return formulaData;
 };
-const formulateFormula = (cellValue, columnId, rowId, rows) => {
-  /**
-   * checks if value is a formula
-   * if so, builds all the connections needed
-   *  and adds formulaData and output value to this formula
-   */
-  const formulaData = fetchFormulaData(cellValue, rows);
+const FoPar = (cellValue, data, position) => {
+  
+  const formulaToEval = cellValue.substring(1);
+  let paramList = []; //list of all the cells this formula uses as a param(value )
+  //CONSIDERATION: do we need a new parser each time?
+  const parser = new FormulaParser({
+    // External functions, this will override internal functions with same name
+    functions: {
+      CHAR: (number) => {
+        number = FormulaHelpers.accept(number, Types.NUMBER);
+        if (number > 255 || number < 1) throw FormulaError.VALUE;
+        return String.fromCharCode(number);
+      },
+      HELLO: (param) => {
+        console.log("param", param);
+        return "example of a custom function";
+      },
+    },
 
-  if (formulaData.error) {
-    //if there is feedback, alert the user and set the formula as an input to be viewed
-    if (formulaData.feedback) {
-      let newRows = cloneDeep(rows);
-      //TODO:make a variable for these (like updateCell)
-      newRows[rowId].cells[columnId].text = formulaData.feedback;
-      newRows[rowId].cells[columnId].output = formulaData.feedback;
-      newRows[rowId].cells[columnId].input = cellValue;
-      newRows[rowId].cells[columnId].placeholder = cellValue;
-      newRows[rowId].cells[columnId].isFormula = true;
-      return newRows;
-    }
+    // Variable used in formulas (defined name)
+    // Should only return range reference or cell reference
+    onVariable: (name, sheetName) => {
+      // If it is a range reference (A1:B2)
+      return {
+        sheet: "sheet name",
+        from: {
+          row: 1,
+          col: 1,
+        },
+        to: {
+          row: 2,
+          col: 2,
+        },
+      };
+      // If it is a cell reference (A1)
+      return {
+        sheet: "sheet name",
+        row: 1,
+        col: 1,
+      };
+    },
+
+    // retrieve cell value
+    onCell: ({ sheet, row, col }) => {
+      // using 1-based index
+      // return the cell value, see possible types in next section.
+      const value = data[row].cells[col].text;
+      paramList.push({ rowId: row, columnId: col });
+      return value;
+    },
+
+    // retrieve range values
+    onRange: (ref) => {
+      //TODO: make ranges work with rows
+      // using 1-based index
+      // Be careful when ref.to.col is MAX_COLUMN or ref.to.row is MAX_ROW, this will result in
+      // unnecessary loops in this approach.
+      const arr = [];
+      for (let row = ref.from.row; row <= ref.to.row; row++) {
+        const innerArr = [];
+        if (data[row - 1]) {
+          for (let col = ref.from.col; col <= ref.to.col; col++) {
+            innerArr.push(data[row - 1][col - 1]);
+          }
+        }
+        arr.push(innerArr);
+      }
+      return arr;
+    },
+  });
+
+  // position is required for evaluating certain formulas, e.g. ROW()
+
+  // parse the formula, the position of where the formula is located is required
+  // for some functions.
+  try {
+    const result = parser.parse(formulaToEval, position);
+    return { result: result.toString(), paramList, nonEvaledText: cellValue };
+  } catch (e) {
+    console.log("e", e);
+    return { error: true };
+  }
+};
+const formulateFormula = (cellValue, columnId, rowId, rows) => {
+  //is this a formula?
+  if (cellValue[0] !== "=") {
     return false;
   }
+  const position = { row: rowId, col: columnId, sheet: "main" };
+
+  const formulaData = FoPar(cellValue, rows, position);
+  //if there is an error, return promptly alerting the user of the error
+  if (formulaData.error) {
+    let newRows = cloneDeep(rows);
+    //TODO:make a variable for these (like updateCell)
+    newRows[rowId].cells[columnId].text = "#ERR: malformed formula";
+    newRows[rowId].cells[columnId].output = "#ERR: malformed formula";
+    newRows[rowId].cells[columnId].input = cellValue;
+    newRows[rowId].cells[columnId].placeholder = cellValue;
+    newRows[rowId].cells[columnId].isFormula = true;
+    return newRows;
+  }
+
   //update formula cell withe formula data using row and column id
   let newRows = cloneDeep(rows);
-  //update formula cell with the needed values
-  const formulaOutput = formulaData
-    .execute(formulaData.valueList.map((item) => item.value))
-    .toString();
+
+  const formulaOutput = formulaData.result;
   newRows[rowId].cells[columnId] = {
     ...newRows[rowId].cells[columnId],
     formulaData,
-    //update the formula cell value too using our value list and execute foo
+    //update text(output) with formula result
     text: formulaOutput,
     output: formulaOutput,
     //placeholder is synced to input (we use it for copy/pasting formulas )
@@ -320,8 +408,8 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     placeholder: formulaData.nonEvaledText,
     isFormula: true,
   };
-  //update each param cell to have formulaLocation and update function too trigger on change
-  formulaData.valueList.forEach((item) => {
+  //add depandantFormula(current one) to all the param cells  
+  formulaData.paramList.forEach((item) => {
     //add current formula to the list of deps in this param cell
     let cellRowId = item.rowId;
     let cellColumnId = item.columnId;
@@ -361,7 +449,7 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     }
   });
   const updatedFormula = newRows[rowId].cells[columnId];
-
+  //update our formula map and check for recursion
   formulatedList.set(`${columnId},${rowId}`, updatedFormula);
   //Remove the formula and add an error msg
   if (checkFormulaGraph() === "there is a cycle") {
@@ -418,7 +506,7 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   formulatedList.delete(`${columnId},${rowId}`);
 
   //update each param cell, removing the link between it and the formula cell
-  formulaData.valueList.forEach((item) => {
+  formulaData.paramList.forEach((item) => {
     let cellRowId = item.rowId;
     let cellColumnId = item.columnId;
     //if this value doesn't have row/column Id, this is direct input, we return
@@ -593,28 +681,12 @@ const updateFormulaFoo = (
   //TODO: sometimes, for some reason, no newFormulaData, just return the unchanged rows
   if (!newFormulaData) return newRows;
 
-  let newValueList = newFormulaData.valueList.map((item) => {
-    //look up values in our sheet(rows) or return right away if direct input
-    if (!item.columnId) return item;
+  const position = { row: formulaRowId, col: formulaColId, sheet: "main" };
+  const formulaData = FoPar(newFormulaData.nonEvaledText, rows, position);
 
-    if (columnId == item.columnId && rowId == item.rowId) {
-      //found the value to update
-      return { ...item, value: updatedValue };
-    } else {
-      //otherwise we have to look for these ones value in real time
-      //CONSIDERATION: out of bound
-      const value = newRows[item.rowId].cells[item.columnId].text;
-      return { ...item, value };
-    }
-  });
-  newFormulaData.valueList = newValueList;
-  //we have change in our param cells, that means update formula cell
-  const executableList = newFormulaData.valueList.map((item) => item.value);
-  //update the values
-  const formulaOutput = newFormulaData.execute(executableList).toString();
-  newFormulaCell.formulaData = newFormulaData;
-  newFormulaCell.text = formulaOutput;
-  newFormulaCell.output = formulaOutput;
+  newFormulaCell.formulaData = formulaData;
+  newFormulaCell.text = formulaData.result;
+  newFormulaCell.output = formulaData.result;
 
   //update the formula cell with our values
   newRows[formulaRowId].cells[formulaColId] = newFormulaCell;
@@ -640,6 +712,7 @@ const updateFormulaFoo = (
 
     return newRows;
   }
+  //go through dependantFormulas if any and update them
   if (dependantFormulas && dependantFormulas.length > 0) {
     dependantFormulas.forEach((item) => {
       const formulaLocation = item;
