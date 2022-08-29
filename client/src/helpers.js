@@ -290,8 +290,27 @@ const fetchFormulaData = (cellValue, rows) => {
   };
   return formulaData;
 };
+const parseStringToType = (value) => {
+  //Attempting to correctly parse the types
+  if (!value) return NaN;
+
+  //we need to convert the stringed types into their respective types
+  //we try to make a number first
+  const num = Number(value);
+
+  if (!isNaN(num) && typeof num === "number") {
+    //got a number, we can return right away
+    return num;
+  }
+  //can we make this into a boolean?
+  //we just look for strings "true" and "false"
+  const bool = value.toLowerCase();
+  if (bool === "true" || bool === "false") {
+    return bool === "true";
+  }
+  return value;
+};
 const FoPar = (cellValue, data, position) => {
-  
   const formulaToEval = cellValue.substring(1);
   let paramList = []; //list of all the cells this formula uses as a param(value )
   //CONSIDERATION: do we need a new parser each time?
@@ -309,50 +328,28 @@ const FoPar = (cellValue, data, position) => {
       },
     },
 
-    // Variable used in formulas (defined name)
-    // Should only return range reference or cell reference
-    onVariable: (name, sheetName) => {
-      // If it is a range reference (A1:B2)
-      return {
-        sheet: "sheet name",
-        from: {
-          row: 1,
-          col: 1,
-        },
-        to: {
-          row: 2,
-          col: 2,
-        },
-      };
-      // If it is a cell reference (A1)
-      return {
-        sheet: "sheet name",
-        row: 1,
-        col: 1,
-      };
-    },
-
     // retrieve cell value
     onCell: ({ sheet, row, col }) => {
-      // using 1-based index
-      // return the cell value, see possible types in next section.
+      //return the cell value
       const value = data[row].cells[col].text;
       paramList.push({ rowId: row, columnId: col });
-      return value;
+      return parseStringToType(value);
     },
 
     // retrieve range values
     onRange: (ref) => {
-      //TODO: make ranges work with rows
       // using 1-based index
       // Be careful when ref.to.col is MAX_COLUMN or ref.to.row is MAX_ROW, this will result in
       // unnecessary loops in this approach.
       const arr = [];
       for (let row = ref.from.row; row <= ref.to.row; row++) {
         const innerArr = [];
-        if (data[row - 1]) {
+        const currRow = data[row];
+        if (currRow) {
           for (let col = ref.from.col; col <= ref.to.col; col++) {
-            innerArr.push(data[row - 1][col - 1]);
+            innerArr.push(parseStringToType(currRow.cells[col]?.text));
+            //update our refrence array
+            paramList.push({ rowId: row, columnId: col });
           }
         }
         arr.push(innerArr);
@@ -369,7 +366,7 @@ const FoPar = (cellValue, data, position) => {
     const result = parser.parse(formulaToEval, position);
     return { result: result.toString(), paramList, nonEvaledText: cellValue };
   } catch (e) {
-    console.log("e", e);
+    console.log("e", e.details.name);
     return { error: true };
   }
 };
@@ -408,7 +405,7 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     placeholder: formulaData.nonEvaledText,
     isFormula: true,
   };
-  //add depandantFormula(current one) to all the param cells  
+  //add depandantFormula(current one) to all the param cells
   formulaData.paramList.forEach((item) => {
     //add current formula to the list of deps in this param cell
     let cellRowId = item.rowId;
@@ -667,6 +664,7 @@ const updateFormulaFoo = (
    * todo:clean it up
    * todo: validate input (display error state in formula cell if no logic value can be derived here)
    */
+  //TODO: mass deletion causes issue here (paramlist undefined)
   let newRows = cloneDeep(rows);
   const formulaColId = formulaLocation.columnId;
   const formulaRowId = formulaLocation.rowId;
