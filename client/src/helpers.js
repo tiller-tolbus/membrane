@@ -366,8 +366,12 @@ const FoPar = (cellValue, data, position) => {
     const result = parser.parse(formulaToEval, position);
     return { result: result.toString(), paramList, nonEvaledText: cellValue };
   } catch (e) {
-    console.log("e", e.details.name);
-    return { error: true };
+    return {
+      error: true,
+      paramList,
+      result: "#ERR: " + e.details.name,
+      nonEvaledText: cellValue,
+    };
   }
 };
 const formulateFormula = (cellValue, columnId, rowId, rows) => {
@@ -376,22 +380,10 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     return false;
   }
   const position = { row: rowId, col: columnId, sheet: "main" };
-
   const formulaData = FoPar(cellValue, rows, position);
-  //if there is an error, return promptly alerting the user of the error
-  if (formulaData.error) {
-    let newRows = cloneDeep(rows);
-    //TODO:make a variable for these (like updateCell)
-    newRows[rowId].cells[columnId].text = "#ERR: malformed formula";
-    newRows[rowId].cells[columnId].output = "#ERR: malformed formula";
-    newRows[rowId].cells[columnId].input = cellValue;
-    newRows[rowId].cells[columnId].placeholder = cellValue;
-    newRows[rowId].cells[columnId].isFormula = true;
-    return newRows;
-  }
+  let newRows = cloneDeep(rows);
 
   //update formula cell withe formula data using row and column id
-  let newRows = cloneDeep(rows);
 
   const formulaOutput = formulaData.result;
   newRows[rowId].cells[columnId] = {
@@ -406,7 +398,7 @@ const formulateFormula = (cellValue, columnId, rowId, rows) => {
     isFormula: true,
   };
   //add depandantFormula(current one) to all the param cells
-  formulaData.paramList.forEach((item) => {
+  formulaData.paramList?.forEach((item) => {
     //add current formula to the list of deps in this param cell
     let cellRowId = item.rowId;
     let cellColumnId = item.columnId;
@@ -501,9 +493,8 @@ const unHookFormula = (formulaData, columnId, rowId, rows) => {
   delete formulaCell.isFormula;
   //we make sure to update formulatedList (formula refrence Map) by removing this formula
   formulatedList.delete(`${columnId},${rowId}`);
-
   //update each param cell, removing the link between it and the formula cell
-  formulaData.paramList.forEach((item) => {
+  formulaData.paramList?.forEach((item) => {
     let cellRowId = item.rowId;
     let cellColumnId = item.columnId;
     //if this value doesn't have row/column Id, this is direct input, we return
@@ -588,7 +579,6 @@ const updateCell = (changes, prevRows) => {
    */
   const { rowId, columnId, newCell, previousCell } = changes;
   let newRows = cloneDeep(prevRows);
-
   let newText = "";
   if (newCell.placeholder && previousCell.placeholder) {
     //formula cell => formula cell
@@ -678,7 +668,6 @@ const updateFormulaFoo = (
   //TODO: optmise if no changes cancel the rest of this
   //TODO: sometimes, for some reason, no newFormulaData, just return the unchanged rows
   if (!newFormulaData) return newRows;
-
   const position = { row: formulaRowId, col: formulaColId, sheet: "main" };
   const formulaData = FoPar(newFormulaData.nonEvaledText, rows, position);
 
