@@ -1,4 +1,4 @@
-/-  *membrane-share
+/-  *membrane
 /+  *membrane-enjs
 |_  coms=[inb=inbox out=outbox]
 ++  grow

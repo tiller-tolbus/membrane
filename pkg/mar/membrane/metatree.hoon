@@ -1,6 +1,6 @@
-/-  *membrane-sheet
+/-  *membrane
 /+  *membrane-enjs
-/+  *membrane-utils
+/+  *membrane
 |_  mtr=(map ^path sheet-meta)
 ++  grow
   |%
@@ -20,4 +20,4 @@
   ++  noun  (map ^path sheet-meta)
   --
 ++  grad  %noun
-  --
+--

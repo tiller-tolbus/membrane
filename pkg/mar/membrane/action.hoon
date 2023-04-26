@@ -1,5 +1,4 @@
-/-  *membrane-sheet
-/-  *membrane-action
+/-  *membrane
 /+  *membrane-dejs
 /+  *membrane-enjs
 !:

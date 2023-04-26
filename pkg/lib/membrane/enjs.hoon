@@ -1,5 +1,5 @@
-/-  *membrane-sheet
-/+  *membrane-utils
+/-  *membrane
+/+  *membrane
 =,  enjs:format
 !:
 |%
@@ -9,7 +9,7 @@
   %-  pairs
   ^-  (list [@t json])
   :~  [%meta (enjs-sheet-meta meta:sheet)]
-    [%data (enjs-sheet-data data:sheet)]
+      [%data (enjs-sheet-data data:sheet)]
   ==
 ++  enjs-sheet-meta
   |=  meta=sheet-meta
@@ -17,14 +17,14 @@
   %-  pairs
   ^-  (list [@t json])
   :~  [%id (enjs-id id:meta)]
-    [%path (enjs-path path:meta)]
-    [%title (enjs-title title:meta)]
-    [%tags (enjs-tags tags:meta)]
-    [%row-meta (enjs-map-meta row-meta:meta)]
-    [%column-meta (enjs-map-meta column-meta:meta)]
-    [%row-count (numb row-count:meta)]
-    [%column-count (numb column-count:meta)]
-    [%last-modified (time last-modified:meta)]
+      [%path (enjs-path path:meta)]
+      [%title (enjs-title title:meta)]
+      [%tags (enjs-tags tags:meta)]
+      [%row-meta (enjs-map-meta row-meta:meta)]
+      [%column-meta (enjs-map-meta column-meta:meta)]
+      [%row-count (numb row-count:meta)]
+      [%column-count (numb column-count:meta)]
+      [%last-modified (time last-modified:meta)]
   ==
 ++  enjs-id
   |=  id=@uw
@@ -75,36 +75,36 @@
   :-  -.visual
   ?-  -.visual
     $?  %bold
-      %italic
-      %underline
-      %monospace
-      %strikethrough
+        %italic
+        %underline
+        %monospace
+        %strikethrough
     ==
       [%b +.visual]
     $?  %foreground
-      %background
-      %font
+        %background
+        %font
     ==
       (tape +.visual)
     $?  %size
-      %height
-      %width
+        %height
+        %width
     ==
       (numb +.visual)
   ==
 ++  enjs-sheet-data
-  |=  data=(map address scell)
+  |=  data=(map address cell)
   ^-  json
   :-  %a
   ^-  (list json)
   %-  turn
   :-  ~(tap by data)
-    |=  duo=[address scell]
+    |=  duo=[address cell]
     ^-  json
     :-  %a
     ^-  (list json)
     :~  (enjs-address -.duo)
-      (enjs-scell +.duo)
+      (enjs-cell +.duo)
     ==
 ++  enjs-address
   |=  =address
@@ -114,20 +114,20 @@
   :~  (numb -.address)
     (numb +.address)
   ==
-++  enjs-scell
-  |=  =scell
+++  enjs-cell
+  |=  =cell
   ^-  json
   %-  pairs
   ^-  (list [@t json])
-  :~  [%meta (enjs-set-visual meta:scell)]
-    [%data (enjs-scell-data data:scell)]
+  :~  [%meta (enjs-set-visual meta:cell)]
+      [%data (enjs-cell-data data:cell)]
   ==
-++  enjs-scell-data
-  |=  data=scell-data
+++  enjs-cell-data
+  |=  data=cell-data
   ^-  json
   %-  pairs
   ^-  (list [@t json])
   :~  [%input (tape (trip input:data))]
-    [%output (tape (trip input:data))]
+      [%output (tape (trip input:data))]
   ==
 --
